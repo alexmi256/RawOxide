@@ -73,6 +73,96 @@ pub struct Lens {
     pub make: Option<String>,
 }
 
+/// Envelope of one camera's opaque `MakerNote` block.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MakernoteConfig {
+    /// Magic bytes (usually `HDRP`).
+    pub magic: Vec<u8>,
+    /// Constant prefix after the magic.
+    pub prefix: Vec<u8>,
+    /// Inclusive total-size range.
+    pub length: (usize, usize),
+}
+
+impl MakernoteConfig {
+    /// Parse the fidelity `makernote` block.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ProfileError`] for malformed magic/prefix/length.
+    pub fn from_json(data: &Value) -> Result<Self, ProfileError> {
+        let object = strip_nulls(data.clone());
+        let object = object
+            .as_object()
+            .ok_or_else(|| ProfileError::Invalid("makernote must be a dict".to_owned()))?;
+        let magic = object
+            .get("magic")
+            .and_then(Value::as_str)
+            .unwrap_or("HDRP")
+            .as_bytes()
+            .to_vec();
+        if magic.is_empty() {
+            return Err(ProfileError::Invalid(
+                "makernote.magic must not be empty".to_owned(),
+            ));
+        }
+        let prefix = match object.get("prefix_hex").and_then(Value::as_str) {
+            Some(hex) => {
+                let cleaned: String = hex.chars().filter(|ch| !ch.is_whitespace()).collect();
+                decode_hex(&cleaned).ok_or_else(|| {
+                    ProfileError::Invalid("makernote.prefix_hex must be valid hex".to_owned())
+                })?
+            }
+            None => Vec::new(),
+        };
+        let (low, high) = match object.get("length") {
+            Some(length) => {
+                let values = length
+                    .as_array()
+                    .filter(|values| values.len() == 2)
+                    .ok_or_else(|| {
+                        ProfileError::Invalid("makernote.length must be [low, high]".to_owned())
+                    })?;
+                (
+                    usize::try_from(as_u64(&values[0], "makernote.length")?).unwrap_or(0),
+                    usize::try_from(as_u64(&values[1], "makernote.length")?).unwrap_or(0),
+                )
+            }
+            None => (2640, 2757),
+        };
+        if low > high || low == 0 {
+            return Err(ProfileError::Invalid(
+                "makernote.length must be low <= high, low >= 1".to_owned(),
+            ));
+        }
+        if magic.len() + prefix.len() > low {
+            return Err(ProfileError::Invalid(
+                "makernote prefix is longer than the shortest allowed block".to_owned(),
+            ));
+        }
+        Ok(Self {
+            magic,
+            prefix,
+            length: (low, high),
+        })
+    }
+
+    /// Generate a deterministic block using the caller's RNG.
+    #[must_use]
+    pub fn generate(&self, rng: &mut crate::metadata::Rng64) -> Vec<u8> {
+        let span = self.length.1.saturating_sub(self.length.0);
+        let total = self.length.0 + rng.below(u64::try_from(span).unwrap_or(0) + 1) as usize;
+        let body_len = total.saturating_sub(self.magic.len() + self.prefix.len());
+        let mut block = Vec::with_capacity(total);
+        block.extend_from_slice(&self.magic);
+        block.extend_from_slice(&self.prefix);
+        for _ in 0..body_len {
+            block.push(rng.below(256) as u8);
+        }
+        block
+    }
+}
+
 /// Optional metadata/raw fidelity overlay.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FidelityConfig {
@@ -116,6 +206,8 @@ pub struct FidelityConfig {
     pub tag_conventions: Option<String>,
     /// Emit raw digests.
     pub raw_digests: bool,
+    /// Opaque `MakerNote` envelope.
+    pub makernote: Option<MakernoteConfig>,
     /// Sub-second fraction digits.
     pub subsec_digits: u8,
     /// Raw tile geometry.
@@ -165,6 +257,7 @@ impl Default for FidelityConfig {
             exif_allow: None,
             tag_conventions: None,
             raw_digests: false,
+            makernote: None,
             subsec_digits: 2,
             tile: None,
             black_levels: None,
@@ -343,6 +436,9 @@ impl FidelityConfig {
             .get("raw_digests")
             .and_then(Value::as_bool)
             .unwrap_or(false);
+        if let Some(makernote) = object.get("makernote") {
+            out.makernote = Some(MakernoteConfig::from_json(makernote)?);
+        }
         out.subsec_digits = object
             .get("subsec_digits")
             .and_then(Value::as_u64)

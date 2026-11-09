@@ -108,17 +108,17 @@ rawhide-cli
   └── rawhide-core
         ├── framing       DNGS header + keystream
         ├── codec         LSB mapping, capacity, KiB helpers
-        ├── tiff/         reader + writer + tag/IFD builders (planned)
-        ├── profile       embedded camera profiles + level math (planned)
-        ├── metadata      seeded EXIF randomization (planned)
-        ├── geo           tz city/land sampler (planned)
-        ├── cover         synthetic raw covers (planned)
+        ├── tiff/         reader + writer + tag/IFD builders (done)
+        ├── profile       embedded camera profiles + level math (done)
+        ├── metadata      seeded EXIF randomization (done)
+        ├── geo           tz city/land sampler (done)
+        ├── cover         synthetic raw covers (in progress)
         ├── thumbnail     Commons/file/synthetic preview (planned)
-        ├── sizing        auto-fit search (planned)
-        ├── split         chunk naming/sequencing (planned)
-        ├── digests       DNG SDK digests (planned)
+        ├── sizing        auto-fit search (done)
+        ├── split         chunk naming/sequencing (done)
+        ├── digests       DNG SDK digests (done)
         ├── opcodes       GainMap/OpcodeList (planned)
-        ├── makernote     opaque HDRP envelopes (planned)
+        ├── makernote     opaque HDRP envelopes (done)
         └── debug         JSON sidecar (planned)
 ```
 
@@ -193,8 +193,7 @@ Completed in this phase:
 Remaining full-writer work:
 
 - Streaming/banded writes for multi-gigabyte covers.
-- GPS/XMP, opcodes/digests, Adobe tag conventions, BigTIFF switch, optional
-  Deflate.
+- Opcodes/GainMap, Adobe tag conventions, BigTIFF switch, optional Deflate.
 - Thumbnail sources (file/Commons) and the remaining CLI flag surface.
 
 **Acceptance:** Python decodes Rust output across the L1 matrix (including
@@ -223,10 +222,17 @@ Done:
   elevation noise and zone-offset filtering; GPS IFD emission for `emit_gps`
   profiles with local offsets and UTC timestamps.
 
+- `core::digests`: DNG SDK tiled `NewRawImageDigest` and `RawDataUniqueID`,
+  emitted for single-frame `raw_digests` profiles; verified with
+  `tools/digests.py`.
+
+- MakerNote envelopes: `fidelity.makernote` parsing, seeded block generation,
+  EXIF tag 37500 and `MakerNoteSafety`.
+
 Remaining:
 
-- Full `serde` models for `GainMapConfig`/`MakernoteConfig`; opcode/digest/
-  makernote writer support; XMP and Adobe tag conventions; debug sidecar.
+- Full `serde` model for `GainMapConfig`; opcode fingerprints, GainMap writer
+  support, Adobe tag conventions and the debug sidecar.
 - Thumbnail sources (Commons/file/synthetic) and Lanczos/YCbCr previews.
 
 **Acceptance:** profile list/resolve matches Python; sidecar snapshots match the

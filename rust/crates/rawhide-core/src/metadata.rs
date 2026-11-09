@@ -150,6 +150,8 @@ pub struct Metadata {
     pub gps: Option<GpsMetadata>,
     /// Noise profile.
     pub noise_profile: Option<[f64; 6]>,
+    /// Opaque `MakerNote` block.
+    pub makernote: Option<Vec<u8>>,
     /// Exposure time.
     pub exposure_time: (u32, u32),
     /// F-number (x100).
@@ -266,6 +268,7 @@ impl Rng64 {
 pub struct MetadataRandomizer {
     rng: Rng64,
     location_rng: Rng64,
+    makernote_rng: Rng64,
     profile: Option<CameraProfile>,
     date_bounds: Option<(NaiveDateTime, NaiveDateTime)>,
     gps_radius_km: f64,
@@ -281,6 +284,7 @@ impl MetadataRandomizer {
         Self {
             rng: Rng64::new(seed),
             location_rng: Rng64::new(seed),
+            makernote_rng: Rng64::new(seed),
             profile: profile.cloned(),
             date_bounds,
             gps_radius_km: crate::geo::MAX_RADIUS_KM,
@@ -391,6 +395,9 @@ impl MetadataRandomizer {
             _ => None,
         };
 
+        let makernote = fidelity
+            .and_then(|fidelity| fidelity.makernote.as_ref())
+            .map(|config| config.generate(&mut self.makernote_rng));
         let serial_prefixes = profile.map_or_else(
             || {
                 vec![
@@ -519,6 +526,7 @@ impl MetadataRandomizer {
             subject_distance_range,
             gps,
             noise_profile,
+            makernote,
             exposure_time: exposure,
             fnumber,
             exposure_program: if let Some(profile) =

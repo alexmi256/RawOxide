@@ -14,9 +14,9 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/cover.py` | `core::cover` | ⬜ | Banded gradient + noise |
 | `stegodng/container.py` | `core::dng` reader | ✅ | `tiff-reader` tags/IFDs + custom raw block reader; tile/strip, Deflate, packed, BigTIFF |
 | `stegodng/container.py` | `core::writer` | 🚧 | classic TIFF, tiled raw, LinearRaw/CFA, 8/10/12/14/16-bit, JPEG preview, 1-8 frames, EXIF split markers; Python/rawpy accepted |
-| `stegodng/digests.py` | `core::digests` | ⬜ | MD5 tile digest + opcode fingerprint |
+| `stegodng/digests.py` | `core::digests` | 🚧 | tile MD5 + RawDataUniqueID; opcode fingerprints pending |
 | `stegodng/fidelity.py` | `core::fidelity` | ⬜ | serde config + validation |
-| `stegodng/makernote.py` | `core::makernote` | ⬜ | HDRP envelope |
+| `stegodng/makernote.py` | `core::profile` / `core::metadata` | ✅ | HDRP envelope parsed, seeded generation, writer tags |
 | `stegodng/opcodes.py` | `core::opcodes` | ⬜ | GainMap build/parse |
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
 | `stegodng/split.py` | `core::split` | ✅ | field parsing, sizes, filename/metadata ordering, chunk bounds/naming, album layout |

@@ -179,3 +179,34 @@ fn pinned_offset_drives_gps_utc_fields() {
     assert_eq!(gps.date, "2021:06:05");
     assert_eq!(gps.time, (5, 30, 9));
 }
+
+#[test]
+fn makernote_block_uses_the_profile_envelope() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let mut randomizer = MetadataRandomizer::new(Some(4), Some(profile));
+    let metadata = randomizer.randomize(None);
+    let makernote = metadata.makernote.as_ref().expect("makernote");
+    assert!((2640..=2757).contains(&makernote.len()));
+    assert!(makernote.starts_with(b"HDRP"));
+    let mut second = MetadataRandomizer::new(Some(4), Some(profile));
+    assert_eq!(
+        second.randomize(None).makernote.as_deref(),
+        Some(&makernote[..])
+    );
+}
+
+#[test]
+fn makernote_uses_its_own_rng_stream() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let mut without = profile.clone();
+    without.fidelity.as_mut().unwrap().makernote = None;
+    let mut first = MetadataRandomizer::new(Some(9), Some(profile));
+    let mut second = MetadataRandomizer::new(Some(9), Some(&without));
+    let with_makernote = first.randomize(None);
+    let without_makernote = second.randomize(None);
+    assert!(with_makernote.makernote.is_some());
+    assert!(without_makernote.makernote.is_none());
+    let mut comparable = with_makernote;
+    comparable.makernote = None;
+    assert_eq!(comparable, without_makernote);
+}

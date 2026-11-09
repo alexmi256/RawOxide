@@ -258,6 +258,8 @@ const TAG_BITS_PER_SAMPLE: u16 = 258;
 const TAG_COMPRESSION: u16 = 259;
 const TAG_PHOTOMETRIC: u16 = 262;
 const TAG_IMAGE_DESCRIPTION: u16 = 270;
+const TAG_MAKERNOTE: u16 = 37500;
+const TAG_MAKERNOTE_SAFETY: u16 = 50741;
 const TAG_XMP: u16 = 700;
 const TAG_MAKE: u16 = 271;
 const TAG_MODEL: u16 = 272;
@@ -350,6 +352,8 @@ const TAG_SHADOW_SCALE: u16 = 50739;
 const TAG_CALIBRATION_ILLUMINANT1: u16 = 50778;
 const TAG_CALIBRATION_ILLUMINANT2: u16 = 50779;
 const TAG_BEST_QUALITY_SCALE: u16 = 50780;
+const TAG_RAW_DATA_UNIQUE_ID: u16 = 50781;
+const TAG_NEW_RAW_IMAGE_DIGEST: u16 = 51111;
 const TAG_OPCODE_LIST3: u16 = 51022;
 
 /// Python-compatible static XMP packet (12 KiB, space-padded).
@@ -542,6 +546,45 @@ pub fn write_dng(
     let (metadata_ifd0, metadata_exif) = metadata_entries(profile, metadata);
     ifd0_split.extend(metadata_ifd0);
     exif_entries.extend(metadata_exif);
+    let raw_digests = if frames == 1
+        && profile.is_some_and(|profile| {
+            profile
+                .fidelity
+                .as_ref()
+                .is_some_and(|fidelity| fidelity.raw_digests)
+        }) {
+        let profile = profile.expect("checked above");
+        let (origin, size) = crop_rect(profile, mode, width, height);
+        let digest =
+            crate::digests::new_raw_image_digest(&covers[0], width, height, channels, bit_depth);
+        let unique = crate::digests::raw_data_unique_id(
+            &digest,
+            &profile.unique_camera_model,
+            [
+                (u32::try_from(size.0).unwrap_or(u32::MAX), 1),
+                (u32::try_from(size.1).unwrap_or(u32::MAX), 1),
+            ],
+            [
+                (u32::try_from(origin.0).unwrap_or(u32::MAX), 1),
+                (u32::try_from(origin.1).unwrap_or(u32::MAX), 1),
+            ],
+        );
+        Some((digest, unique))
+    } else {
+        None
+    };
+    if let Some((digest, unique)) = raw_digests {
+        ifd0_split.push(Entry::bytes(
+            TAG_NEW_RAW_IMAGE_DIGEST,
+            TagType::Byte,
+            digest.to_vec(),
+        ));
+        ifd0_split.push(Entry::bytes(
+            TAG_RAW_DATA_UNIQUE_ID,
+            TagType::Byte,
+            unique.to_vec(),
+        ));
+    }
     let gps_entries = gps_entries(metadata);
 
     let zero_sub_ifds = vec![0_u32; usize::from(frames)];
@@ -1022,6 +1065,16 @@ fn metadata_entries(
             &[metadata.subject_distance_range],
         ));
     }
+    if let Some(makernote) = &metadata.makernote {
+        if extra_enabled(TAG_MAKERNOTE) {
+            exif.push(Entry::bytes(
+                TAG_MAKERNOTE,
+                TagType::Undefined,
+                makernote.clone(),
+            ));
+        }
+        ifd0.push(Entry::shorts(TAG_MAKERNOTE_SAFETY, &[1]));
+    }
     (ifd0, exif)
 }
 
@@ -1210,17 +1263,7 @@ fn raw_entries(
     let mask = profile.effective_white(depth, level_policy.as_str());
     let black_values = profile.effective_black_levels(mode.as_str(), depth, level_policy.as_str());
     let cfa_pattern = cfa_pattern_bytes(profile.cfa_pattern.as_deref());
-    let (crop_origin, crop_size) = if mode == RawMode::Cfa {
-        profile
-            .fidelity
-            .as_ref()
-            .and_then(|fidelity| fidelity.crop_margin)
-            .map_or(((0, 0), (width, height)), |(x, y)| {
-                ((x, y), (width - 2 * x, height - 2 * y))
-            })
-    } else {
-        ((0, 0), (width, height))
-    };
+    let (crop_origin, crop_size) = crop_rect(profile, mode, width, height);
     let best_quality = if profile.fidelity.is_some() {
         (1, 1)
     } else {
@@ -1294,6 +1337,25 @@ fn raw_entries(
         entries.push(Entry::shorts(TAG_CFA_LAYOUT, &[1]));
     }
     entries
+}
+
+fn crop_rect(
+    profile: &CameraProfile,
+    mode: RawMode,
+    width: usize,
+    height: usize,
+) -> ((usize, usize), (usize, usize)) {
+    if mode == RawMode::Cfa {
+        profile
+            .fidelity
+            .as_ref()
+            .and_then(|fidelity| fidelity.crop_margin)
+            .map_or(((0, 0), (width, height)), |(x, y)| {
+                ((x, y), (width - 2 * x, height - 2 * y))
+            })
+    } else {
+        ((0, 0), (width, height))
+    }
 }
 
 fn cfa_pattern_bytes(pattern: Option<&str>) -> Vec<u8> {

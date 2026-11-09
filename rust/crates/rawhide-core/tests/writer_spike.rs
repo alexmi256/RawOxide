@@ -561,3 +561,88 @@ fn gps_ifd_is_valid_when_exif_is_absent() {
     assert!(gps.tag(2).is_some());
     assert!(gps.tag(29).is_some());
 }
+
+#[test]
+fn raw_digest_tags_are_written_for_fidelity_profiles() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("digests.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawhide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [51_111_u16, 50_781] {
+        let value = ifd0.tag(tag).unwrap();
+        assert!(matches!(&value.value, tiff_reader::TagValue::Byte(bytes) if bytes.len() == 16));
+    }
+}
+
+#[test]
+fn makernote_is_written_when_the_profile_requests_it() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("makernote.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawhide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(50_741).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Short(vec![1]))
+    );
+    let exif_pointer = ifd0.tag(34_665).unwrap();
+    let offset = match &exif_pointer.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected Exif IFD pointer {other:?}"),
+    };
+    let exif = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    let value = exif.tag(37_500).unwrap();
+    match &value.value {
+        tiff_reader::TagValue::Undefined(bytes) => {
+            assert!((2640..=2757).contains(&bytes.len()));
+            assert!(bytes.starts_with(b"HDRP"));
+        }
+        other => panic!("unexpected MakerNote value {other:?}"),
+    }
+}
+
+#[test]
+fn multi_frame_files_omit_raw_digest_tags() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("frames-digests.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        frames: 2,
+        profile: Some(profile),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert!(ifd0.tag(51_111).is_none());
+    assert!(ifd0.tag(50_781).is_none());
+}

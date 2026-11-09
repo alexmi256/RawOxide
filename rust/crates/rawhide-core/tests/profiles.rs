@@ -111,3 +111,32 @@ fn strict_policy_caps_planes_by_white_headroom() {
     assert_eq!(profile.effective_max_planes(16, "strict"), 13);
     assert_eq!(profile.effective_max_planes(16, "capacity"), 16);
 }
+
+#[test]
+fn makernote_envelope_is_parsed() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let makernote = profile
+        .fidelity
+        .as_ref()
+        .unwrap()
+        .makernote
+        .as_ref()
+        .expect("makernote config");
+    assert_eq!(makernote.magic, b"HDRP");
+    assert_eq!(makernote.length, (2640, 2757));
+    assert_eq!(
+        makernote.prefix,
+        vec![
+            0x02, 0xef, 0x64, 0x35, 0x6d, 0x5e, 0x70, 0x1e, 0x2c, 0xea, 0xe3,
+        ]
+    );
+}
+
+#[test]
+fn makernote_defaults_and_whitespace_match_python() {
+    let value = serde_json::json!({"prefix_hex": "02 ef 64"});
+    let config = rawhide_core::profile::MakernoteConfig::from_json(&value).unwrap();
+    assert_eq!(config.magic, b"HDRP");
+    assert_eq!(config.prefix, vec![0x02, 0xef, 0x64]);
+    assert_eq!(config.length, (2640, 2757));
+}

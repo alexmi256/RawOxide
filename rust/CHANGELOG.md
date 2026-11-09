@@ -50,6 +50,13 @@ semantic versioning.
   sampled local time, shared coordinates across split chunks, and a
   `--gps-radius` CLI flag.
 - Static Adobe XMP packet (tag 700) for profiles with `tags.xmp`.
+- `core::digests`: DNG SDK fast `NewRawImageDigest` (tiled MD5, planar
+  little-endian samples) and `RawDataUniqueID`; writer emits both for
+  single-frame profiles with `raw_digests`, verified against the Python
+  digest verifier.
+- `core::profile`/`core::metadata`/writer MakerNote support: parsed
+  `fidelity.makernote` envelope (magic/prefix/length), seeded block generation,
+  EXIF tag 37500 and `MakerNoteSafety` (50741).
 - Writer metadata: per-profile `Make`/`Model`/`Software`/calibration matrices,
   EXIF camera/lens/exposure block, `AsShotNeutral`, `BaselineExposure` and
   `NoiseProfile`. DNG colour/profile tags live in IFD0 (not the raw SubIFD),

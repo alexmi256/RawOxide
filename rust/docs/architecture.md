@@ -9,6 +9,7 @@ rawhide-core        library, no CLI/network policy
   metadata          seeded per-file EXIF/DNG fields
   geo               embedded tz-city/land table + GPS sampling
   sizing            auto-config / smallest fitting geometry
+  digests           DNG SDK raw image / unique-ID hashes
   codec             LSB mapping, capacity, KiB formatting
   tiff              typed tag values + classic TIFF IFD builder
   dng               read-only DNG/raw block reader
@@ -114,7 +115,9 @@ per-file fields from a local SplitMix64 stream, honouring profile pools and
 fidelity ranges; `--image-time` pins the capture timestamp. `core::geo` loads
 the embedded `zones.bin` table once (`scripts/embed_geo.py` refreshes it), samples land-only points with a separate
 RNG stream and resolves zone offsets through `chrono-tz`; GPS tags are written
-to a dedicated GPS IFD.
+to a dedicated GPS IFD. `core::digests` reproduces the DNG SDK fast image
+digest (tiled MD5) and `RawDataUniqueID`, written for single-frame profiles
+that request raw digests.
 
 The writer lives in `rawhide-core::writer` and builds on `rawhide-core::tiff`
 (typed tag values + classic IFD builder): tiled `LinearRaw`/`CFA` raw pages at
