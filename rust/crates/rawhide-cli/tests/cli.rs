@@ -1046,6 +1046,20 @@ fn encode_writes_debug_metadata_sidecar() {
     assert_eq!(value["summary"]["height"], 48);
     assert!(value["metadata"]["datetime"].as_str().is_some());
     assert!(value["profile"]["slug"].as_str().is_some());
+    let ifds = value["file"]["ifds"].as_array().unwrap();
+    assert_ne!(ifds.len(), 0);
+    assert_eq!(ifds[0]["name"], "ifd0");
+    assert!(
+        ifds[0]["tags"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|tag| tag["tag"] == 256)
+    );
+    assert!(
+        ifds.iter()
+            .any(|ifd| ifd["name"].as_str().unwrap_or("").starts_with("raw"))
+    );
 }
 
 #[test]
@@ -1297,4 +1311,75 @@ fn progress_flags_are_accepted_and_mutually_exclusive() {
         "--no-progress",
     ]);
     decode.assert().success();
+}
+
+#[test]
+fn debug_sidecar_inventory_covers_gps_exif_and_large_blobs() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    for bigtiff in [false, true] {
+        let encoded = dir.path().join(format!("custom-{bigtiff}.dng"));
+        let mut encode = cargo_bin_cmd!("rawhide");
+        encode.args([
+            "encode",
+            "-i",
+            payload_path.to_str().unwrap(),
+            "-o",
+            encoded.to_str().unwrap(),
+            "--camera-profile",
+            "custom_pixel_xl",
+            "--level-policy",
+            "strict",
+            "--width",
+            "128",
+            "--height",
+            "96",
+            "--debug-metadata-output",
+            "--seed",
+            "4",
+        ]);
+        if bigtiff {
+            encode.arg("--bigtiff");
+        }
+        encode.assert().success();
+        let sidecar: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(encoded.with_extension("json")).unwrap())
+                .unwrap();
+        let names: Vec<_> = sidecar["file"]["ifds"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|ifd| ifd["name"].as_str().unwrap().to_owned())
+            .collect();
+        assert!(names.contains(&"ifd0".to_owned()), "{names:?}");
+        assert!(
+            names.iter().any(|name| name.starts_with("raw")),
+            "{names:?}"
+        );
+        assert!(names.contains(&"exif".to_owned()), "{names:?}");
+        assert!(names.contains(&"gps".to_owned()), "{names:?}");
+    }
+
+    let encoded = dir.path().join("xmp.dng");
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--debug-metadata-output",
+    ]);
+    encode.assert().success();
+    let sidecar: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(encoded.with_extension("json")).unwrap()).unwrap();
+    let tags = sidecar["file"]["ifds"][0]["tags"].as_array().unwrap();
+    let xmp = tags.iter().find(|tag| tag["tag"] == 700).expect("XMP tag");
+    assert_eq!(xmp["value"]["bytes"], 12_288);
+    assert!(xmp["value"]["crc32"].as_str().is_some());
 }

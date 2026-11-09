@@ -24,7 +24,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/thumbnails.py` | `core::thumbnail` | 🚧 | synthetic/random-noise/file + Lanczos; Commons fetch not implemented |
 | `stegodng/cli.py` | `cli` | 🚧 | `capacity`, `decode` and spike `encode` done; `gen-tiff` stub |
 | `stegodng/profiles/__init__.py` | `core::profiles` | ✅ | 307 JSON + 3 blobs embedded; lazy load, longest-slug resolve |
-| `stegodng/debugmeta.py` | `cli` | 🚧 | summary/options/profile/metadata sidecar; tag inventory/CRC pending |
+| `stegodng/debugmeta.py` | `cli` | ✅ | summary/options/profile/metadata + IFD0/raw/EXIF/GPS tag inventory/CRC |
 | `stegodng/progress.py` | `cli` | 🚧 | TTY-aware spinner for encode/decode; no per-tile bars |
 
 ## CLI flags checklist

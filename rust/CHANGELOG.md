@@ -80,6 +80,8 @@ semantic versioning.
 - Adobe tag convention (partial): `tag_conventions = "adobe"` profiles omit
   X/YResolution and ResolutionUnit from IFD0.
 - `--progress`/`--no-progress` CLI flags with TTY-aware spinner output.
+- Debug sidecar now includes a written-file inventory: IFD0/raw/EXIF/GPS tags
+  with type, count, values or size+CRC32 for large blobs.
 - `BigTIFF` output: 64-bit offsets/IFD8 values, automatic switch above 3.5 GB
   uncompressed raw + preview and `--bigtiff` override; pointers, tile tables and split/EXIF/GPS
   IFDs use 64-bit fields when active.

@@ -1274,6 +1274,7 @@ dependencies = [
  "chrono",
  "clap",
  "console",
+ "crc32fast",
  "indicatif",
  "insta",
  "predicates",

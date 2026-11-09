@@ -177,6 +177,31 @@ impl DngReader {
         &self.path
     }
 
+    /// The primary IFD (preview/metadata directory).
+    ///
+    /// # Errors
+    ///
+    /// Returns a TIFF error if IFD0 cannot be read.
+    pub fn ifd0(&self) -> Result<&Ifd, DngError> {
+        self.ifd(0)
+    }
+
+    /// Raw `SubIFD` directories in file order.
+    ///
+    /// # Errors
+    ///
+    /// Returns a TIFF/layout error for malformed files.
+    pub fn raw_ifds(&self) -> Result<Vec<Ifd>, DngError> {
+        let mut out = Vec::new();
+        for offset in self.read_sub_ifd_offsets()? {
+            let ifd = self.read_ifd(offset)?;
+            if is_raw(&ifd) {
+                out.push(ifd);
+            }
+        }
+        Ok(out)
+    }
+
     /// Raw `SubIFD` frames in file order.
     ///
     /// # Errors
@@ -302,6 +327,23 @@ impl DngReader {
             .value
             .as_u64()
             .ok_or(DngError::InvalidIfdPointer { tag: TAG_EXIF_IFD })?;
+        Ok(Some(self.read_ifd(offset)?))
+    }
+
+    /// The GPS Sub-IFD, when present.
+    ///
+    /// # Errors
+    ///
+    /// Returns a TIFF/layout error for a malformed GPS IFD or pointer.
+    pub fn gps_ifd(&self) -> Result<Option<Ifd>, DngError> {
+        let ifd0 = self.ifd(0)?;
+        let Some(tag) = ifd0.tag(TAG_GPS_IFD) else {
+            return Ok(None);
+        };
+        let offset = tag
+            .value
+            .as_u64()
+            .ok_or(DngError::InvalidIfdPointer { tag: TAG_GPS_IFD })?;
         Ok(Some(self.read_ifd(offset)?))
     }
 

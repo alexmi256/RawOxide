@@ -24,7 +24,7 @@ rawhide-core        library, no CLI/network policy
   digests           DNG SDK tile MD5 digests (planned)
   opcodes           GainMap/OpcodeList2 (planned)
   makernote         HDRP envelope (planned)
-  debug             JSON sidecar (planned)
+  debug             JSON sidecar (summary/options/profile/metadata/file inventory)
 
 rawhide-cli         clap CLI, progress, errors, exit codes
 ```
@@ -131,6 +131,16 @@ compute the SDK digest. Remaining work is Commons thumbnails and Adobe tag
 conventions. It was
 validated with Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy`, including
 multi-frame and split sets.
+
+## Debug sidecar shape
+
+`--debug-metadata-output` writes `<output>.json` with `schema`,
+`schema_version`, `summary`, `encode`, `profile`, `metadata` and `file`.
+`file` contains `bytes` and `ifds`; each IFD has `name`, `tag_count` and
+`tags`. Each tag has `tag` (numeric code), `type`, `count` and `value`.
+Values with more than 64 elements are represented as
+`{"bytes": <encoded length>, "crc32": "<8 hex digits>"}` instead of inline
+data, keeping XMP, opcode lists and offset tables out of the sidecar.
 
 ## File-format contract
 
