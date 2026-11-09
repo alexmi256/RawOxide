@@ -942,3 +942,122 @@ fn adobe_profiles_drop_resolution_tags() {
         );
     }
 }
+
+#[test]
+fn adobe_profile_tags_are_written() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe-profile.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [
+        50_932_u16, 50_936, 50_937, 50_938, 50_939, 50_941, 50_942, 50_964, 50_965, 50_981, 50_982,
+    ] {
+        assert!(ifd0.tag(tag).is_some(), "missing Adobe tag {tag}");
+    }
+    assert_eq!(
+        ifd0.tag(529).unwrap().value,
+        tiff_reader::TagValue::Rational(vec![[299, 1000], [587, 1000], [114, 1000]])
+    );
+    assert_eq!(
+        ifd0.tag(531).map(|tag| (&tag.tag_type, &tag.value)),
+        Some((
+            &tiff_reader::TagType::Short,
+            &tiff_reader::TagValue::Short(vec![1])
+        ))
+    );
+    assert_eq!(
+        ifd0.tag(50_964).unwrap().value,
+        tiff_reader::TagValue::SRational(vec![
+            [4471, 10_000],
+            [3936, 10_000],
+            [1236, 10_000],
+            [2233, 10_000],
+            [7402, 10_000],
+            [365, 10_000],
+            [1246, 10_000],
+            [5, 10_000],
+            [7000, 10_000],
+        ])
+    );
+    assert_eq!(
+        ifd0.tag(50_965).unwrap().value,
+        tiff_reader::TagValue::SRational(vec![
+            [4110, 10_000],
+            [3917, 10_000],
+            [1617, 10_000],
+            [1843, 10_000],
+            [7670, 10_000],
+            [487, 10_000],
+            [848, 10_000],
+            [16, 10_000],
+            [7387, 10_000],
+        ])
+    );
+    assert_eq!(ifd0.tag(50_938).unwrap().count, 8_100);
+    match &ifd0.tag(50_938).unwrap().value {
+        tiff_reader::TagValue::Float(values) => {
+            assert_eq!(&values[..4], &[2.0, 1.0, 1.0, 2.0]);
+            assert!((values[100] - 1.922_260_6).abs() < 1e-5);
+        }
+        other => panic!("unexpected HueSat data1 {other:?}"),
+    }
+    assert_eq!(ifd0.tag(50_939).unwrap().count, 8_100);
+    match &ifd0.tag(50_939).unwrap().value {
+        tiff_reader::TagValue::Float(values) => {
+            assert!((values[100] - 1.692_975_5).abs() < 1e-5);
+        }
+        other => panic!("unexpected HueSat data2 {other:?}"),
+    }
+    assert_eq!(ifd0.tag(50_982).unwrap().count, 13_824);
+    match &ifd0.tag(50_982).unwrap().value {
+        tiff_reader::TagValue::Float(values) => {
+            assert_eq!(&values[..4], &[0.0, 1.0, 1.0, 0.0]);
+        }
+        other => panic!("unexpected LookTable data {other:?}"),
+    }
+}
+
+#[test]
+fn adobe_profile_tags_work_in_bigtiff() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe-big.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            force_bigtiff: true,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    assert!(file.is_bigtiff());
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(50_938).unwrap().tag_type,
+        tiff_reader::TagType::Float
+    );
+    assert_eq!(ifd0.tag(50_938).unwrap().count, 8_100);
+    assert_eq!(
+        ifd0.tag(50_964).unwrap().tag_type,
+        tiff_reader::TagType::SRational
+    );
+}

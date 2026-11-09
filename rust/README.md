@@ -13,8 +13,8 @@ format so either implementation can decode the other's files.
 > drives calibration, metadata pools, GPS (for profiles that emit it) and tag
 > values. Python and `tifffile` accept both classic and BigTIFF output;
 > `exiv2`/`rawpy` acceptance is classic-only (they do not parse BigTIFF).
-> Adobe profile blobs and full Adobe tag inventory are the main remaining
-> feature work; see [docs/port-plan.md](docs/port-plan.md).
+> Full Adobe IFD entry rewriting is the main remaining feature work; see
+> [docs/port-plan.md](docs/port-plan.md).
 
 ## Quick start
 

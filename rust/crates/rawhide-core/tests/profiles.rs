@@ -170,3 +170,43 @@ fn gainmap_grid_validation_matches_python() {
     });
     assert!(rawhide_core::profile::GainMapConfig::from_json(&bad_jitter).is_err());
 }
+
+#[test]
+fn adobe_profile_block_is_parsed() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let adobe = profile
+        .fidelity
+        .as_ref()
+        .unwrap()
+        .adobe
+        .as_ref()
+        .expect("adobe profile");
+    assert!(adobe.forward_matrix1.is_some());
+    assert!(adobe.name.as_deref().is_some_and(|name| !name.is_empty()));
+    let dims = adobe.hue_sat_map_dims.expect("hue dims");
+    assert_eq!(
+        adobe.hue_sat_map_data1.as_ref().unwrap().len(),
+        dims[0] as usize * dims[1] as usize * dims[2] as usize * 3
+    );
+    let look = adobe.look_table_dims.expect("look dims");
+    assert_eq!(
+        adobe.look_table_data.as_ref().unwrap().len(),
+        look[0] as usize * look[1] as usize * look[2] as usize * 3
+    );
+}
+
+#[test]
+fn adobe_profile_values_match_assets() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let adobe = profile.fidelity.as_ref().unwrap().adobe.as_ref().unwrap();
+    assert_eq!(adobe.name.as_deref(), Some("Adobe Standard"));
+    assert_eq!(adobe.forward_matrix1.unwrap()[0], (4471, 10_000));
+    assert_eq!(
+        &adobe.hue_sat_map_data1.as_ref().unwrap()[..4],
+        &[2.0, 1.0, 1.0, 2.0]
+    );
+    assert_eq!(
+        &adobe.look_table_data.as_ref().unwrap()[..4],
+        &[0.0, 1.0, 1.0, 0.0]
+    );
+}

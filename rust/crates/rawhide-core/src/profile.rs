@@ -205,6 +205,155 @@ impl GainMapConfig {
     }
 }
 
+/// Adobe camera-profile tags/blobs.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct AdobeProfile {
+    /// Forward matrix 1.
+    pub forward_matrix1: Option<[(i32, i32); 9]>,
+    /// Forward matrix 2.
+    pub forward_matrix2: Option<[(i32, i32); 9]>,
+    /// Profile name.
+    pub name: Option<String>,
+    /// Calibration signature.
+    pub calibration_signature: Option<String>,
+    /// Copyright string.
+    pub copyright: Option<String>,
+    /// Embed policy.
+    pub embed_policy: Option<u32>,
+    /// Hue/Sat map dimensions.
+    pub hue_sat_map_dims: Option<[u32; 3]>,
+    /// Hue/Sat map plane 1.
+    pub hue_sat_map_data1: Option<Vec<f32>>,
+    /// Hue/Sat map plane 2.
+    pub hue_sat_map_data2: Option<Vec<f32>>,
+    /// Look-table dimensions.
+    pub look_table_dims: Option<[u32; 3]>,
+    /// Look-table data.
+    pub look_table_data: Option<Vec<f32>>,
+}
+
+impl AdobeProfile {
+    fn from_json(
+        data: &Value,
+        assets: &dyn Fn(&str) -> Option<&'static [u8]>,
+    ) -> Result<Self, ProfileError> {
+        let object = strip_nulls(data.clone());
+        let object = object
+            .as_object()
+            .ok_or_else(|| ProfileError::Invalid("fidelity.adobe must be a dict".to_owned()))?;
+        let matrix = |value: Option<&Value>| -> Result<Option<[(i32, i32); 9]>, ProfileError> {
+            let Some(value) = value else { return Ok(None) };
+            let items = value
+                .as_array()
+                .filter(|items| items.len() == 9)
+                .ok_or_else(|| {
+                    ProfileError::Invalid("adobe matrix needs nine rationals".to_owned())
+                })?;
+            let mut out = [(0, 0); 9];
+            for (slot, item) in out.iter_mut().zip(items) {
+                let pair = pair_signed(item, "adobe.forward_matrix")?;
+                if pair.1 <= 0 {
+                    return Err(ProfileError::Invalid(
+                        "adobe matrix denominators must be positive".to_owned(),
+                    ));
+                }
+                *slot = pair;
+            }
+            Ok(Some(out))
+        };
+        let dims = |value: Option<&Value>, name: &str| -> Result<Option<[u32; 3]>, ProfileError> {
+            let Some(value) = value else { return Ok(None) };
+            let items = value
+                .as_array()
+                .filter(|items| items.len() == 3)
+                .ok_or_else(|| ProfileError::Invalid(format!("adobe.{name} needs three values")))?;
+            Ok(Some([
+                u32::try_from(as_u64(&items[0], name)?).unwrap_or(0),
+                u32::try_from(as_u64(&items[1], name)?).unwrap_or(0),
+                u32::try_from(as_u64(&items[2], name)?).unwrap_or(0),
+            ]))
+        };
+        let floats = |name: Option<&str>,
+                      expected: Option<usize>|
+         -> Result<Option<Vec<f32>>, ProfileError> {
+            let Some(name) = name else { return Ok(None) };
+            let bytes = assets(name)
+                .ok_or_else(|| ProfileError::Invalid(format!("cannot read adobe asset {name}")))?;
+            if let Some(expected) = expected
+                && bytes.len() != expected
+            {
+                return Err(ProfileError::Invalid(format!(
+                    "adobe asset {name} is {} bytes, expected {expected}",
+                    bytes.len()
+                )));
+            }
+            if !bytes.len().is_multiple_of(4) {
+                return Err(ProfileError::Invalid(format!(
+                    "adobe asset {name} is not float data"
+                )));
+            }
+            Ok(Some(
+                bytes
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
+                    .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+                    .collect(),
+            ))
+        };
+        let hue_dims = dims(object.get("hue_sat_map_dims"), "hue_sat_map_dims")?;
+        let look_dims = dims(object.get("look_table_dims"), "look_table_dims")?;
+        let hue_expected = hue_dims.map(|dims| {
+            (dims[0] as usize)
+                .saturating_mul(dims[1] as usize)
+                .saturating_mul(dims[2] as usize)
+                .saturating_mul(3)
+                .saturating_mul(4)
+        });
+        let look_expected = look_dims.map(|dims| {
+            (dims[0] as usize)
+                .saturating_mul(dims[1] as usize)
+                .saturating_mul(dims[2] as usize)
+                .saturating_mul(3)
+                .saturating_mul(4)
+        });
+        Ok(Self {
+            forward_matrix1: matrix(object.get("forward_matrix1"))?,
+            forward_matrix2: matrix(object.get("forward_matrix2"))?,
+            name: object
+                .get("name")
+                .and_then(Value::as_str)
+                .map(str::to_owned),
+            calibration_signature: object
+                .get("calibration_signature")
+                .and_then(Value::as_str)
+                .map(str::to_owned),
+            copyright: object
+                .get("copyright")
+                .and_then(Value::as_str)
+                .map(str::to_owned),
+            embed_policy: object
+                .get("embed_policy")
+                .and_then(Value::as_u64)
+                .map(|value| u32::try_from(value).unwrap_or(u32::MAX)),
+            hue_sat_map_dims: hue_dims,
+            hue_sat_map_data1: floats(
+                object.get("hue_sat_map_data1").and_then(Value::as_str),
+                hue_expected,
+            )?,
+            hue_sat_map_data2: floats(
+                object.get("hue_sat_map_data2").and_then(Value::as_str),
+                hue_expected,
+            )?,
+            look_table_dims: look_dims,
+            look_table_data: floats(
+                object.get("look_table_data").and_then(Value::as_str),
+                look_expected,
+            )?,
+        })
+    }
+}
+
 /// Envelope of one camera's opaque `MakerNote` block.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MakernoteConfig {
@@ -360,6 +509,8 @@ pub struct FidelityConfig {
     pub sensor_sizes: Vec<(usize, usize)>,
     /// Prefer native sensor geometry.
     pub prefer_native: bool,
+    /// Adobe profile tags/assets.
+    pub adobe: Option<AdobeProfile>,
     /// Read noise range.
     pub noise_s: Option<(f64, f64)>,
     /// Offset noise range.
@@ -400,6 +551,7 @@ impl Default for FidelityConfig {
             bayer_green_split: None,
             sensor_sizes: Vec::new(),
             prefer_native: false,
+            adobe: None,
             noise_s: None,
             noise_o: None,
         }
@@ -412,7 +564,10 @@ impl FidelityConfig {
     /// # Errors
     ///
     /// Returns [`ProfileError`] for malformed ranges or values.
-    pub fn from_json(data: &Value) -> Result<Self, ProfileError> {
+    pub fn from_json(
+        data: &Value,
+        assets: &dyn Fn(&str) -> Option<&'static [u8]>,
+    ) -> Result<Self, ProfileError> {
         let data = strip_nulls(data.clone());
         let object = data
             .as_object()
@@ -649,6 +804,9 @@ impl FidelityConfig {
         if let Some(noise) = object.get("noise") {
             out.noise_s = parse_optional_float_pair(noise.get("s"), "noise.s")?;
             out.noise_o = parse_optional_float_pair(noise.get("o"), "noise.o")?;
+        }
+        if let Some(adobe) = object.get("adobe") {
+            out.adobe = Some(AdobeProfile::from_json(adobe, assets)?);
         }
         Ok(out)
     }
@@ -1009,7 +1167,7 @@ impl CameraProfile {
             calibration_source: get_str("calibration_source"),
             fidelity: object
                 .get("fidelity")
-                .map(FidelityConfig::from_json)
+                .map(|value| FidelityConfig::from_json(value, assets))
                 .transpose()?,
             gainmap: object
                 .get("gainmap")

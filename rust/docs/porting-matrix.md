@@ -15,7 +15,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/container.py` | `core::dng` reader | ✅ | `tiff-reader` tags/IFDs + custom raw block reader; tile/strip, Deflate, packed, BigTIFF |
 | `stegodng/container.py` | `core::writer` | 🚧 | classic TIFF + BigTIFF, tiled raw, LinearRaw/CFA, 8/10/12/14/16-bit, JPEG preview, 1-8 frames, EXIF split markers; Python/tifffile classic+BigTIFF, exiv2/rawpy classic only |
 | `stegodng/digests.py` | `core::digests` | ✅ | tile MD5 + RawDataUniqueID incl. GainMap fingerprints |
-| `stegodng/fidelity.py` | `core::profile` | 🚧 | metadata/raw fields done; Adobe profile blobs and full tag conventions pending |
+| `stegodng/fidelity.py` | `core::profile` | 🚧 | metadata/raw/Adobe profile fields done; full Adobe entry rewrite pending |
 | `stegodng/makernote.py` | `core::profile` / `core::metadata` | ✅ | HDRP envelope parsed, seeded generation, writer tags |
 | `stegodng/opcodes.py` | `core::opcodes` | 🚧 | GainMap + profile OpcodeList3; other opcode ids unsupported |
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |

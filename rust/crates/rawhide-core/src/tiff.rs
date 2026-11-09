@@ -26,6 +26,8 @@ pub enum TagType {
     Undefined,
     /// Two 32-bit signed integers.
     SRational,
+    /// IEEE 754 single-precision float.
+    Float,
     /// IEEE 754 double.
     Double,
     /// 32-bit IFD offset.
@@ -48,6 +50,7 @@ impl TagType {
             Self::Rational => 5,
             Self::Undefined => 7,
             Self::SRational => 10,
+            Self::Float => 11,
             Self::Double => 12,
             Self::Ifd => 13,
             Self::Long8 => 16,
@@ -61,7 +64,7 @@ impl TagType {
         match self {
             Self::Byte | Self::Ascii | Self::Undefined => 1,
             Self::Short => 2,
-            Self::Long | Self::Ifd => 4,
+            Self::Long | Self::Ifd | Self::Float => 4,
             Self::Rational | Self::SRational | Self::Double | Self::Long8 | Self::Ifd8 => 8,
         }
     }
@@ -84,6 +87,8 @@ pub enum TagValue {
     Undefined(Vec<u8>),
     /// Signed rationals.
     SRational(Vec<(i32, i32)>),
+    /// IEEE 754 single-precision floats.
+    Float(Vec<f32>),
     /// IEEE 754 doubles.
     Double(Vec<f64>),
     /// IFD offsets (one or more child directories).
@@ -106,6 +111,7 @@ impl TagValue {
             Self::Rational(_) => TagType::Rational,
             Self::Undefined(_) => TagType::Undefined,
             Self::SRational(_) => TagType::SRational,
+            Self::Float(_) => TagType::Float,
             Self::Double(_) => TagType::Double,
             Self::Ifd(_) => TagType::Ifd,
             Self::Long8(_) => TagType::Long8,
@@ -127,6 +133,7 @@ impl TagValue {
             Self::Rational(values) => values.len(),
             Self::Undefined(values) => values.len(),
             Self::SRational(values) => values.len(),
+            Self::Float(values) => values.len(),
             Self::Double(values) => values.len(),
             Self::Ifd(values) => values.len(),
             Self::Long8(values) | Self::Ifd8(values) => values.len(),
@@ -180,6 +187,13 @@ impl TagValue {
                 }
                 bytes
             }
+            Self::Float(values) => {
+                let mut bytes = Vec::with_capacity(values.len() * 4);
+                for value in values {
+                    bytes.extend_from_slice(&value.to_le_bytes());
+                }
+                bytes
+            }
             Self::Double(values) => {
                 let mut bytes = Vec::with_capacity(values.len() * 8);
                 for value in values {
@@ -229,6 +243,12 @@ impl Entry {
     #[must_use]
     pub fn srationals(tag: u16, values: &[(i32, i32)]) -> Self {
         Self::new(tag, TagValue::SRational(values.to_vec()))
+    }
+
+    /// IEEE 754 float array entry.
+    #[must_use]
+    pub fn floats(tag: u16, values: &[f32]) -> Self {
+        Self::new(tag, TagValue::Float(values.to_vec()))
     }
 
     /// IEEE 754 double array entry.

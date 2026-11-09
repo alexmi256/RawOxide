@@ -356,6 +356,19 @@ const TAG_CFA_PATTERN: u16 = 33_422;
 const TAG_REFERENCE_BLACK_WHITE: u16 = 532;
 const TAG_YCBCR_SUBSAMPLING: u16 = 530;
 const TAG_DNG_VERSION: u16 = 50706;
+const TAG_ADOBE_CALIBRATION_SIGNATURE: u16 = 50932;
+const TAG_ADOBE_NAME: u16 = 50936;
+const TAG_ADOBE_HUE_SAT_DIMS: u16 = 50937;
+const TAG_ADOBE_HUE_SAT_DATA1: u16 = 50938;
+const TAG_ADOBE_HUE_SAT_DATA2: u16 = 50939;
+const TAG_ADOBE_EMBED_POLICY: u16 = 50941;
+const TAG_ADOBE_COPYRIGHT: u16 = 50942;
+const TAG_ADOBE_FORWARD1: u16 = 50964;
+const TAG_ADOBE_FORWARD2: u16 = 50965;
+const TAG_ADOBE_LOOK_DIMS: u16 = 50981;
+const TAG_ADOBE_LOOK_DATA: u16 = 50982;
+const TAG_YCBCR_COEFFICIENTS: u16 = 529;
+const TAG_YCBCR_POSITIONING: u16 = 531;
 const TAG_DNG_BACKWARD_VERSION: u16 = 50707;
 const TAG_UNIQUE_CAMERA_MODEL: u16 = 50708;
 const TAG_CFA_PLANE_COLOR: u16 = 50710;
@@ -1556,6 +1569,66 @@ fn preview_entries(
 }
 
 fn profile_ifd0_entries(profile: &CameraProfile) -> Vec<Entry> {
+    let mut entries = Vec::new();
+    if profile
+        .fidelity
+        .as_ref()
+        .and_then(|fidelity| fidelity.tag_conventions.as_deref())
+        == Some("adobe")
+    {
+        entries.push(Entry::rationals(
+            TAG_YCBCR_COEFFICIENTS,
+            &[(299, 1000), (587, 1000), (114, 1000)],
+        ));
+        entries.push(Entry::shorts(TAG_YCBCR_POSITIONING, &[1]));
+    }
+    if let Some(adobe) = profile
+        .fidelity
+        .as_ref()
+        .and_then(|fidelity| fidelity.adobe.as_ref())
+    {
+        if let Some(matrix) = adobe.forward_matrix1 {
+            entries.push(Entry::srationals(TAG_ADOBE_FORWARD1, &matrix));
+        }
+        if let Some(matrix) = adobe.forward_matrix2 {
+            entries.push(Entry::srationals(TAG_ADOBE_FORWARD2, &matrix));
+        }
+        if let Some(name) = adobe.name.as_deref().filter(|name| !name.is_empty()) {
+            entries.push(Entry::ascii(TAG_ADOBE_NAME, name));
+        }
+        if let Some(signature) = adobe
+            .calibration_signature
+            .as_deref()
+            .filter(|signature| !signature.is_empty())
+        {
+            entries.push(Entry::ascii(TAG_ADOBE_CALIBRATION_SIGNATURE, signature));
+        }
+        if let Some(copyright) = adobe
+            .copyright
+            .as_deref()
+            .filter(|copyright| !copyright.is_empty())
+        {
+            entries.push(Entry::ascii(TAG_ADOBE_COPYRIGHT, copyright));
+        }
+        if let Some(policy) = adobe.embed_policy {
+            entries.push(Entry::longs(TAG_ADOBE_EMBED_POLICY, &[policy]));
+        }
+        if let Some(dims) = adobe.hue_sat_map_dims {
+            entries.push(Entry::longs(TAG_ADOBE_HUE_SAT_DIMS, &dims));
+            if let Some(data) = &adobe.hue_sat_map_data1 {
+                entries.push(Entry::floats(TAG_ADOBE_HUE_SAT_DATA1, data));
+            }
+            if let Some(data) = &adobe.hue_sat_map_data2 {
+                entries.push(Entry::floats(TAG_ADOBE_HUE_SAT_DATA2, data));
+            }
+        }
+        if let Some(dims) = adobe.look_table_dims {
+            entries.push(Entry::longs(TAG_ADOBE_LOOK_DIMS, &dims));
+            if let Some(data) = &adobe.look_table_data {
+                entries.push(Entry::floats(TAG_ADOBE_LOOK_DATA, data));
+            }
+        }
+    }
     let matrix1 = profile
         .color_matrix1
         .iter()
@@ -1570,7 +1643,7 @@ fn profile_ifd0_entries(profile: &CameraProfile) -> Vec<Entry> {
             (numerator, i32::try_from(denominator).unwrap_or(i32::MAX))
         })
         .collect::<Vec<_>>();
-    vec![
+    entries.extend([
         Entry::bytes(TAG_DNG_VERSION, TagType::Byte, profile.dng_version.to_vec()),
         Entry::bytes(
             TAG_DNG_BACKWARD_VERSION,
@@ -1586,7 +1659,8 @@ fn profile_ifd0_entries(profile: &CameraProfile) -> Vec<Entry> {
         Entry::rationals(TAG_BASELINE_SHARPNESS, &[profile.baseline_sharpness]),
         Entry::rationals(TAG_LINEAR_RESPONSE_LIMIT, &[profile.linear_response_limit]),
         Entry::rationals(TAG_SHADOW_SCALE, &[profile.shadow_scale]),
-    ]
+    ]);
+    entries
 }
 
 #[allow(clippy::too_many_arguments)]

@@ -78,8 +78,10 @@ semantic versioning.
   a time; non-digest single frames are further generated and encoded one tile
   row at a time. Only digest-enabled frames (single custom profiles) still need
   the full raster.
-- Adobe tag convention (partial): `tag_conventions = "adobe"` profiles omit
-  X/YResolution and ResolutionUnit from IFD0.
+- Adobe profile blocks: forward matrices, name, calibration signature,
+  copyright, embed policy, HueSat/LookTable dimensions and float data are parsed
+  from embedded profile assets and written to IFD0. Adobe tag convention also
+  omits X/YResolution/ResolutionUnit and adds YCbCr coefficient/positioning tags.
 - `--progress`/`--no-progress` CLI flags with TTY-aware spinner output.
 - Commons random thumbnails: fetch a random Wikimedia Commons image with
   retries/timeout, center-crop/Lanczos-resize, and offline noise fallback.

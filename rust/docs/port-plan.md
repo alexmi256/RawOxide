@@ -236,8 +236,8 @@ Done:
 
 Remaining:
 
-- Other opcode ids and Adobe profile blobs; debug sidecar fields/inventory are done.
-- Adobe profile blobs and full Adobe tag inventory remain.
+- Other opcode ids and full Adobe IFD entry rewrite/compaction (profile tag
+  blobs are implemented; debug sidecar fields/inventory are done).
 
 **Acceptance:** profile list/resolve matches Python; sidecar snapshots match the
 documented schema; digests reproduce the Python values for fixed raw/crop/opcode
