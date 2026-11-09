@@ -1,12 +1,6 @@
-//! Minimal DNG writer for the Phase 2 spike.
-//!
-//! Scope: one 16-bit `LinearRaw`/`CFA` `SubIFD`, tiled raw pages, a baseline `JPEG`
-//! preview strip, classic little-endian TIFF and a single frame. The full
-//! writer will add EXIF/GPS, profiles, split markers, multiple frames, Deflate
-//! and `BigTIFF`.
-//!
-//! The IFD builder is deliberately small and explicit; the full writer will
-//! replace it with a reusable tag/`IFD` layer informed by `tiff-writer`.
+//! DNG writer: tiled `LinearRaw`/`CFA` raws, JPEG preview, multiple frames,
+//! EXIF/GPS/profile metadata, split markers, Deflate and classic/`BigTIFF`
+//! output.
 
 use std::io::Write as _;
 use std::path::{Path, PathBuf};
@@ -93,6 +87,8 @@ pub struct WriterOptions<'a> {
     pub compression: Compression,
     /// IFD0 preview source.
     pub preview: PreviewSource<'a>,
+    /// Force `BigTIFF` even for small files (tests/diagnostics).
+    pub force_bigtiff: bool,
     /// Optional shared chunk-set UUID.
     pub split_id: Option<&'a str>,
     /// Optional chunk sequence (1-based).
@@ -125,6 +121,7 @@ impl Default for WriterOptions<'_> {
             level_policy: LevelPolicy::Profile,
             compression: Compression::None,
             preview: PreviewSource::Synthetic,
+            force_bigtiff: false,
             split_id: None,
             split_seq: None,
             split_total: None,
@@ -275,6 +272,8 @@ pub struct WriteInfo {
     pub lsb_planes: u8,
     /// Raw frames written.
     pub frames: u8,
+    /// Whether the output is `BigTIFF`.
+    pub bigtiff: bool,
 }
 
 const TAG_NEW_SUBFILE_TYPE: u16 = 254;
@@ -445,6 +444,7 @@ pub fn write_dng(
         level_policy,
         compression,
         preview,
+        force_bigtiff,
         split_id,
         split_seq,
         split_total,
@@ -613,12 +613,17 @@ pub fn write_dng(
         Some(seed),
     )?;
     let preview = encode_jpeg(&preview_rgb, preview_width, preview_height)?;
-    let preview_offset = 8_u32;
+    let big = select_bigtiff(
+        u64::try_from(total_raw_len).unwrap_or(u64::MAX),
+        u64::try_from(preview.len()).unwrap_or(u64::MAX),
+        force_bigtiff,
+    );
+    let preview_offset = if big { 16_u64 } else { 8_u64 };
     let raw_offset = preview_offset
-        .checked_add(u32::try_from(preview.len()).map_err(|_| WriteError::TooLarge)?)
+        .checked_add(u64::try_from(preview.len()).map_err(|_| WriteError::TooLarge)?)
         .ok_or(WriteError::TooLarge)?;
     let ifd0_offset = raw_offset
-        .checked_add(u32::try_from(total_raw_len).map_err(|_| WriteError::TooLarge)?)
+        .checked_add(u64::try_from(total_raw_len).map_err(|_| WriteError::TooLarge)?)
         .ok_or(WriteError::TooLarge)?;
 
     let (mut ifd0_split, mut exif_entries) = split_entries(
@@ -680,13 +685,13 @@ pub fn write_dng(
     }
     let gps_entries = gps_entries(metadata);
 
-    let zero_sub_ifds = vec![0_u32; usize::from(frames)];
-    let placeholder_exif = if exif_entries.is_empty() {
+    let placeholder_exif: Option<u64> = if exif_entries.is_empty() {
         None
     } else {
         Some(0)
     };
-    let placeholder_gps = gps_entries.as_ref().map(|_| 0);
+    let placeholder_gps: Option<u64> = gps_entries.as_ref().map(|_| 0);
+    let zero_sub_ifds = vec![0_u64; usize::from(frames)];
     let ifd0_placeholder = preview_entries(
         preview_width,
         preview_height,
@@ -698,13 +703,17 @@ pub fn write_dng(
         profile,
         metadata,
         &ifd0_split,
+        big,
     );
-    let ifd0_size = IfdBuilder::from_entries(ifd0_placeholder)
-        .build(ifd0_offset)?
-        .len();
+    let ifd0_size = build_ifd(
+        &IfdBuilder::from_entries(ifd0_placeholder),
+        ifd0_offset,
+        big,
+    )?
+    .len();
 
-    let raw_template_offsets = vec![0_u32; tile_count];
-    let raw_template_counts = vec![0_u32; tile_count];
+    let raw_template_offsets = vec![0_u64; tile_count];
+    let raw_template_counts = vec![0_u64; tile_count];
     let raw_ifd_template = raw_entries(
         width,
         height,
@@ -719,17 +728,18 @@ pub fn write_dng(
         level_policy,
         compression,
         opcode2.as_deref(),
+        big,
     );
-    let raw_ifd_size = IfdBuilder::from_entries(raw_ifd_template).build(0)?.len();
+    let raw_ifd_size = build_ifd(&IfdBuilder::from_entries(raw_ifd_template), 0, big)?.len();
 
     let raw_ifd_start = ifd0_offset
-        .checked_add(u32::try_from(ifd0_size).map_err(|_| WriteError::TooLarge)?)
+        .checked_add(u64::try_from(ifd0_size).map_err(|_| WriteError::TooLarge)?)
         .ok_or(WriteError::TooLarge)?;
     let mut raw_ifd_offsets = Vec::with_capacity(usize::from(frames));
     for frame_index in 0..usize::from(frames) {
         let offset = raw_ifd_start
             .checked_add(
-                u32::try_from(frame_index.saturating_mul(raw_ifd_size))
+                u64::try_from(frame_index.saturating_mul(raw_ifd_size))
                     .map_err(|_| WriteError::TooLarge)?,
             )
             .ok_or(WriteError::TooLarge)?;
@@ -738,16 +748,14 @@ pub fn write_dng(
     let exif_template_size = if exif_entries.is_empty() {
         0
     } else {
-        IfdBuilder::from_entries(exif_entries.clone())
-            .build(0)?
-            .len()
+        build_ifd(&IfdBuilder::from_entries(exif_entries.clone()), 0, big)?.len()
     };
     let exif_offset = if exif_entries.is_empty() {
         None
     } else {
         let offset = raw_ifd_start
             .checked_add(
-                u32::try_from(usize::from(frames).saturating_mul(raw_ifd_size))
+                u64::try_from(usize::from(frames).saturating_mul(raw_ifd_size))
                     .map_err(|_| WriteError::TooLarge)?,
             )
             .ok_or(WriteError::TooLarge)?;
@@ -755,14 +763,14 @@ pub fn write_dng(
     };
     let raw_end = raw_ifd_start
         .checked_add(
-            u32::try_from(usize::from(frames).saturating_mul(raw_ifd_size))
+            u64::try_from(usize::from(frames).saturating_mul(raw_ifd_size))
                 .map_err(|_| WriteError::TooLarge)?,
         )
         .ok_or(WriteError::TooLarge)?;
     let gps_offset = if gps_entries.is_some() {
         Some(if let Some(exif_start) = exif_offset {
             exif_start
-                .checked_add(u32::try_from(exif_template_size).map_err(|_| WriteError::TooLarge)?)
+                .checked_add(u64::try_from(exif_template_size).map_err(|_| WriteError::TooLarge)?)
                 .ok_or(WriteError::TooLarge)?
         } else {
             raw_end
@@ -771,30 +779,34 @@ pub fn write_dng(
         None
     };
 
-    let ifd0 = IfdBuilder::from_entries(preview_entries(
-        preview_width,
-        preview_height,
-        preview.len(),
-        preview_offset,
-        &raw_ifd_offsets,
-        exif_offset,
-        gps_offset,
-        profile,
-        metadata,
-        &ifd0_split,
-    ))
-    .build(ifd0_offset)?;
+    let ifd0 = build_ifd(
+        &IfdBuilder::from_entries(preview_entries(
+            preview_width,
+            preview_height,
+            preview.len(),
+            preview_offset,
+            &raw_ifd_offsets,
+            exif_offset,
+            gps_offset,
+            profile,
+            metadata,
+            &ifd0_split,
+            big,
+        )),
+        ifd0_offset,
+        big,
+    )?;
 
     let mut raw_data = Vec::with_capacity(total_raw_len);
     let mut raw_ifds = Vec::with_capacity(usize::from(frames));
-    let mut frame_start = u64::from(raw_offset);
+    let mut frame_start = raw_offset;
     for (frame_index, tiles) in encoded_frames.iter().enumerate() {
         let mut tile_offsets = Vec::with_capacity(tile_count);
         let mut tile_byte_counts = Vec::with_capacity(tile_count);
         let mut cursor = frame_start;
         for tile in tiles {
-            tile_offsets.push(u32::try_from(cursor).map_err(|_| WriteError::TooLarge)?);
-            tile_byte_counts.push(u32::try_from(tile.len()).map_err(|_| WriteError::TooLarge)?);
+            tile_offsets.push(cursor);
+            tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
             raw_data.extend_from_slice(tile);
             cursor = cursor
                 .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
@@ -815,29 +827,52 @@ pub fn write_dng(
             level_policy,
             compression,
             opcode2.as_deref(),
+            big,
         );
-        raw_ifds.push(IfdBuilder::from_entries(entries).build(raw_ifd_offsets[frame_index])?);
+        raw_ifds.push(build_ifd(
+            &IfdBuilder::from_entries(entries),
+            raw_ifd_offsets[frame_index],
+            big,
+        )?);
     }
 
     let exif_ifd = if let Some(offset) = exif_offset {
-        Some(IfdBuilder::from_entries(exif_entries).build(offset)?)
+        Some(build_ifd(
+            &IfdBuilder::from_entries(exif_entries),
+            offset,
+            big,
+        )?)
     } else {
         None
     };
     let gps_ifd = match (gps_offset, gps_entries) {
-        (Some(offset), Some(entries)) => Some(IfdBuilder::from_entries(entries).build(offset)?),
+        (Some(offset), Some(entries)) => {
+            Some(build_ifd(&IfdBuilder::from_entries(entries), offset, big)?)
+        }
         _ => None,
     };
 
     let mut file = Vec::with_capacity(
-        ifd0_offset as usize
+        usize::try_from(ifd0_offset).unwrap_or(usize::MAX)
             + ifd0.len()
             + raw_ifds.iter().map(Vec::len).sum::<usize>()
             + exif_ifd.as_ref().map_or(0, Vec::len)
             + gps_ifd.as_ref().map_or(0, Vec::len),
     );
-    file.extend_from_slice(b"II*\0");
-    file.extend_from_slice(&ifd0_offset.to_le_bytes());
+    if big {
+        file.extend_from_slice(b"II");
+        file.extend_from_slice(&43_u16.to_le_bytes());
+        file.extend_from_slice(&8_u16.to_le_bytes());
+        file.extend_from_slice(&0_u16.to_le_bytes());
+        file.extend_from_slice(&ifd0_offset.to_le_bytes());
+    } else {
+        file.extend_from_slice(b"II*\0");
+        file.extend_from_slice(
+            &u32::try_from(ifd0_offset)
+                .map_err(|_| WriteError::TooLarge)?
+                .to_le_bytes(),
+        );
+    }
     file.extend_from_slice(&preview);
     file.extend_from_slice(&raw_data);
     file.extend_from_slice(&ifd0);
@@ -864,6 +899,7 @@ pub fn write_dng(
         bit_depth,
         lsb_planes,
         frames,
+        bigtiff: big,
     })
 }
 
@@ -979,6 +1015,18 @@ fn split_entries(
     }
 
     Ok((ifd0, exif))
+}
+
+const fn select_bigtiff(encoded_raw: u64, preview: u64, force: bool) -> bool {
+    force || encoded_raw.saturating_add(preview) > 3_500_000_000
+}
+
+fn build_ifd(builder: &IfdBuilder, offset: u64, big: bool) -> Result<Vec<u8>, WriteError> {
+    if big {
+        Ok(builder.build_big(offset)?)
+    } else {
+        Ok(builder.build(u32::try_from(offset).map_err(|_| WriteError::TooLarge)?)?)
+    }
 }
 
 fn metadata_entries(
@@ -1195,17 +1243,19 @@ fn gps_entries(metadata: Option<&Metadata>) -> Option<Vec<Entry>> {
     ])
 }
 
+#[allow(clippy::too_many_arguments)]
 fn preview_entries(
     width: usize,
     height: usize,
     jpeg_len: usize,
-    jpeg_offset: u32,
-    sub_ifd_offsets: &[u32],
-    exif_offset: Option<u32>,
-    gps_offset: Option<u32>,
+    jpeg_offset: u64,
+    sub_ifd_offsets: &[u64],
+    exif_offset: Option<u64>,
+    gps_offset: Option<u64>,
     profile: Option<&CameraProfile>,
     metadata: Option<&Metadata>,
     extra: &[Entry],
+    big: bool,
 ) -> Vec<Entry> {
     let make = profile.map_or("RawHide", |profile| profile.make.as_str());
     let model = profile.map_or("Rust Spike DNG", |profile| profile.model.as_str());
@@ -1228,7 +1278,10 @@ fn preview_entries(
         Entry::shorts(TAG_PHOTOMETRIC, &[6]),
         Entry::ascii(TAG_MAKE, make),
         Entry::ascii(TAG_MODEL, model),
-        Entry::longs(TAG_STRIP_OFFSETS, &[jpeg_offset]),
+        Entry::longs(
+            TAG_STRIP_OFFSETS,
+            &[u32::try_from(jpeg_offset).expect("classic offsets validated before IFD build")],
+        ),
         Entry::shorts(TAG_ORIENTATION, &[orientation]),
         Entry::shorts(TAG_SAMPLES_PER_PIXEL, &[3]),
         Entry::longs(
@@ -1245,7 +1298,19 @@ fn preview_entries(
         Entry::shorts(TAG_RESOLUTION_UNIT, &[2]),
         Entry::ascii(TAG_SOFTWARE, software),
         Entry::ascii(TAG_DATE_TIME, datetime),
-        Entry::ifds(TAG_SUB_IFDS, sub_ifd_offsets),
+        if big {
+            Entry::ifds8(TAG_SUB_IFDS, sub_ifd_offsets)
+        } else {
+            Entry::ifds(
+                TAG_SUB_IFDS,
+                &sub_ifd_offsets
+                    .iter()
+                    .map(|offset| {
+                        u32::try_from(*offset).expect("classic offsets validated before IFD build")
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        },
         Entry::shorts(TAG_YCBCR_SUBSAMPLING, &[2, 2]),
         Entry::rationals(
             TAG_REFERENCE_BLACK_WHITE,
@@ -1288,10 +1353,24 @@ fn preview_entries(
         entries.push(Entry::bytes(TAG_XMP, TagType::Byte, xmp_packet()));
     }
     if let Some(offset) = exif_offset {
-        entries.push(Entry::longs(TAG_EXIF_IFD, &[offset]));
+        entries.push(if big {
+            Entry::long8(TAG_EXIF_IFD, offset)
+        } else {
+            Entry::longs(
+                TAG_EXIF_IFD,
+                &[u32::try_from(offset).expect("classic offsets validated before IFD build")],
+            )
+        });
     }
     if let Some(offset) = gps_offset {
-        entries.push(Entry::longs(TAG_GPS_IFD, &[offset]));
+        entries.push(if big {
+            Entry::long8(TAG_GPS_IFD, offset)
+        } else {
+            Entry::longs(
+                TAG_GPS_IFD,
+                &[u32::try_from(offset).expect("classic offsets validated before IFD build")],
+            )
+        });
     }
     entries.extend(extra.iter().cloned());
     entries
@@ -1339,13 +1418,14 @@ fn raw_entries(
     bit_depth: u16,
     tile_width: usize,
     tile_height: usize,
-    tile_offsets: &[u32],
-    tile_byte_counts: &[u32],
+    tile_offsets: &[u64],
+    tile_byte_counts: &[u64],
     profile: Option<&CameraProfile>,
     metadata: Option<&Metadata>,
     level_policy: LevelPolicy,
     compression: Compression,
     opcode2: Option<&[u8]>,
+    big: bool,
 ) -> Vec<Entry> {
     let channels = mode.channels();
     let defaults = CameraProfile::default();
@@ -1390,8 +1470,32 @@ fn raw_entries(
             TAG_TILE_LENGTH,
             &[u32::try_from(tile_height).unwrap_or(u32::MAX)],
         ),
-        Entry::longs(TAG_TILE_OFFSETS, tile_offsets),
-        Entry::longs(TAG_TILE_BYTE_COUNTS, tile_byte_counts),
+        if big {
+            Entry::long8s(TAG_TILE_OFFSETS, tile_offsets)
+        } else {
+            Entry::longs(
+                TAG_TILE_OFFSETS,
+                &tile_offsets
+                    .iter()
+                    .map(|offset| {
+                        u32::try_from(*offset).expect("classic offsets validated before IFD build")
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        },
+        if big {
+            Entry::long8s(TAG_TILE_BYTE_COUNTS, tile_byte_counts)
+        } else {
+            Entry::longs(
+                TAG_TILE_BYTE_COUNTS,
+                &tile_byte_counts
+                    .iter()
+                    .map(|count| {
+                        u32::try_from(*count).expect("classic byte counts fit classic TIFF")
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        },
         Entry::longs(TAG_BLACK_LEVEL, &black_values),
         Entry::longs(TAG_WHITE_LEVEL, &vec![mask; channels]),
         Entry::rationals(TAG_DEFAULT_SCALE, &[(1, 1), (1, 1)]),
@@ -1662,7 +1766,15 @@ fn encode_jpeg(rgb: &[u8], width: usize, height: usize) -> Result<Vec<u8>, Write
 
 #[cfg(test)]
 mod tests {
-    use super::apply_predictor;
+    use super::{apply_predictor, select_bigtiff};
+
+    #[test]
+    fn layout_selection_uses_encoded_bytes_and_force() {
+        assert!(!select_bigtiff(3_500_000_000, 0, false));
+        assert!(select_bigtiff(3_500_000_001, 0, false));
+        assert!(select_bigtiff(3_000_000_000, 500_000_001, false));
+        assert!(select_bigtiff(1, 1, true));
+    }
 
     #[test]
     fn predictor_uses_the_component_stride() {

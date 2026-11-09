@@ -69,6 +69,9 @@ semantic versioning.
   `fidelity.preview_size` controls the IFD0 JPEG dimensions.
 - `--debug-metadata-output`: JSON sidecar with summary, resolved options,
   profile identity and the serialized randomized metadata.
+- `BigTIFF` output: 64-bit offsets/IFD8 values, automatic switch above 3.5 GB
+  encoded raw + preview and `--bigtiff` override; pointers, tile tables and split/EXIF/GPS
+  IFDs use 64-bit fields when active.
 - Writer metadata: per-profile `Make`/`Model`/`Software`/calibration matrices,
   EXIF camera/lens/exposure block, `AsShotNeutral`, `BaselineExposure` and
   `NoiseProfile`. DNG colour/profile tags live in IFD0 (not the raw SubIFD),

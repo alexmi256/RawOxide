@@ -132,6 +132,10 @@ struct EncodeArgs {
     #[arg(long, value_enum, default_value_t = CompressionArg::None)]
     compression: CompressionArg,
 
+    /// Force `BigTIFF` output even for small files.
+    #[arg(long)]
+    bigtiff: bool,
+
     /// Capture time: random, now, input-created, input-modified,
     /// `YYYY:MM:DD HH:MM:SS`, or RFC 3339.
     #[arg(long)]
@@ -636,6 +640,7 @@ fn write_one(
         level_policy: LevelPolicy::from(args.level_policy),
         compression: Compression::from(args.compression),
         preview,
+        force_bigtiff: args.bigtiff,
         frames: config.frames,
         seed: seed.unwrap_or(seed_offset),
         split_id,
@@ -821,6 +826,9 @@ fn gen_tiff(args: &GenTiffArgs) -> Result<()> {
 }
 
 fn print_write(info: &rawhide_core::WriteInfo) {
+    if info.bigtiff {
+        println!("warning: wrote BigTIFF (64-bit offsets); some tools cannot parse it.");
+    }
     println!("wrote {} ({})", info.path.display(), format_kb(info.size));
     println!(
         "payload {} / capacity {}",

@@ -176,6 +176,7 @@ fn writer_handles_multiple_raw_frames() {
         level_policy: rawhide_core::LevelPolicy::Profile,
         compression: rawhide_core::writer::Compression::None,
         preview: rawhide_core::PreviewSource::Synthetic,
+        force_bigtiff: false,
         split_id: None,
         split_seq: None,
         split_total: None,
@@ -737,4 +738,74 @@ fn preview_dimensions_use_profile_preview_size() {
     .unwrap();
     assert_eq!(jpeg.width(), 676);
     assert_eq!(jpeg.height(), 506);
+}
+
+#[test]
+fn forced_bigtiff_roundtrips() {
+    let payload = vec![9_u8; 1000];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("big.dng");
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        force_bigtiff: true,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+    let bytes = std::fs::read(&path).unwrap();
+    assert!(bytes.starts_with(b"II+\0"));
+    assert_eq!(
+        decode_files(&[path], &DecodeOptions::default())
+            .unwrap()
+            .payload,
+        payload
+    );
+}
+
+#[test]
+fn bigtiff_uses_64bit_pointers_and_tile_tables() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("big-types.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawhide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        force_bigtiff: true,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let bytes = std::fs::read(&path).unwrap();
+    assert_eq!(&bytes[..4], b"II+\0");
+    assert_eq!(u16::from_le_bytes([bytes[4], bytes[5]]), 8);
+    assert_eq!(u16::from_le_bytes([bytes[6], bytes[7]]), 0);
+    let first_ifd = u64::from_le_bytes(bytes[8..16].try_into().unwrap());
+    assert!(first_ifd >= 16);
+    assert!(first_ifd < bytes.len() as u64);
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    assert!(file.is_bigtiff());
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(ifd0.tag(330).unwrap().tag_type, tiff_reader::TagType::Ifd8);
+    assert_eq!(
+        ifd0.tag(34_665).unwrap().tag_type,
+        tiff_reader::TagType::Long8
+    );
+    assert_eq!(
+        ifd0.tag(34_853).unwrap().tag_type,
+        tiff_reader::TagType::Long8
+    );
+
+    let sub_offset = match &ifd0.tag(330).unwrap().value {
+        tiff_reader::TagValue::Long8(values) => values[0],
+        other => panic!("unexpected SubIFDs value {other:?}"),
+    };
+    let raw = file.read_ifd_at_offset(sub_offset).unwrap();
+    assert_eq!(raw.tag(324).unwrap().tag_type, tiff_reader::TagType::Long8);
+    assert_eq!(raw.tag(325).unwrap().tag_type, tiff_reader::TagType::Long8);
 }

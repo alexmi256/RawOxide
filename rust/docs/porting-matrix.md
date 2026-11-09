@@ -13,7 +13,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/filetime.py` | `core::filetime` | ⬜ | birth time (`statx`/`created`), mtime, now |
 | `stegodng/cover.py` | `core::cover` / `writer` | 🚧 | synthetic raw covers; plain TIFF gen-tiff |
 | `stegodng/container.py` | `core::dng` reader | ✅ | `tiff-reader` tags/IFDs + custom raw block reader; tile/strip, Deflate, packed, BigTIFF |
-| `stegodng/container.py` | `core::writer` | 🚧 | classic TIFF, tiled raw, LinearRaw/CFA, 8/10/12/14/16-bit, JPEG preview, 1-8 frames, EXIF split markers; Python/rawpy accepted |
+| `stegodng/container.py` | `core::writer` | 🚧 | classic TIFF + BigTIFF, tiled raw, LinearRaw/CFA, 8/10/12/14/16-bit, JPEG preview, 1-8 frames, EXIF split markers; Python/tifffile classic+BigTIFF, exiv2/rawpy classic only |
 | `stegodng/digests.py` | `core::digests` | ✅ | tile MD5 + RawDataUniqueID incl. GainMap fingerprints |
 | `stegodng/fidelity.py` | `core::fidelity` | ⬜ | serde config + validation |
 | `stegodng/makernote.py` | `core::profile` / `core::metadata` | ✅ | HDRP envelope parsed, seeded generation, writer tags |
@@ -37,6 +37,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `encode`: auto-size/frames | ✅ (`--auto-size`, auto planes, `--raw-frames 1-8`) |
 | `encode`: profiles/subprofiles/level-policy | ✅ |
 | `encode`: compression/split/album/metadata fields | ✅ (none/adobe_deflate, split/album/metadata) |
+| `encode`: BigTIFF | ✅ (`--bigtiff`, automatic above 3.5 GB) |
 | `encode`: image-time/GPS/debug sidecar/progress | 🚧 (debug sidecar done; progress pending) |
 | `decode`: input set/key/planes/max-bytes/split fields | ✅ |
 | `decode`: progress | ⬜ |

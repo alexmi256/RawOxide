@@ -1,12 +1,11 @@
-//! Minimal classic-TIFF building blocks.
+//! Minimal classic-TIFF and `BigTIFF` building blocks.
 //!
 //! This is the reusable layer under [`crate::writer`]: typed tag values, IFD
-//! entries and a classic little-endian `IFD` serializer. It deliberately does not
+//! entries and little-endian directory serializers. It deliberately does not
 //! know about DNG, previews or payloads.
 //!
-//! The serializer is classic-TIFF only for now. `BigTIFF` needs 8-byte counts/
-//! offsets and `IFD8` values; that will be a separate builder rather than a flag
-//! threaded through this one.
+//! [`IfdBuilder::build`] emits classic directories; [`IfdBuilder::build_big`]
+//! emits 8-byte counts/offsets and `IFD8`/`LONG8` values.
 
 use thiserror::Error;
 
@@ -31,6 +30,10 @@ pub enum TagType {
     Double,
     /// 32-bit IFD offset.
     Ifd,
+    /// 64-bit unsigned integer (`BigTIFF`).
+    Long8,
+    /// 64-bit IFD offset (`BigTIFF`).
+    Ifd8,
 }
 
 impl TagType {
@@ -47,6 +50,8 @@ impl TagType {
             Self::SRational => 10,
             Self::Double => 12,
             Self::Ifd => 13,
+            Self::Long8 => 16,
+            Self::Ifd8 => 18,
         }
     }
 
@@ -57,7 +62,7 @@ impl TagType {
             Self::Byte | Self::Ascii | Self::Undefined => 1,
             Self::Short => 2,
             Self::Long | Self::Ifd => 4,
-            Self::Rational | Self::SRational | Self::Double => 8,
+            Self::Rational | Self::SRational | Self::Double | Self::Long8 | Self::Ifd8 => 8,
         }
     }
 }
@@ -83,6 +88,10 @@ pub enum TagValue {
     Double(Vec<f64>),
     /// IFD offsets (one or more child directories).
     Ifd(Vec<u32>),
+    /// 64-bit unsigned values (`BigTIFF`).
+    Long8(Vec<u64>),
+    /// 64-bit IFD offsets (`BigTIFF`).
+    Ifd8(Vec<u64>),
 }
 
 impl TagValue {
@@ -99,6 +108,8 @@ impl TagValue {
             Self::SRational(_) => TagType::SRational,
             Self::Double(_) => TagType::Double,
             Self::Ifd(_) => TagType::Ifd,
+            Self::Long8(_) => TagType::Long8,
+            Self::Ifd8(_) => TagType::Ifd8,
         }
     }
 
@@ -118,6 +129,7 @@ impl TagValue {
             Self::SRational(values) => values.len(),
             Self::Double(values) => values.len(),
             Self::Ifd(values) => values.len(),
+            Self::Long8(values) | Self::Ifd8(values) => values.len(),
         }
     }
 
@@ -140,6 +152,13 @@ impl TagValue {
             }
             Self::Long(values) | Self::Ifd(values) => {
                 let mut bytes = Vec::with_capacity(values.len() * 4);
+                for value in values {
+                    bytes.extend_from_slice(&value.to_le_bytes());
+                }
+                bytes
+            }
+            Self::Long8(values) | Self::Ifd8(values) => {
+                let mut bytes = Vec::with_capacity(values.len() * 8);
                 for value in values {
                     bytes.extend_from_slice(&value.to_le_bytes());
                 }
@@ -250,6 +269,24 @@ impl Entry {
     pub fn ifds(tag: u16, offsets: &[u32]) -> Self {
         Self::new(tag, TagValue::Ifd(offsets.to_vec()))
     }
+
+    /// One 64-bit integer value (`BigTIFF`).
+    #[must_use]
+    pub fn long8(tag: u16, value: u64) -> Self {
+        Self::new(tag, TagValue::Long8(vec![value]))
+    }
+
+    /// Multiple 64-bit child-IFD offsets (`BigTIFF`).
+    #[must_use]
+    pub fn ifds8(tag: u16, offsets: &[u64]) -> Self {
+        Self::new(tag, TagValue::Ifd8(offsets.to_vec()))
+    }
+
+    /// Multiple 64-bit integers (`BigTIFF`).
+    #[must_use]
+    pub fn long8s(tag: u16, values: &[u64]) -> Self {
+        Self::new(tag, TagValue::Long8(values.to_vec()))
+    }
 }
 
 /// Minimal classic little-endian IFD builder.
@@ -316,6 +353,9 @@ impl IfdBuilder {
         let mut data = Vec::new();
 
         for entry in sorted {
+            if matches!(entry.value.tag_type(), TagType::Long8 | TagType::Ifd8) {
+                return Err(Error::UnsupportedBigType(entry.tag));
+            }
             let encoded = entry.value.to_le_bytes();
             let count = u32::try_from(entry.value.count()).map_err(|_| Error::CountOverflow)?;
             directory.extend_from_slice(&entry.tag.to_le_bytes());
@@ -342,6 +382,54 @@ impl IfdBuilder {
     }
 }
 
+impl IfdBuilder {
+    /// Serialize a `BigTIFF` directory at `ifd_offset`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error`](enum@Error) for entry/count/offset overflows.
+    pub fn build_big(&self, ifd_offset: u64) -> Result<Vec<u8>, Error> {
+        let mut sorted: Vec<&Entry> = self.entries.iter().collect();
+        sorted.sort_by_key(|entry| entry.tag);
+        let entry_count =
+            u64::try_from(sorted.len()).map_err(|_| Error::TooManyEntries(sorted.len()))?;
+        let entry_bytes = u64::try_from(sorted.len())
+            .map_err(|_| Error::TooManyEntries(sorted.len()))?
+            .checked_mul(20)
+            .ok_or(Error::BigOffsetOverflow)?;
+        let data_start = ifd_offset
+            .checked_add(8)
+            .and_then(|value| value.checked_add(entry_bytes))
+            .and_then(|value| value.checked_add(8))
+            .ok_or(Error::BigOffsetOverflow)?;
+        let mut directory = Vec::new();
+        directory.extend_from_slice(&entry_count.to_le_bytes());
+        let mut data = Vec::new();
+        for entry in sorted {
+            let encoded = entry.value.to_le_bytes();
+            let count = u64::try_from(entry.value.count()).map_err(|_| Error::CountOverflow)?;
+            directory.extend_from_slice(&entry.tag.to_le_bytes());
+            directory.extend_from_slice(&entry.value.tag_type().code().to_le_bytes());
+            directory.extend_from_slice(&count.to_le_bytes());
+            if encoded.len() <= 8 {
+                let mut field = [0_u8; 8];
+                field[..encoded.len()].copy_from_slice(&encoded);
+                directory.extend_from_slice(&field);
+            } else {
+                let data_len = u64::try_from(data.len()).map_err(|_| Error::BigOffsetOverflow)?;
+                let offset = data_start
+                    .checked_add(data_len)
+                    .ok_or(Error::BigOffsetOverflow)?;
+                directory.extend_from_slice(&offset.to_le_bytes());
+                data.extend_from_slice(&encoded);
+            }
+        }
+        directory.extend_from_slice(&0_u64.to_le_bytes());
+        directory.extend_from_slice(&data);
+        Ok(directory)
+    }
+}
+
 /// TIFF builder errors.
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
@@ -356,6 +444,14 @@ pub enum Error {
     /// A file offset does not fit the 32-bit classic TIFF field.
     #[error("classic TIFF offset overflow (file would exceed 4 GiB)")]
     OffsetOverflow,
+
+    /// A `BigTIFF` offset overflowed 64 bits.
+    #[error("BigTIFF offset/count arithmetic overflow")]
+    BigOffsetOverflow,
+
+    /// Classic TIFF cannot encode a 64-bit value.
+    #[error("classic TIFF cannot encode 64-bit tag {0}")]
+    UnsupportedBigType(u16),
 }
 
 #[cfg(test)]
@@ -388,6 +484,26 @@ mod tests {
         let offset = u32::from_le_bytes([bytes[10], bytes[11], bytes[12], bytes[13]]);
         assert_eq!(offset, 100 + 2 + 12 + 4);
         assert_eq!(&bytes[18..26], &[1, 0, 0, 0, 2, 0, 0, 0]);
+    }
+
+    #[test]
+    fn bigtiff_uses_8_byte_values_and_offsets() {
+        let builder = IfdBuilder::from_entries(vec![
+            Entry::shorts(50, &[1, 2]),
+            Entry::ascii(100, "abcdefgh"),
+        ]);
+        let bytes = builder.build_big(100).unwrap();
+        assert_eq!(u64::from_le_bytes(bytes[0..8].try_into().unwrap()), 2);
+        // Entry 1: tag 50, SHORT, count 2, value inline in 8 bytes.
+        assert_eq!(u16::from_le_bytes(bytes[8..10].try_into().unwrap()), 50);
+        assert_eq!(&bytes[20..24], &[1, 0, 2, 0]);
+        // Entry 2: ASCII count 9 > 8, so the value is out-of-line.
+        assert_eq!(u16::from_le_bytes(bytes[28..30].try_into().unwrap()), 100);
+        let offset = u64::from_le_bytes(bytes[40..48].try_into().unwrap());
+        assert_eq!(offset, 100 + 8 + 40 + 8);
+        assert_eq!(&bytes[56..65], b"abcdefgh\0");
+        // Next-IFD field occupies 8 bytes after the entries.
+        assert_eq!(&bytes[48..56], &[0; 8]);
     }
 
     #[test]

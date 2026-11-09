@@ -125,8 +125,8 @@ The writer lives in `rawhide-core::writer` and builds on `rawhide-core::tiff`
 frames, split markers in IFD0/EXIF, a profile/EXIF metadata block and the
 payload. Payload bytes are striped across frames in order, and split chunks use
 DCF-style names. It remains
-intentionally limited (classic TIFF, in-memory covers); remaining work is
-streaming/banded writes, BigTIFF output and Adobe tag conventions. It was
+intentionally limited (in-memory covers); remaining work is streaming/banded
+writes and Adobe tag conventions. It was
 validated with Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy`, including
 multi-frame and split sets.
 

@@ -1113,3 +1113,43 @@ fn debug_sidecar_does_not_overwrite_json_output() {
     let bytes = std::fs::read(&encoded).unwrap();
     assert!(bytes.starts_with(b"II*\0"));
 }
+
+#[test]
+fn bigtiff_output_roundtrips() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("big.dng");
+    let recovered = dir.path().join("recovered.bin");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--bigtiff",
+        "--seed",
+        "3",
+    ]);
+    encode.assert().success();
+    assert!(std::fs::read(&encoded).unwrap().starts_with(b"II+\0"));
+
+    let mut decode = cargo_bin_cmd!("rawhide");
+    decode.args([
+        "decode",
+        "-i",
+        encoded.to_str().unwrap(),
+        "-o",
+        recovered.to_str().unwrap(),
+    ]);
+    decode.assert().success();
+    assert_eq!(
+        std::fs::read(&recovered).unwrap(),
+        std::fs::read(&payload_path).unwrap()
+    );
+}

@@ -115,7 +115,7 @@ on/off, single/split, classic/BigTIFF:
 2. Rust encode → Python decode → payload identical.
 3. `tiffdump` tag inventory diff (offset-only differences allowed).
 4. `exiv2 -pa` EXIF/DNG/XMP diff; skip BigTIFF (exiv2 cannot parse it).
-5. `rawpy.imread` + `postprocess` succeeds for both.
+5. `rawpy.imread` + `postprocess` succeeds for classic output; LibRaw rejects BigTIFF, so BigTIFF is validated with Python `stego_dng.decode`/`tifffile` instead.
 6. Rust encode twice with the same seed → identical bytes (offset tags
    excluded).
 7. Peak RSS ceiling test at 11 648×8 736 and nightly at 23 296×17 472.

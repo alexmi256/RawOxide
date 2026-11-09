@@ -166,7 +166,7 @@ in Phase 3.
 
 ### Phase 2 — Write DNG (core writer done; streaming/compression next)
 
-**Result:** a custom classic-TIFF writer in `core::writer` emits tiled raw pages
+**Result:** a custom classic-TIFF/`BigTIFF` writer in `core::writer` emits tiled raw pages
 (`LinearRaw` or `CFA`) at 8/10/12/14/16-bit, a baseline JPEG preview, multiple
 full-resolution raw frames (1-8), split markers in IFD0/EXIF and an embedded
 payload. Python `stego_dng.decode` recovers the payload for every mode/depth
@@ -193,7 +193,7 @@ Completed in this phase:
 Remaining full-writer work:
 
 - Streaming/banded writes for multi-gigabyte covers.
-- Adobe tag conventions, BigTIFF switch.
+- Adobe tag conventions.
 - Commons thumbnail fetching; file/synthetic/offline-random previews are done.
 
 **Acceptance:** Python decodes Rust output across the L1 matrix (including
