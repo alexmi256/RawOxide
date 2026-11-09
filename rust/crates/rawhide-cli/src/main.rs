@@ -10,10 +10,11 @@ use std::process::ExitCode;
 use anyhow::{Context, Result, bail};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use rawhide_core::{
-    CameraProfile, Compression, DecodeOptions, ImageTime, LevelPolicy, MetadataRandomizer, RawMode,
-    RecommendOptions, RecommendedConfig, SizingMode, SplitIdField, SplitSeqField, WriterOptions,
-    capacity_bytes, chunk_bounds, chunk_path, decode_files, format_kb, parse_size, profiles,
-    recommend, risk_warnings, split_album_dir, write_cover_tiff, write_dng,
+    CameraProfile, Compression, DecodeOptions, ImageTime, LevelPolicy, MetadataRandomizer,
+    PreviewSource, RawMode, RecommendOptions, RecommendedConfig, SizingMode, SplitIdField,
+    SplitSeqField, WriterOptions, capacity_bytes, chunk_bounds, chunk_path, decode_files,
+    format_kb, parse_size, profiles, recommend, risk_warnings, split_album_dir, write_cover_tiff,
+    write_dng,
 };
 use tracing_subscriber::EnvFilter;
 
@@ -83,7 +84,7 @@ struct EncodeArgs {
     #[arg(long)]
     seed: Option<u64>,
 
-    /// Preview source: random, synthetic, or an image path.
+    /// Preview source: synthetic, random (offline noise), or an image path.
     #[arg(long, default_value = "synthetic")]
     thumbnail: String,
 
@@ -139,6 +140,10 @@ struct EncodeArgs {
     /// Optional passphrase for the XOR keystream.
     #[arg(long)]
     key: Option<String>,
+
+    /// Write a JSON metadata sidecar next to each output.
+    #[arg(long)]
+    debug_metadata_output: bool,
 
     /// Split the payload into chunks of at most SIZE per DNG.
     #[arg(long, value_name = "SIZE")]
@@ -365,15 +370,8 @@ fn run(cli: &Cli) -> Result<()> {
 }
 
 fn encode(args: &EncodeArgs) -> Result<()> {
-    if args.thumbnail != "synthetic" {
-        eprintln!(
-            "note: the current writer only implements the synthetic preview; \
-             ignoring --thumbnail {}",
-            args.thumbnail
-        );
-    }
-
     let (profile, subprofile) = profiles::resolve(&args.camera_profile)?;
+    let preview = preview_source(&args.thumbnail)?;
     if args.auto_size && (args.width.is_some() || args.height.is_some() || subprofile.is_some()) {
         bail!("--auto-size cannot be combined with --width/--height/--camera-profile subprofiles");
     }
@@ -398,6 +396,7 @@ fn encode(args: &EncodeArgs) -> Result<()> {
             &config,
             profile,
             image_time.as_ref(),
+            preview,
             split_size,
         );
     }
@@ -409,6 +408,7 @@ fn encode(args: &EncodeArgs) -> Result<()> {
         &config,
         profile,
         image_time.as_ref(),
+        preview,
         0,
         None,
         None,
@@ -468,6 +468,23 @@ fn image_time_from_system(value: std::time::SystemTime) -> ImageTime {
             local.offset().local_minus_utc().unsigned_abs() / 3600,
             (local.offset().local_minus_utc().unsigned_abs() % 3600) / 60,
         ),
+    }
+}
+
+fn preview_source(value: &str) -> Result<PreviewSource<'_>> {
+    match value {
+        "synthetic" => Ok(PreviewSource::Synthetic),
+        "random" => Ok(PreviewSource::Random),
+        path => {
+            let path = std::path::Path::new(path);
+            if !path.is_file() {
+                bail!(
+                    "unknown thumbnail source {value:?}: expected 'synthetic', 'random', \
+                     or a path to an image file"
+                );
+            }
+            Ok(PreviewSource::File(path))
+        }
     }
 }
 
@@ -593,6 +610,7 @@ fn write_one(
     config: &RecommendedConfig,
     profile: &CameraProfile,
     image_time: Option<&ImageTime>,
+    preview: PreviewSource<'_>,
     seed_offset: u64,
     split_id: Option<&str>,
     split_seq: Option<u32>,
@@ -617,6 +635,7 @@ fn write_one(
         metadata: Some(&metadata),
         level_policy: LevelPolicy::from(args.level_policy),
         compression: Compression::from(args.compression),
+        preview,
         frames: config.frames,
         seed: seed.unwrap_or(seed_offset),
         split_id,
@@ -627,7 +646,82 @@ fn write_one(
         tile_width: 128,
         tile_height: 96,
     };
-    write_dng(output, payload, &options).map_err(Into::into)
+    let info = write_dng(output, payload, &options)?;
+    if args.debug_metadata_output {
+        write_debug_sidecar(
+            args,
+            &info,
+            config,
+            profile,
+            &metadata,
+            split_seq,
+            split_total,
+        )?;
+    }
+    Ok(info)
+}
+
+fn write_debug_sidecar(
+    args: &EncodeArgs,
+    info: &rawhide_core::WriteInfo,
+    config: &RecommendedConfig,
+    profile: &CameraProfile,
+    metadata: &rawhide_core::Metadata,
+    split_seq: Option<u32>,
+    split_total: Option<u32>,
+) -> Result<()> {
+    let document = serde_json::json!({
+        "schema": "stegodng-debug-metadata",
+        "schema_version": 1,
+        "generated_at": chrono::Utc::now().to_rfc3339(),
+        "tool": {"name": "rawhide", "version": env!("CARGO_PKG_VERSION")},
+        "summary": {
+            "output": info.path.display().to_string(),
+            "output_bytes": info.size,
+            "width": info.width,
+            "height": info.height,
+            "mode": info.mode.as_str(),
+            "bit_depth": info.bit_depth,
+            "lsb_planes": info.lsb_planes,
+            "frames": info.frames,
+            "compression": args.compression_name(),
+            "thumbnail_source": args.thumbnail,
+            "payload_bytes": info.payload_len,
+            "chunk_seq": split_seq,
+            "chunk_total": split_total,
+        },
+        "encode": {
+            "options": {
+                "width": config.width,
+                "height": config.height,
+                "mode": config.mode.as_str(),
+                "bit_depth": config.bit_depth,
+                "lsb_planes": config.lsb_planes,
+                "frames": config.frames,
+                "compression": args.compression_name(),
+                "thumbnail": args.thumbnail,
+                "seed": args.seed,
+                "keyed": args.key.is_some(),
+            },
+            "capacity": {"bytes": info.capacity},
+        },
+        "profile": {
+            "slug": profile.slug,
+            "display_name": profile.display_name,
+            "make": profile.make,
+            "model": profile.model,
+            "unique_camera_model": profile.unique_camera_model,
+            "software": profile.software,
+        },
+        "metadata": metadata,
+    });
+    let mut path = info.path.with_extension("json");
+    if path == info.path {
+        path = info.path.with_extension("dng.json");
+    }
+    std::fs::write(&path, serde_json::to_vec_pretty(&document)?)
+        .with_context(|| format!("cannot write {}", path.display()))?;
+    Ok(())
 }
 
 fn encode_split(
@@ -637,12 +731,13 @@ fn encode_split(
     config: &RecommendedConfig,
     profile: &CameraProfile,
     image_time: Option<&ImageTime>,
+    preview: PreviewSource<'_>,
     split_size: u64,
 ) -> Result<()> {
     let bounds = chunk_bounds(payload.len(), split_size)?;
     if bounds.len() == 1 {
         let info = write_one(
-            args, payload, output, config, profile, image_time, 0, None, None, None, None,
+            args, payload, output, config, profile, image_time, preview, 0, None, None, None, None,
         )?;
         print_write(&info);
         return Ok(());
@@ -688,6 +783,7 @@ fn encode_split(
             config,
             profile,
             image_time,
+            preview,
             u64::from(seq - 1),
             Some(&split_id),
             Some(seq),
@@ -731,6 +827,15 @@ fn print_write(info: &rawhide_core::WriteInfo) {
         format_kb(info.payload_len as u64),
         format_kb(info.capacity)
     );
+}
+
+impl EncodeArgs {
+    const fn compression_name(&self) -> &'static str {
+        match self.compression {
+            CompressionArg::None => "none",
+            CompressionArg::AdobeDeflate => "adobe_deflate",
+        }
+    }
 }
 
 const fn split_id_name(value: SplitIdArg) -> &'static str {

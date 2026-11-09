@@ -10,6 +10,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use chrono::{DateTime, Duration, FixedOffset, Local, NaiveDate, NaiveDateTime, Offset, TimeZone};
+use serde::Serialize;
 
 use crate::geo::Location;
 use crate::profile::{CameraProfile, FidelityConfig, Lens};
@@ -70,7 +71,7 @@ pub const METERING_CHOICES: [u16; 3] = [2, 3, 5];
 pub const EXPPROG_CHOICES: [u16; 4] = [1, 2, 3, 4];
 
 /// GPS metadata; `zone` is debug-only and never written to EXIF.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct GpsMetadata {
     /// Latitude reference (`N`/`S`).
     pub lat_ref: char,
@@ -134,7 +135,7 @@ fn format_offset(seconds: i32) -> String {
 }
 
 /// Randomized per-file metadata.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Metadata {
     /// Capture timestamp (`YYYY:MM:DD HH:MM:SS`).
     pub datetime: String,
@@ -151,6 +152,7 @@ pub struct Metadata {
     /// Noise profile.
     pub noise_profile: Option<[f64; 6]>,
     /// Opaque `MakerNote` block.
+    #[serde(skip_serializing)]
     pub makernote: Option<Vec<u8>>,
     /// Exposure time.
     pub exposure_time: (u32, u32),

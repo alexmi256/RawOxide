@@ -175,6 +175,7 @@ fn writer_handles_multiple_raw_frames() {
         metadata: None,
         level_policy: rawhide_core::LevelPolicy::Profile,
         compression: rawhide_core::writer::Compression::None,
+        preview: rawhide_core::PreviewSource::Synthetic,
         split_id: None,
         split_seq: None,
         split_total: None,
@@ -676,4 +677,64 @@ fn deflate_tiles_roundtrip_at_edge_tiles() {
             .payload,
         payload
     );
+}
+
+#[test]
+fn preview_dimensions_use_profile_preview_size() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("preview.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let bytes = std::fs::read(&path).unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(256).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![676]))
+    );
+    assert_eq!(
+        ifd0.tag(257).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![506]))
+    );
+    assert_eq!(
+        ifd0.tag(278).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![506]))
+    );
+
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    assert_eq!(
+        raw.tag(256).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![128]))
+    );
+    assert_eq!(
+        raw.tag(257).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![96]))
+    );
+
+    let offset = match ifd0.tag(273).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Long(values)) => values[0] as usize,
+        other => panic!("unexpected strip offset {other:?}"),
+    };
+    let count = match ifd0.tag(279).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Long(values)) => values[0] as usize,
+        other => panic!("unexpected strip count {other:?}"),
+    };
+    let jpeg = image::load_from_memory_with_format(
+        &bytes[offset..offset + count],
+        image::ImageFormat::Jpeg,
+    )
+    .unwrap();
+    assert_eq!(jpeg.width(), 676);
+    assert_eq!(jpeg.height(), 506);
 }

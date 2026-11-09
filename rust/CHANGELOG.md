@@ -64,6 +64,11 @@ semantic versioning.
   adobe_deflate`, 8/16-bit only).
 - `gen-tiff`: plain uncompressed 8-bit RGB TIFF cover generation.
 - `core::cover` cover generator used by `gen-tiff`.
+- Preview sources: synthetic gradient, offline deterministic noise (`random`
+  fallback), and user image files with center-crop + Lanczos resize; profiles'
+  `fidelity.preview_size` controls the IFD0 JPEG dimensions.
+- `--debug-metadata-output`: JSON sidecar with summary, resolved options,
+  profile identity and the serialized randomized metadata.
 - Writer metadata: per-profile `Make`/`Model`/`Software`/calibration matrices,
   EXIF camera/lens/exposure block, `AsShotNeutral`, `BaselineExposure` and
   `NoiseProfile`. DNG colour/profile tags live in IFD0 (not the raw SubIFD),

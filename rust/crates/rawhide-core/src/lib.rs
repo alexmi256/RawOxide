@@ -26,6 +26,7 @@ pub mod profile;
 pub mod profiles;
 pub mod sizing;
 pub mod split;
+pub mod thumbnail;
 pub mod tiff;
 pub mod writer;
 
@@ -51,6 +52,7 @@ pub use split::{
     order_by_markers, order_by_names, parse_chunk_name, parse_size, split_album_dir,
     validate_fields,
 };
+pub use thumbnail::{PreviewSource, ThumbnailError, rgb as thumbnail_rgb};
 pub use writer::{
     Compression, RawMode, WriteError, WriteInfo, WriterOptions, write_dng, write_spike_dng,
 };

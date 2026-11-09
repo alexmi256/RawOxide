@@ -21,10 +21,10 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
 | `stegodng/split.py` | `core::split` | ✅ | field parsing, sizes, filename/metadata ordering, chunk bounds/naming, album layout |
 | `stegodng/stego.py` | `core::decode` / `core::writer` | 🚧 | decode orchestration, writer and split encode done; metadata/streaming planned |
-| `stegodng/thumbnails.py` | `core::thumbnail` | ⬜ | Commons/file/synthetic, Lanczos, YCbCr |
+| `stegodng/thumbnails.py` | `core::thumbnail` | 🚧 | synthetic/random-noise/file + Lanczos; Commons fetch not implemented |
 | `stegodng/cli.py` | `cli` | 🚧 | `capacity`, `decode` and spike `encode` done; `gen-tiff` stub |
 | `stegodng/profiles/__init__.py` | `core::profiles` | ✅ | 307 JSON + 3 blobs embedded; lazy load, longest-slug resolve |
-| `stegodng/debugmeta.py` | `core::debug` | ⬜ | JSON sidecar schema |
+| `stegodng/debugmeta.py` | `cli` | 🚧 | summary/options/profile/metadata sidecar; tag inventory/CRC pending |
 | `stegodng/progress.py` | `cli::progress` | ⬜ | indicatif tri-state |
 
 ## CLI flags checklist
@@ -33,11 +33,11 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 |---|---|
 | `capacity` | ✅ |
 | `encode`: input/output/width/height/mode/bit-depth/lsb-planes/key | ✅ (writer path) |
-| `encode`: seed/thumbnail | 🚧 (seed used for covers/frames/metadata; thumbnail still synthetic) |
+| `encode`: seed/thumbnail | 🚧 (synthetic/random-noise/file thumbnails; Commons fetch pending) |
 | `encode`: auto-size/frames | ✅ (`--auto-size`, auto planes, `--raw-frames 1-8`) |
 | `encode`: profiles/subprofiles/level-policy | ✅ |
 | `encode`: compression/split/album/metadata fields | ✅ (none/adobe_deflate, split/album/metadata) |
-| `encode`: image-time/GPS/debug sidecar/progress | 🚧 (`--image-time` and GPS done; debug/progress pending) |
+| `encode`: image-time/GPS/debug sidecar/progress | 🚧 (debug sidecar done; progress pending) |
 | `decode`: input set/key/planes/max-bytes/split fields | ✅ |
 | `decode`: progress | ⬜ |
 | `gen-tiff` | ✅ |

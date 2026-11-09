@@ -113,7 +113,7 @@ rawhide-cli
         ├── metadata      seeded EXIF randomization (done)
         ├── geo           tz city/land sampler (done)
         ├── cover         synthetic raw covers (in progress)
-        ├── thumbnail     Commons/file/synthetic preview (planned)
+        ├── thumbnail     synthetic/offline-noise/file preview
         ├── sizing        auto-fit search (done)
         ├── split         chunk naming/sequencing (done)
         ├── digests       DNG SDK digests (done)
@@ -194,7 +194,7 @@ Remaining full-writer work:
 
 - Streaming/banded writes for multi-gigabyte covers.
 - Adobe tag conventions, BigTIFF switch.
-- Thumbnail sources (file/Commons) and the remaining CLI flag surface.
+- Commons thumbnail fetching; file/synthetic/offline-random previews are done.
 
 **Acceptance:** Python decodes Rust output across the L1 matrix (including
 multi-frame and split sets); `rawpy` accepts it; `tiffdump` shows the expected
@@ -234,8 +234,8 @@ Done:
 
 Remaining:
 
-- Other opcode ids, Adobe tag conventions and the debug sidecar.
-- Thumbnail sources (Commons/file/synthetic) and Lanczos/YCbCr previews.
+- Other opcode ids, Adobe tag conventions; debug sidecar core fields are done.
+- Commons thumbnail fetching; file/synthetic/Lanczos previews are done.
 
 **Acceptance:** profile list/resolve matches Python; sidecar snapshots match the
 documented schema; digests reproduce the Python values for fixed raw/crop/opcode

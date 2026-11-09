@@ -12,8 +12,8 @@ format so either implementation can decode the other's files.
 > metadata. All 307 Python camera profiles are embedded, and `--camera-profile`
 > drives calibration, metadata pools, GPS (for profiles that emit it) and tag
 > values. Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy` accept the output.
-> Thumbnails, Adobe tag conventions, BigTIFF output and streaming writes are
-> planned in [docs/port-plan.md](docs/port-plan.md).
+> Commons thumbnail fetching, Adobe tag conventions, BigTIFF output and
+> streaming writes are planned in [docs/port-plan.md](docs/port-plan.md).
 
 ## Quick start
 

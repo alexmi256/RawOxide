@@ -12,8 +12,8 @@ use std::io::Write as _;
 use std::path::{Path, PathBuf};
 
 use flate2::write::ZlibEncoder;
+use image::ExtendedColorType;
 use image::codecs::jpeg::JpegEncoder;
-use image::{ExtendedColorType, ImageBuffer, Rgb};
 use thiserror::Error;
 
 use crate::codec::{capacity_bytes_total, format_kb_hi, format_kb_lo};
@@ -22,6 +22,7 @@ use crate::framing::PayloadFrame;
 use crate::metadata::Metadata;
 use crate::profile::{CameraProfile, LevelPolicy};
 use crate::split::{SplitIdField, SplitSeqField, validate_fields};
+use crate::thumbnail::{PreviewSource, ThumbnailError, rgb as thumbnail_rgb};
 use crate::tiff::{Entry, IfdBuilder, TagType};
 
 /// Raw layout for the writer.
@@ -90,6 +91,8 @@ pub struct WriterOptions<'a> {
     pub level_policy: LevelPolicy,
     /// Raw tile compression.
     pub compression: Compression,
+    /// IFD0 preview source.
+    pub preview: PreviewSource<'a>,
     /// Optional shared chunk-set UUID.
     pub split_id: Option<&'a str>,
     /// Optional chunk sequence (1-based).
@@ -121,6 +124,7 @@ impl Default for WriterOptions<'_> {
             metadata: None,
             level_policy: LevelPolicy::Profile,
             compression: Compression::None,
+            preview: PreviewSource::Synthetic,
             split_id: None,
             split_seq: None,
             split_total: None,
@@ -238,6 +242,10 @@ pub enum WriteError {
     /// TIFF serialization failed.
     #[error(transparent)]
     Tiff(#[from] crate::tiff::Error),
+
+    /// Preview preparation failed.
+    #[error(transparent)]
+    Thumbnail(#[from] ThumbnailError),
 
     /// Opcode fingerprinting failed.
     #[error(transparent)]
@@ -436,6 +444,7 @@ pub fn write_dng(
         metadata,
         level_policy,
         compression,
+        preview,
         split_id,
         split_seq,
         split_total,
@@ -596,7 +605,14 @@ pub fn write_dng(
         .try_fold(0_usize, |total, len| total.checked_add(*len))
         .ok_or(WriteError::TooLarge)?;
 
-    let preview = synthetic_jpeg(width, height)?;
+    let (preview_width, preview_height) = preview_size(profile, width, height);
+    let preview_rgb = thumbnail_rgb(
+        preview,
+        u32::try_from(preview_width).unwrap_or(u32::MAX),
+        u32::try_from(preview_height).unwrap_or(u32::MAX),
+        Some(seed),
+    )?;
+    let preview = encode_jpeg(&preview_rgb, preview_width, preview_height)?;
     let preview_offset = 8_u32;
     let raw_offset = preview_offset
         .checked_add(u32::try_from(preview.len()).map_err(|_| WriteError::TooLarge)?)
@@ -672,8 +688,8 @@ pub fn write_dng(
     };
     let placeholder_gps = gps_entries.as_ref().map(|_| 0);
     let ifd0_placeholder = preview_entries(
-        width,
-        height,
+        preview_width,
+        preview_height,
         preview.len(),
         preview_offset,
         &zero_sub_ifds,
@@ -756,8 +772,8 @@ pub fn write_dng(
     };
 
     let ifd0 = IfdBuilder::from_entries(preview_entries(
-        width,
-        height,
+        preview_width,
+        preview_height,
         preview.len(),
         preview_offset,
         &raw_ifd_offsets,
@@ -1623,25 +1639,19 @@ fn synthetic_cover(
     cover
 }
 
-#[allow(clippy::cast_precision_loss, clippy::suboptimal_flops)]
-fn synthetic_jpeg(width: usize, height: usize) -> Result<Vec<u8>, WriteError> {
-    let image: ImageBuffer<Rgb<u8>, Vec<u8>> = ImageBuffer::from_fn(
-        u32::try_from(width).unwrap_or(u32::MAX),
-        u32::try_from(height).unwrap_or(u32::MAX),
-        |x, y| {
-            let width_den = width.saturating_sub(1).max(1) as f32;
-            let height_den = height.saturating_sub(1).max(1) as f32;
-            let r = (90.0 + 120.0 * (x as f32 / width_den)).clamp(0.0, 255.0) as u8;
-            let g = (100.0 + 90.0 * (y as f32 / height_den)).clamp(0.0, 255.0) as u8;
-            let b = (160.0 - 70.0 * (x as f32 / width_den)).clamp(0.0, 255.0) as u8;
-            Rgb([r, g, b])
-        },
-    );
+fn preview_size(profile: Option<&CameraProfile>, width: usize, height: usize) -> (usize, usize) {
+    profile
+        .and_then(|profile| profile.fidelity.as_ref())
+        .and_then(|fidelity| fidelity.preview_size)
+        .unwrap_or_else(|| (width.min(4000), height.min(3000)))
+}
+
+fn encode_jpeg(rgb: &[u8], width: usize, height: usize) -> Result<Vec<u8>, WriteError> {
     let mut jpeg = Vec::new();
     let mut encoder = JpegEncoder::new_with_quality(&mut jpeg, 75);
     encoder
         .encode(
-            image.as_raw(),
+            rgb,
             u32::try_from(width).unwrap_or(u32::MAX),
             u32::try_from(height).unwrap_or(u32::MAX),
             ExtendedColorType::Rgb8,

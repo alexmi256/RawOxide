@@ -50,6 +50,27 @@ pub enum CoverError {
     Io(#[from] std::io::Error),
 }
 
+/// Synthetic RGB8 thumbnail/cover pixels.
+#[must_use]
+#[allow(clippy::cast_possible_truncation)]
+pub fn synthetic_rgb(width: usize, height: usize, seed: Option<u64>) -> Option<Vec<u8>> {
+    let mut rng = Rng64::new(Some(seed.unwrap_or(0)));
+    let mut pixels = Vec::with_capacity(width.checked_mul(height)?.checked_mul(3)?);
+    let width_den = width.saturating_sub(1).max(1) as f32;
+    let height_den = height.saturating_sub(1).max(1) as f32;
+    for y in 0..height {
+        for x in 0..width {
+            let r = 90.0 + 120.0 * (x as f32 / width_den) + rng.uniform(-9.0, 9.0) as f32;
+            let g = 100.0 + 90.0 * (y as f32 / height_den) + rng.uniform(-9.0, 9.0) as f32;
+            let b = 160.0 - 70.0 * (x as f32 / width_den) + rng.uniform(-9.0, 9.0) as f32;
+            pixels.push(r.clamp(0.0, 255.0) as u8);
+            pixels.push(g.clamp(0.0, 255.0) as u8);
+            pixels.push(b.clamp(0.0, 255.0) as u8);
+        }
+    }
+    Some(pixels)
+}
+
 /// Write a plain 8-bit RGB TIFF cover.
 ///
 /// # Errors
@@ -66,26 +87,7 @@ pub fn write_cover_tiff(
     if width == 0 || height == 0 {
         return Err(CoverError::InvalidGeometry { width, height });
     }
-    let mut rng = Rng64::new(Some(seed.unwrap_or(0)));
-    let mut pixels = Vec::with_capacity(
-        width
-            .checked_mul(height)
-            .and_then(|pixels| pixels.checked_mul(3))
-            .ok_or(CoverError::TooLarge)?,
-    );
-    let width_den = width.saturating_sub(1).max(1) as f32;
-    let height_den = height.saturating_sub(1).max(1) as f32;
-    for y in 0..height {
-        for x in 0..width {
-            let noise = |rng: &mut Rng64| rng.uniform(-9.0, 9.0) as f32;
-            let r = 90.0 + 120.0 * (x as f32 / width_den) + noise(&mut rng);
-            let g = 100.0 + 90.0 * (y as f32 / height_den) + noise(&mut rng);
-            let b = 160.0 - 70.0 * (x as f32 / width_den) + noise(&mut rng);
-            pixels.push(r.clamp(0.0, 255.0) as u8);
-            pixels.push(g.clamp(0.0, 255.0) as u8);
-            pixels.push(b.clamp(0.0, 255.0) as u8);
-        }
-    }
+    let pixels = synthetic_rgb(width, height, seed).ok_or(CoverError::TooLarge)?;
     let strip_offset = 8_u32;
     let ifd_offset = u32::try_from(pixels.len().checked_add(8).ok_or(CoverError::TooLarge)?)
         .map_err(|_| CoverError::TooLarge)?;

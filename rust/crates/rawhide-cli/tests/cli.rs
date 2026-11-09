@@ -952,3 +952,164 @@ fn encode_deflate_multi_frame_roundtrip() {
         std::fs::read(&payload_path).unwrap()
     );
 }
+
+#[test]
+fn encode_with_file_thumbnail_roundtrip() {
+    let dir = tempfile::tempdir().unwrap();
+    let thumbnail = dir.path().join("thumb.tif");
+    rawhide_core::write_cover_tiff(&thumbnail, 40, 30, Some(1), "thumb").unwrap();
+    let encoded = dir.path().join("file-thumb.dng");
+    let recovered = dir.path().join("recovered.bin");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--thumbnail",
+        thumbnail.to_str().unwrap(),
+    ]);
+    encode.assert().success();
+
+    let mut decode = cargo_bin_cmd!("rawhide");
+    decode.args([
+        "decode",
+        "-i",
+        encoded.to_str().unwrap(),
+        "-o",
+        recovered.to_str().unwrap(),
+    ]);
+    decode.assert().success();
+    assert_eq!(
+        std::fs::read(&recovered).unwrap(),
+        std::fs::read(&payload_path).unwrap()
+    );
+}
+
+#[test]
+fn encode_rejects_missing_thumbnail_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("missing-thumb.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--thumbnail",
+        dir.path().join("missing.png").to_str().unwrap(),
+    ]);
+    encode
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("unknown thumbnail source"));
+}
+
+#[test]
+fn encode_writes_debug_metadata_sidecar() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("debug.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--debug-metadata-output",
+        "--seed",
+        "3",
+    ]);
+    encode.assert().success();
+
+    let sidecar = dir.path().join("debug.json");
+    let value: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&sidecar).unwrap()).unwrap();
+    assert_eq!(value["schema"], "stegodng-debug-metadata");
+    assert_eq!(value["summary"]["width"], 64);
+    assert_eq!(value["summary"]["height"], 48);
+    assert!(value["metadata"]["datetime"].as_str().is_some());
+    assert!(value["profile"]["slug"].as_str().is_some());
+}
+
+#[test]
+fn split_set_writes_one_debug_sidecar_per_chunk() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("vol.dng");
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--split-file",
+        "3000",
+        "--debug-metadata-output",
+        "--seed",
+        "3",
+    ]);
+    encode.assert().success();
+
+    let album = dir.path().join("payload_5000");
+    let mut seqs = Vec::new();
+    for seq in [1_u32, 2] {
+        let sidecar = album.join(format!("vol{seq:04}.json"));
+        assert!(sidecar.is_file(), "missing {}", sidecar.display());
+        let value: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&sidecar).unwrap()).unwrap();
+        assert_eq!(value["summary"]["chunk_seq"], seq);
+        assert_eq!(value["summary"]["chunk_total"], 2);
+        seqs.push(value["summary"]["chunk_seq"].as_u64().unwrap());
+    }
+    seqs.sort_unstable();
+    assert_eq!(seqs, [1, 2]);
+}
+
+#[test]
+fn debug_sidecar_does_not_overwrite_json_output() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("image.json");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--debug-metadata-output",
+    ]);
+    encode.assert().success();
+    assert!(encoded.is_file());
+    assert!(dir.path().join("image.dng.json").is_file());
+    let bytes = std::fs::read(&encoded).unwrap();
+    assert!(bytes.starts_with(b"II*\0"));
+}
