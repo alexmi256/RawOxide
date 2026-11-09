@@ -10,10 +10,10 @@ format so either implementation can decode the other's files.
 > baseline JPEG preview, multiple raw frames (1-8), split chunk sets with EXIF
 > markers, embedded payload, auto-sizing/auto-planes and seeded EXIF/DNG
 > metadata. All 307 Python camera profiles are embedded, and `--camera-profile`
-> drives calibration, metadata pools and tag values. Python, `tifffile`,
-> `exiv2`, `tiffdump` and `rawpy` accept the output. GPS sampling, thumbnails,
-> opcodes/digests, Deflate/BigTIFF output and streaming writes are planned in
-> [docs/port-plan.md](docs/port-plan.md).
+> drives calibration, metadata pools, GPS (for profiles that emit it) and tag
+> values. Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy` accept the output.
+> Thumbnails, opcodes/digests, Deflate/BigTIFF output and streaming writes are
+> planned in [docs/port-plan.md](docs/port-plan.md).
 
 ## Quick start
 
@@ -40,7 +40,7 @@ cargo run -p rawhide-cli -- encode \
 cargo run -p rawhide-cli -- encode \
   -i fixtures/payloads/payload_3000.bin -o /tmp/canon.dng \
   --camera-profile canon_eos_80d --auto-size \
-  --image-time "2021:06:05 14:30:09"
+  --image-time "2021:06:05 14:30:09" --gps-radius 10
 
 cargo test --workspace
 ```

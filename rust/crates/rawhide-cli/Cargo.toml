@@ -26,6 +26,7 @@ tracing-subscriber.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
+tiff-reader.workspace = true
 assert_cmd.workspace = true
 insta.workspace = true
 predicates.workspace = true

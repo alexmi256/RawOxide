@@ -258,6 +258,7 @@ const TAG_BITS_PER_SAMPLE: u16 = 258;
 const TAG_COMPRESSION: u16 = 259;
 const TAG_PHOTOMETRIC: u16 = 262;
 const TAG_IMAGE_DESCRIPTION: u16 = 270;
+const TAG_XMP: u16 = 700;
 const TAG_MAKE: u16 = 271;
 const TAG_MODEL: u16 = 272;
 const TAG_STRIP_OFFSETS: u16 = 273;
@@ -278,6 +279,18 @@ const TAG_TILE_OFFSETS: u16 = 324;
 const TAG_TILE_BYTE_COUNTS: u16 = 325;
 const TAG_SUB_IFDS: u16 = 330;
 const TAG_EXIF_IFD: u16 = 34665;
+const TAG_GPS_IFD: u16 = 34853;
+const TAG_GPS_VERSION: u16 = 0;
+const TAG_GPS_LAT_REF: u16 = 1;
+const TAG_GPS_LAT: u16 = 2;
+const TAG_GPS_LON_REF: u16 = 3;
+const TAG_GPS_LON: u16 = 4;
+const TAG_GPS_ALT_REF: u16 = 5;
+const TAG_GPS_ALT: u16 = 6;
+const TAG_GPS_TIME: u16 = 7;
+const TAG_GPS_DOP: u16 = 11;
+const TAG_GPS_PROCESSING: u16 = 27;
+const TAG_GPS_DATE: u16 = 29;
 const TAG_EXPOSURE_TIME: u16 = 33434;
 const TAG_FNUMBER: u16 = 33437;
 const TAG_EXPOSURE_PROGRAM: u16 = 34850;
@@ -338,6 +351,20 @@ const TAG_CALIBRATION_ILLUMINANT1: u16 = 50778;
 const TAG_CALIBRATION_ILLUMINANT2: u16 = 50779;
 const TAG_BEST_QUALITY_SCALE: u16 = 50780;
 const TAG_OPCODE_LIST3: u16 = 51022;
+
+/// Python-compatible static XMP packet (12 KiB, space-padded).
+fn xmp_packet() -> Vec<u8> {
+    const CORE: &[u8] = b"<?xpacket begin=\"\xef\xbb\xbf\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n\
+<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.6-c140 79.160451, 2017/05/06-01:08:21\">\n\
+<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n\
+<rdf:Description rdf:about=\"\" xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\">\n\
+<xmp:Rating>0</xmp:Rating>\n\
+</rdf:Description>\n</rdf:RDF>\n</x:xmpmeta>\n\
+<?xpacket end=\"w\"?>\n";
+    let mut packet = CORE.to_vec();
+    packet.resize(12_288, b' ');
+    packet
+}
 
 /// Write a DNG containing `payload` with the given options.
 ///
@@ -515,6 +542,7 @@ pub fn write_dng(
     let (metadata_ifd0, metadata_exif) = metadata_entries(profile, metadata);
     ifd0_split.extend(metadata_ifd0);
     exif_entries.extend(metadata_exif);
+    let gps_entries = gps_entries(metadata);
 
     let zero_sub_ifds = vec![0_u32; usize::from(frames)];
     let placeholder_exif = if exif_entries.is_empty() {
@@ -522,6 +550,7 @@ pub fn write_dng(
     } else {
         Some(0)
     };
+    let placeholder_gps = gps_entries.as_ref().map(|_| 0);
     let ifd0_placeholder = preview_entries(
         width,
         height,
@@ -529,6 +558,7 @@ pub fn write_dng(
         preview_offset,
         &zero_sub_ifds,
         placeholder_exif,
+        placeholder_gps,
         profile,
         metadata,
         &ifd0_split,
@@ -567,6 +597,13 @@ pub fn write_dng(
             .ok_or(WriteError::TooLarge)?;
         raw_ifd_offsets.push(offset);
     }
+    let exif_template_size = if exif_entries.is_empty() {
+        0
+    } else {
+        IfdBuilder::from_entries(exif_entries.clone())
+            .build(0)?
+            .len()
+    };
     let exif_offset = if exif_entries.is_empty() {
         None
     } else {
@@ -578,6 +615,23 @@ pub fn write_dng(
             .ok_or(WriteError::TooLarge)?;
         Some(offset)
     };
+    let raw_end = raw_ifd_start
+        .checked_add(
+            u32::try_from(usize::from(frames).saturating_mul(raw_ifd_size))
+                .map_err(|_| WriteError::TooLarge)?,
+        )
+        .ok_or(WriteError::TooLarge)?;
+    let gps_offset = if gps_entries.is_some() {
+        Some(if let Some(exif_start) = exif_offset {
+            exif_start
+                .checked_add(u32::try_from(exif_template_size).map_err(|_| WriteError::TooLarge)?)
+                .ok_or(WriteError::TooLarge)?
+        } else {
+            raw_end
+        })
+    } else {
+        None
+    };
 
     let ifd0 = IfdBuilder::from_entries(preview_entries(
         width,
@@ -586,6 +640,7 @@ pub fn write_dng(
         preview_offset,
         &raw_ifd_offsets,
         exif_offset,
+        gps_offset,
         profile,
         metadata,
         &ifd0_split,
@@ -637,12 +692,17 @@ pub fn write_dng(
     } else {
         None
     };
+    let gps_ifd = match (gps_offset, gps_entries) {
+        (Some(offset), Some(entries)) => Some(IfdBuilder::from_entries(entries).build(offset)?),
+        _ => None,
+    };
 
     let mut file = Vec::with_capacity(
         ifd0_offset as usize
             + ifd0.len()
             + raw_ifds.iter().map(Vec::len).sum::<usize>()
-            + exif_ifd.as_ref().map_or(0, Vec::len),
+            + exif_ifd.as_ref().map_or(0, Vec::len)
+            + gps_ifd.as_ref().map_or(0, Vec::len),
     );
     file.extend_from_slice(b"II*\0");
     file.extend_from_slice(&ifd0_offset.to_le_bytes());
@@ -653,6 +713,9 @@ pub fn write_dng(
         file.extend_from_slice(ifd);
     }
     if let Some(ifd) = &exif_ifd {
+        file.extend_from_slice(ifd);
+    }
+    if let Some(ifd) = &gps_ifd {
         file.extend_from_slice(ifd);
     }
 
@@ -962,6 +1025,34 @@ fn metadata_entries(
     (ifd0, exif)
 }
 
+fn gps_entries(metadata: Option<&Metadata>) -> Option<Vec<Entry>> {
+    let gps = metadata?.gps.as_ref()?;
+    Some(vec![
+        Entry::bytes(TAG_GPS_VERSION, TagType::Byte, vec![2, 2, 0, 0]),
+        Entry::ascii(TAG_GPS_LAT_REF, &gps.lat_ref.to_string()),
+        Entry::rationals(TAG_GPS_LAT, &[(gps.lat.0, 1), (gps.lat.1, 1), gps.lat.2]),
+        Entry::ascii(TAG_GPS_LON_REF, &gps.lon_ref.to_string()),
+        Entry::rationals(TAG_GPS_LON, &[(gps.lon.0, 1), (gps.lon.1, 1), gps.lon.2]),
+        Entry::bytes(
+            TAG_GPS_ALT_REF,
+            TagType::Byte,
+            vec![u8::try_from(gps.altitude_ref).unwrap_or(0)],
+        ),
+        Entry::rationals(TAG_GPS_ALT, &[(gps.altitude_mm, 1000)]),
+        Entry::rationals(
+            TAG_GPS_TIME,
+            &[(gps.time.0, 1), (gps.time.1, 1), (gps.time.2, 1)],
+        ),
+        Entry::rationals(TAG_GPS_DOP, &[(gps.dop, 1000)]),
+        Entry::bytes(
+            TAG_GPS_PROCESSING,
+            TagType::Undefined,
+            b"ASCII\0\0\0fused".to_vec(),
+        ),
+        Entry::ascii(TAG_GPS_DATE, &gps.date),
+    ])
+}
+
 fn preview_entries(
     width: usize,
     height: usize,
@@ -969,6 +1060,7 @@ fn preview_entries(
     jpeg_offset: u32,
     sub_ifd_offsets: &[u32],
     exif_offset: Option<u32>,
+    gps_offset: Option<u32>,
     profile: Option<&CameraProfile>,
     metadata: Option<&Metadata>,
     extra: &[Entry],
@@ -1047,8 +1139,17 @@ fn preview_entries(
             )],
         ));
     }
+    let emit_xmp = profile
+        .and_then(|profile| profile.fidelity.as_ref())
+        .is_none_or(|fidelity| fidelity.emit_xmp);
+    if emit_xmp {
+        entries.push(Entry::bytes(TAG_XMP, TagType::Byte, xmp_packet()));
+    }
     if let Some(offset) = exif_offset {
         entries.push(Entry::longs(TAG_EXIF_IFD, &[offset]));
+    }
+    if let Some(offset) = gps_offset {
+        entries.push(Entry::longs(TAG_GPS_IFD, &[offset]));
     }
     entries.extend(extra.iter().cloned());
     entries

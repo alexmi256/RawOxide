@@ -43,6 +43,13 @@ semantic versioning.
 - `core::metadata`: seeded metadata randomizer (lens/ISO/exposure/serials/
   timestamps/as-shot neutral/noise) honouring per-profile pools and fidelity
   ranges; `--image-time` pinning.
+- `core::geo`: embedded `zones.bin` tz-city table, land-mask sampling, radius
+  shrinking, elevation noise and zone-offset filtering (chrono-tz).
+- GPS IFD emission (`GPSVersionID`, lat/lon/altitude/time/DOP/date) for
+  profiles with `tags.gps`, with UTC timestamps derived from the pinned or
+  sampled local time, shared coordinates across split chunks, and a
+  `--gps-radius` CLI flag.
+- Static Adobe XMP packet (tag 700) for profiles with `tags.xmp`.
 - Writer metadata: per-profile `Make`/`Model`/`Software`/calibration matrices,
   EXIF camera/lens/exposure block, `AsShotNeutral`, `BaselineExposure` and
   `NoiseProfile`. DNG colour/profile tags live in IFD0 (not the raw SubIFD),

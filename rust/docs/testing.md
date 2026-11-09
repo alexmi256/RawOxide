@@ -68,6 +68,13 @@ The script writes:
 - `fixtures/manifest.json` — sizes, SHA-256, generation command and Python
   version/commit.
 
+Static assets are regenerated from the Python checkout:
+
+```bash
+python3 scripts/embed_profiles.py   # 307 profile JSON + Adobe blobs
+python3 scripts/embed_geo.py        # zones.bin tz/land table
+```
+
 Fixtures are committed so Rust tests are hermetic. `--force` is required to
 overwrite them; review the diff like source. Never edit a DNG by hand.
 

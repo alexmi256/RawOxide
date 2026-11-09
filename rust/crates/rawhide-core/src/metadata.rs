@@ -9,8 +9,9 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, TimeZone};
+use chrono::{DateTime, Duration, FixedOffset, Local, NaiveDate, NaiveDateTime, Offset, TimeZone};
 
+use crate::geo::Location;
 use crate::profile::{CameraProfile, FidelityConfig, Lens};
 
 /// Reference GFX lens pool.
@@ -106,10 +107,12 @@ impl ImageTime {
     /// Build from a local wall-clock time, using the system offset.
     #[must_use]
     pub fn local(datetime: NaiveDateTime) -> Self {
-        let offset = Local.from_local_datetime(&datetime).earliest().map_or_else(
-            || format_offset(Local::now().offset().local_minus_utc()),
-            |value| format_offset(value.offset().local_minus_utc()),
-        );
+        let offset = local_offset(datetime, |candidate| {
+            Local
+                .from_local_datetime(&candidate)
+                .earliest()
+                .map(|value| value.offset().fix())
+        });
         Self { datetime, offset }
     }
 
@@ -262,8 +265,10 @@ impl Rng64 {
 #[derive(Debug, Clone)]
 pub struct MetadataRandomizer {
     rng: Rng64,
+    location_rng: Rng64,
     profile: Option<CameraProfile>,
     date_bounds: Option<(NaiveDateTime, NaiveDateTime)>,
+    gps_radius_km: f64,
 }
 
 impl MetadataRandomizer {
@@ -275,15 +280,37 @@ impl MetadataRandomizer {
             .and_then(FidelityConfig::date_bounds);
         Self {
             rng: Rng64::new(seed),
+            location_rng: Rng64::new(seed),
             profile: profile.cloned(),
             date_bounds,
+            gps_radius_km: crate::geo::MAX_RADIUS_KM,
         }
+    }
+
+    /// Override the GPS sampling radius.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`crate::geo::GeoError::InvalidRadius`] outside `(0, 25] km`.
+    pub fn with_gps_radius(mut self, radius_km: f64) -> Result<Self, crate::geo::GeoError> {
+        self.gps_radius_km = crate::geo::validate_radius(radius_km)?;
+        Ok(self)
     }
 
     /// Fresh metadata with identifiable fields randomized.
     #[must_use]
-    #[allow(clippy::too_many_lines)]
     pub fn randomize(&mut self, image_time: Option<&ImageTime>) -> Metadata {
+        self.randomize_with_location(image_time, None)
+    }
+
+    /// Fresh metadata, reusing a GPS location sampled for a split set.
+    #[must_use]
+    #[allow(clippy::too_many_lines)]
+    pub fn randomize_with_location(
+        &mut self,
+        image_time: Option<&ImageTime>,
+        shared_location: Option<&Location>,
+    ) -> Metadata {
         let profile = self.profile.clone();
         let profile = profile.as_ref();
         let fidelity = profile.and_then(|profile| profile.fidelity.as_ref());
@@ -424,17 +451,64 @@ impl MetadataRandomizer {
             self.rng.below(subsec_max),
             width = usize::from(digits)
         );
+        let mut gps = None;
+        let mut gps_offset = None;
+        if fidelity.is_some_and(|fidelity| fidelity.emit_gps) {
+            let filter = image_time.map(|image_time| image_time.offset.as_str());
+            let sampled = if shared_location.is_none() {
+                crate::geo::sample_location(
+                    &mut self.location_rng,
+                    self.gps_radius_km,
+                    Some(base),
+                    filter,
+                    None,
+                )
+                .ok()
+            } else {
+                None
+            };
+            if let Some(location) = shared_location.cloned().or(sampled) {
+                let resolved = image_time
+                    .and_then(|image_time| {
+                        parse_offset_seconds(&image_time.offset)
+                            .map(|seconds| (seconds, image_time.offset.clone()))
+                    })
+                    .or_else(|| {
+                        crate::geo::offset_at(&location.zone, base)
+                            .ok()
+                            .map(|offset| {
+                                (offset.local_minus_utc(), crate::geo::format_offset(offset))
+                            })
+                    })
+                    .unwrap_or_else(|| (0, "+00:00".to_owned()));
+                let utc = base - Duration::seconds(i64::from(resolved.0));
+                let (lat_d, lat_m, lat_s) = crate::geo::dms(location.lat);
+                let (lon_d, lon_m, lon_s) = crate::geo::dms(location.lon);
+                gps = Some(GpsMetadata {
+                    lat_ref: if location.lat >= 0.0 { 'N' } else { 'S' },
+                    lat: (lat_d, lat_m, lat_s),
+                    lon_ref: if location.lon >= 0.0 { 'E' } else { 'W' },
+                    lon: (lon_d, lon_m, lon_s),
+                    altitude_ref: u16::from(location.altitude_m < 0.0),
+                    altitude_mm: (location.altitude_m.abs() * 1000.0).round() as u32,
+                    time: (
+                        utc.format("%H").to_string().parse().unwrap_or(0),
+                        utc.format("%M").to_string().parse().unwrap_or(0),
+                        utc.format("%S").to_string().parse().unwrap_or(0),
+                    ),
+                    dop: self.rng.range(5_000, 20_000) as u32,
+                    date: utc.format("%Y:%m:%d").to_string(),
+                    zone: location.zone,
+                });
+                gps_offset = Some(resolved.1);
+            }
+        }
         let offset = match image_time {
             Some(image_time) => image_time.offset.clone(),
-            None => {
-                if fidelity.is_some_and(|fidelity| fidelity.emit_gps) {
-                    // Zone offsets are filled by the geo sampler.
-                    "+00:00".to_owned()
-                } else {
-                    let options = ["+08:00", "+09:00", "+01:00", "+02:00", "-05:00"];
-                    self.rng.choice(&options).to_string()
-                }
-            }
+            None => gps_offset.unwrap_or_else(|| {
+                let options = ["+08:00", "+09:00", "+01:00", "+02:00", "-05:00"];
+                self.rng.choice(&options).to_string()
+            }),
         };
 
         Metadata {
@@ -443,7 +517,7 @@ impl MetadataRandomizer {
             orientation,
             subject_distance,
             subject_distance_range,
-            gps: None,
+            gps,
             noise_profile,
             exposure_time: exposure,
             fnumber,
@@ -557,6 +631,33 @@ impl MetadataRandomizer {
     }
 }
 
+fn local_offset<F>(datetime: NaiveDateTime, mut lookup: F) -> String
+where
+    F: FnMut(NaiveDateTime) -> Option<FixedOffset>,
+{
+    lookup(datetime)
+        .or_else(|| {
+            [1_i64, 3, 6]
+                .into_iter()
+                .find_map(|hours| lookup(datetime - Duration::hours(hours)))
+        })
+        .map_or_else(
+            || format_offset(Local::now().offset().fix().local_minus_utc()),
+            |value| format_offset(value.local_minus_utc()),
+        )
+}
+
+fn parse_offset_seconds(text: &str) -> Option<i32> {
+    let bytes = text.as_bytes();
+    if bytes.len() != 6 || (bytes[0] != b'+' && bytes[0] != b'-') || bytes[3] != b':' {
+        return None;
+    }
+    let hours: i32 = text.get(1..3)?.parse().ok()?;
+    let minutes: i32 = text.get(4..6)?.parse().ok()?;
+    let seconds = hours * 3600 + minutes * 60;
+    Some(if bytes[0] == b'-' { -seconds } else { seconds })
+}
+
 /// Backwards-compatible wrapper: fresh randomized metadata.
 #[must_use]
 pub fn randomize_metadata(
@@ -565,4 +666,22 @@ pub fn randomize_metadata(
     image_time: Option<&ImageTime>,
 ) -> Metadata {
     MetadataRandomizer::new(seed, profile).randomize(image_time)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn local_offset_falls_back_before_a_gap() {
+        let gap = NaiveDate::from_ymd_opt(2024, 10, 6)
+            .unwrap()
+            .and_hms_opt(2, 30, 0)
+            .unwrap();
+        let pre_gap = FixedOffset::east_opt(10 * 3600).unwrap();
+        let offset = local_offset(gap, |candidate| {
+            (candidate < gap - Duration::minutes(30)).then_some(pre_gap)
+        });
+        assert_eq!(offset, "+10:00");
+    }
 }

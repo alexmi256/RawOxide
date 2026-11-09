@@ -219,9 +219,12 @@ Done:
   `--level-policy` drives white/black levels and synthetic-cover range, plus
   CFA pattern, crop and bayer tags.
 
+- `core::geo`: embedded `zones.bin`, land-mask sampling with radius shrinking,
+  elevation noise and zone-offset filtering; GPS IFD emission for `emit_gps`
+  profiles with local offsets and UTC timestamps.
+
 Remaining:
 
-- `geo/` zones, land sampling and GPS tags/zone offsets (`emit_gps` profiles).
 - Full `serde` models for `GainMapConfig`/`MakernoteConfig`; opcode/digest/
   makernote writer support; XMP and Adobe tag conventions; debug sidecar.
 - Thumbnail sources (Commons/file/synthetic) and Lanczos/YCbCr previews.

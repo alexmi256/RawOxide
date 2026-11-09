@@ -17,6 +17,7 @@ pub mod decode;
 pub mod dng;
 pub mod error;
 pub mod framing;
+pub mod geo;
 pub mod metadata;
 pub mod profile;
 pub mod profiles;
@@ -32,6 +33,7 @@ pub use decode::{DecodeError, DecodeOptions, DecodeOutcome, decode_files};
 pub use dng::{DngError, DngReader, RawFrame};
 pub use error::{CodecError, Error, FrameError, Result};
 pub use framing::{FrameHeader, PayloadFrame};
+pub use geo::{GeoError, Location, Zone, sample_location};
 pub use metadata::{ImageTime, Metadata, MetadataRandomizer, Rng64, randomize_metadata};
 pub use profile::{CameraProfile, FidelityConfig, LevelPolicy, ProfileError};
 pub use sizing::{

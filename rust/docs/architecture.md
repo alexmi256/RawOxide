@@ -7,6 +7,7 @@ rawhide-core        library, no CLI/network policy
   framing           DNGS frame + SHA-256 keystream
   profile/profiles  camera registry, depth/level helpers
   metadata          seeded per-file EXIF/DNG fields
+  geo               embedded tz-city/land table + GPS sampling
   sizing            auto-config / smallest fitting geometry
   codec             LSB mapping, capacity, KiB formatting
   tiff              typed tag values + classic TIFF IFD builder
@@ -110,7 +111,10 @@ crate later does not affect the decode/CLI layers. See ADR 0003.
 embeds the 307-file registry at compile time and loads it lazily. `core::sizing`
 implements the Python `AutoSizer` contract. `core::metadata` draws reproducible
 per-file fields from a local SplitMix64 stream, honouring profile pools and
-fidelity ranges; `--image-time` pins the capture timestamp.
+fidelity ranges; `--image-time` pins the capture timestamp. `core::geo` loads
+the embedded `zones.bin` table once (`scripts/embed_geo.py` refreshes it), samples land-only points with a separate
+RNG stream and resolves zone offsets through `chrono-tz`; GPS tags are written
+to a dedicated GPS IFD.
 
 The writer lives in `rawhide-core::writer` and builds on `rawhide-core::tiff`
 (typed tag values + classic IFD builder): tiled `LinearRaw`/`CFA` raw pages at

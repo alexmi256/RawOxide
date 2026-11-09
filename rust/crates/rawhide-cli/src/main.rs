@@ -119,6 +119,10 @@ struct EncodeArgs {
     #[arg(long, default_value = "gfx_100")]
     camera_profile: String,
 
+    /// GPS sampling radius in km (0-25).
+    #[arg(long, default_value_t = rawhide_core::geo::MAX_RADIUS_KM)]
+    gps_radius: f64,
+
     /// Fidelity level policy.
     #[arg(long, value_enum, default_value_t = LevelPolicyArg::Profile)]
     level_policy: LevelPolicyArg,
@@ -361,6 +365,7 @@ fn encode(args: &EncodeArgs) -> Result<()> {
         bail!("--auto-size cannot be combined with --width/--height/--camera-profile subprofiles");
     }
     let image_time = resolve_image_time(args.image_time.as_deref(), &args.input)?;
+    rawhide_core::geo::validate_radius(args.gps_radius)?;
     let payload = std::fs::read(&args.input)
         .with_context(|| format!("cannot read {}", args.input.display()))?;
     let output = args
@@ -392,6 +397,7 @@ fn encode(args: &EncodeArgs) -> Result<()> {
         profile,
         image_time.as_ref(),
         0,
+        None,
         None,
         None,
         None,
@@ -578,9 +584,12 @@ fn write_one(
     split_id: Option<&str>,
     split_seq: Option<u32>,
     split_total: Option<u32>,
+    shared_location: Option<&rawhide_core::Location>,
 ) -> Result<rawhide_core::WriteInfo> {
     let seed = args.seed.map(|seed| seed.wrapping_add(seed_offset));
-    let metadata = MetadataRandomizer::new(seed, Some(profile)).randomize(image_time);
+    let metadata = MetadataRandomizer::new(seed, Some(profile))
+        .with_gps_radius(args.gps_radius)?
+        .randomize_with_location(image_time, shared_location);
     let options = WriterOptions {
         width: config.width,
         height: config.height,
@@ -619,12 +628,28 @@ fn encode_split(
     let bounds = chunk_bounds(payload.len(), split_size)?;
     if bounds.len() == 1 {
         let info = write_one(
-            args, payload, output, config, profile, image_time, 0, None, None, None,
+            args, payload, output, config, profile, image_time, 0, None, None, None, None,
         )?;
         print_write(&info);
         return Ok(());
     }
 
+    let shared_location = if profile
+        .fidelity
+        .as_ref()
+        .is_some_and(|fidelity| fidelity.emit_gps)
+    {
+        let mut rng = rawhide_core::Rng64::new(args.seed);
+        Some(rawhide_core::geo::sample_location(
+            &mut rng,
+            args.gps_radius,
+            image_time.map(|image_time| image_time.datetime),
+            image_time.map(|image_time| image_time.offset.as_str()),
+            None,
+        )?)
+    } else {
+        None
+    };
     let split_id = args
         .split_file_id
         .clone()
@@ -653,6 +678,7 @@ fn encode_split(
             Some(&split_id),
             Some(seq),
             Some(total),
+            shared_location.as_ref(),
         )?;
         println!(
             "wrote {} (chunk {seq}/{total}, {} of {})",

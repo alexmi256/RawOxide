@@ -690,3 +690,102 @@ fn encode_rejects_unknown_level_policy() {
         .failure()
         .stderr(predicate::str::contains("possible values"));
 }
+
+fn gps_coordinates(path: &std::path::Path) -> (Vec<[u32; 2]>, Vec<[u32; 2]>) {
+    let file = tiff_reader::TiffFile::open(path).unwrap();
+    let pointer = file.ifd(0).unwrap().tag(34_853).unwrap();
+    let offset = match &pointer.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected GPS pointer {other:?}"),
+    };
+    let gps = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    let rational = |tag: u16| match &gps.tag(tag).unwrap().value {
+        tiff_reader::TagValue::Rational(values) => values.clone(),
+        other => panic!("unexpected GPS value {other:?}"),
+    };
+    (rational(2), rational(4))
+}
+
+#[test]
+fn split_set_shares_one_gps_location() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("vol.dng");
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--camera-profile",
+        "custom_pixel_xl",
+        "--split-file",
+        "3000",
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--level-policy",
+        "strict",
+        "--seed",
+        "7",
+    ]);
+    encode.assert().success();
+
+    let album = dir.path().join("payload_5000");
+    let first = album.join("vol0001.dng");
+    let second = album.join("vol0002.dng");
+    assert_eq!(gps_coordinates(&first), gps_coordinates(&second));
+}
+
+#[test]
+fn encode_rejects_out_of_range_gps_radius() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("radius.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--gps-radius",
+        "30",
+    ]);
+    encode
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("gps radius must be between"));
+}
+
+#[test]
+fn encode_accepts_a_valid_gps_radius() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("radius.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--camera-profile",
+        "custom_pixel_xl",
+        "--gps-radius",
+        "5",
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--seed",
+        "2",
+    ]);
+    encode.assert().success();
+    assert_eq!(gps_coordinates(&encoded).0.len(), 3);
+}

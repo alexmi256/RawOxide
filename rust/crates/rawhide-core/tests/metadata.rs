@@ -134,3 +134,48 @@ fn default_exposure_bias_pool_is_not_always_zero() {
     assert!(seen.len() > 1);
     assert!(seen.iter().any(|bias| *bias != 0));
 }
+
+#[test]
+fn gps_profile_emits_location_and_utc_timestamp() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let mut randomizer = MetadataRandomizer::new(Some(4), Some(profile));
+    let metadata = randomizer.randomize(None);
+    let gps = metadata.gps.as_ref().expect("GPS block");
+    assert!(gps.lat_ref == 'N' || gps.lat_ref == 'S');
+    assert!(gps.lon_ref == 'E' || gps.lon_ref == 'W');
+    assert_ne!(gps.zone, "");
+    let local =
+        chrono::NaiveDateTime::parse_from_str(&metadata.datetime, "%Y:%m:%d %H:%M:%S").unwrap();
+    let offset = metadata.offset.clone();
+    let hours: i64 = offset[1..3].parse().unwrap();
+    let minutes: i64 = offset[4..6].parse().unwrap();
+    let seconds = (hours * 3600 + minutes * 60) * if offset.starts_with('-') { -1 } else { 1 };
+    let utc = local - chrono::Duration::seconds(seconds);
+    assert_eq!(gps.date, utc.format("%Y:%m:%d").to_string());
+    assert_eq!(
+        gps.time,
+        (
+            utc.format("%H").to_string().parse::<u32>().unwrap(),
+            utc.format("%M").to_string().parse::<u32>().unwrap(),
+            utc.format("%S").to_string().parse::<u32>().unwrap(),
+        )
+    );
+}
+
+#[test]
+fn pinned_offset_drives_gps_utc_fields() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let mut randomizer = MetadataRandomizer::new(Some(4), Some(profile));
+    let time = rawhide_core::ImageTime {
+        datetime: chrono::NaiveDate::from_ymd_opt(2021, 6, 5)
+            .unwrap()
+            .and_hms_opt(14, 30, 9)
+            .unwrap(),
+        offset: "+09:00".to_owned(),
+    };
+    let metadata = randomizer.randomize(Some(&time));
+    let gps = metadata.gps.as_ref().expect("GPS block");
+    assert_eq!(metadata.offset, "+09:00");
+    assert_eq!(gps.date, "2021:06:05");
+    assert_eq!(gps.time, (5, 30, 9));
+}

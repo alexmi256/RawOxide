@@ -317,6 +317,24 @@ fn dng_tags_live_in_ifd0_not_raw_subifd() {
             metadata.camera_serial.clone()
         ))
     );
+    let packet = match ifd0.tag(700).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Byte(bytes)) => bytes,
+        other => panic!("unexpected XMP value {other:?}"),
+    };
+    assert_eq!(packet.len(), 12_288);
+    assert!(packet.starts_with(b"<?xpacket begin"));
+    let text = String::from_utf8_lossy(packet);
+    assert!(text.contains("<xmp:Rating>0</xmp:Rating>"));
+    let end = b"<?xpacket end=\"w\"?>\n";
+    let end_at = packet
+        .windows(end.len())
+        .position(|window| window == end)
+        .expect("XMP end marker");
+    assert!(
+        packet[end_at + end.len()..]
+            .iter()
+            .all(|byte| *byte == b' ')
+    );
 }
 
 #[test]
@@ -371,6 +389,7 @@ fn strict_level_policy_changes_emitted_white_and_black() {
         max_sample <= 16_368,
         "strict sample {max_sample} above white"
     );
+    assert!(ifd0.tag(700).is_none(), "fidelity emit_xmp=false must win");
     assert!(ifd0.tag(50_739).is_some(), "ShadowScale missing");
     assert!(
         ifd0.tag(50_740).is_none(),
@@ -410,7 +429,7 @@ fn fidelity_tag_flags_and_allowlist_are_honoured() {
     for tag in [42_034_u16, 42_035, 42_036, 42_037, 42_033, 34_850, 36_880] {
         assert!(exif_ifd.tag(tag).is_none(), "tag {tag} should be filtered");
     }
-    assert!(file.ifd(0).unwrap().tag(50_735).is_none());
+    assert!(file.ifd(0).unwrap().tag(700).is_none());
     assert!(exif_ifd.tag(37_382).is_some());
     assert!(exif_ifd.tag(41_996).is_some());
 }
@@ -474,4 +493,71 @@ fn cfa_crop_margin_that_leaves_no_image_is_rejected() {
     let error = write_dng(&path, &[1_u8; 16], &options).unwrap_err();
     assert!(matches!(error, WriteError::InvalidCrop { .. }), "{error}");
     assert!(!path.exists());
+}
+
+#[test]
+fn writer_emits_gps_ifd_for_gps_profiles() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("gps.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawhide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        frames: 2,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    assert_eq!(
+        DngReader::open(&path).unwrap().raw_frames().unwrap().len(),
+        2
+    );
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let pointer = file.ifd(0).unwrap().tag(34_853).expect("GPSTag");
+    let offset = match &pointer.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected GPS pointer {other:?}"),
+    };
+    let gps = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    for tag in [0_u16, 1, 2, 3, 4, 5, 6, 7, 11, 27, 29] {
+        assert!(gps.tag(tag).is_some(), "missing GPS tag {tag}");
+    }
+}
+
+#[test]
+fn gps_ifd_is_valid_when_exif_is_absent() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("gps-no-exif.dng");
+    let mut profile = rawhide_core::profiles::get_profile("custom_pixel_xl")
+        .unwrap()
+        .clone();
+    profile.fidelity.as_mut().unwrap().exif_allow = Some(Vec::new());
+    let metadata = rawhide_core::MetadataRandomizer::new(Some(4), Some(&profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(&profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert!(ifd0.tag(34_665).is_none(), "EXIF should be filtered out");
+    let pointer = ifd0.tag(34_853).expect("GPSTag");
+    let offset = match &pointer.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected GPS pointer {other:?}"),
+    };
+    let gps = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    assert!(gps.tag(2).is_some());
+    assert!(gps.tag(29).is_some());
 }
