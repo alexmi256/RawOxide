@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "slug": "leica_x_u_typ_113",
+  "display_name": "Leica X-U (Typ 113)",
+  "make": "LEICA CAMERA AG",
+  "model": "LEICA X-U (Typ 113)",
+  "unique_camera_model": "LEICA X-U (Typ 113)",
+  "software": "1.0",
+  "dng_version": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      10702,
+      10000
+    ],
+    [
+      -3867,
+      10000
+    ],
+    [
+      -44,
+      10000
+    ],
+    [
+      -4003,
+      10000
+    ],
+    [
+      12850,
+      10000
+    ],
+    [
+      4350,
+      10000
+    ],
+    [
+      -384,
+      10000
+    ],
+    [
+      962,
+      10000
+    ],
+    [
+      8216,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      7158,
+      10000
+    ],
+    [
+      -1911,
+      10000
+    ],
+    [
+      -606,
+      10000
+    ],
+    [
+      -3603,
+      10000
+    ],
+    [
+      10669,
+      10000
+    ],
+    [
+      2530,
+      10000
+    ],
+    [
+      -659,
+      10000
+    ],
+    [
+      1236,
+      10000
+    ],
+    [
+      5530,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    1,
+    1
+  ],
+  "baseline_sharpness": [
+    1,
+    1
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033ff0000000000000bfad9f7f3b556fbf3f71b323939205363f6c6c88a88882ec000000000000000000000000000000003feff7bfcac61e61bfacd32fa21011fa3f66a94f09c55bc23f7137bad80ee416000000000000000000000000000000003feff2a035ffe75abfac1342ea184ccc3f642d871b176d833f711f543c373f34000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 4928,
+  "native_height": 3264,
+  "native_geometry_note": "4928x3264 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 12,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "23.0 mm f/1.7",
+      23.0,
+      23.0,
+      1.7,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      350,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "00"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 4928,
+      "height": 3264,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica X-U (Typ 113)/0878636919.dng",
+    "Leica X-U (Typ 113)/9581779005.dng"
+  ],
+  "representative": "Leica X-U (Typ 113)/0878636919.dng"
+}

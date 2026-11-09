@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "slug": "canon_powershot_g1_x_mark_iii",
+  "display_name": "Canon PowerShot G1 X Mark III",
+  "make": "Canon",
+  "model": "Canon PowerShot G1 X Mark III",
+  "unique_camera_model": "Canon PowerShot G1 X Mark III",
+  "software": "",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6024,
+  "native_height": 4020,
+  "native_geometry_note": "6024x4020 most common decoded dims across 2 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "Canon PowerShot G1 X Mark III built-in lens",
+      15.0,
+      28.3,
+      4.5,
+      "Canon"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "51"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6024,
+      "height": 4020,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Canon PowerShot G1X Mark III/1690809749.cr2",
+    "Canon PowerShot G1X Mark III/8322868006.cr2"
+  ],
+  "representative": "Canon PowerShot G1X Mark III/1690809749.cr2"
+}

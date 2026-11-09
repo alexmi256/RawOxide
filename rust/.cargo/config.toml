@@ -1,0 +1,7 @@
+[alias]
+b = "build"
+c = "check"
+t = "test"
+lint = "clippy --workspace --all-targets --all-features -- -D warnings"
+fmt-check = "fmt --all -- --check"
+cov = "llvm-cov nextest --workspace --all-features"

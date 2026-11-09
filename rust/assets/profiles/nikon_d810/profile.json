@@ -1,0 +1,296 @@
+{
+  "schema": 1,
+  "slug": "nikon_d810",
+  "display_name": "Nikon D810",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON D810",
+  "unique_camera_model": "NIKON D810",
+  "software": "Ver.1.12",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 7380,
+  "native_height": 4928,
+  "native_geometry_note": "7380x4928 most common decoded dims across 15 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "NIKON D810 built-in lens",
+      0.0,
+      300.0,
+      2.0,
+      "Nikon"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      8000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      13000,
+      10000
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1000,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "30"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 7380,
+      "height": 4928,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Iceland at ISO 64 the Nikon D810 on the Ring Road/3379739213.nef",
+    "Iceland at ISO 64 the Nikon D810 on the Ring Road/8898855115.nef",
+    "Nikon 105mm F1.4E ED real world/1049143941.nef",
+    "Nikon 105mm F1.4E ED real world/5395988719.nef",
+    "Nikon AF-P 70-300mm F4.5-5.6 E/4366924001.nef",
+    "Nikon AF-P 70-300mm F4.5-5.6 E/5108702640.nef",
+    "Nikon AF-S Nikkor 24-70mm F2.8E ED VR Real-world/0691993498.nef",
+    "Nikon AF-S Nikkor 24-70mm F2.8E ED VR Real-world/2010946162.nef",
+    "Nikon AF-S Nikkor 24mm F1.8G ED/4678583127.nef",
+    "Nikon AF-S Nikkor 8-15mm F3.5-4.5E ED/3762148701.nef",
+    "Nikon AF-S Nikkor 8-15mm F3.5-4.5E ED/4511805185.nef",
+    "Nikon PC Nikkor 19mm F4E ED/4694070657.nef",
+    "Nikon PC Nikkor 19mm F4E ED/8420601330.nef",
+    "Venus Laowa 12mm F2.8/3301295192.nef",
+    "Venus Laowa 12mm F2.8/6635325611.nef"
+  ],
+  "representative": "Iceland at ISO 64 the Nikon D810 on the Ring Road/3379739213.nef"
+}

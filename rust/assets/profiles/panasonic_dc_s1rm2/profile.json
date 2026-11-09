@@ -1,0 +1,378 @@
+{
+  "schema": 1,
+  "slug": "panasonic_dc_s1rm2",
+  "display_name": "Panasonic DC-S1RM2",
+  "make": "Panasonic",
+  "model": "DC-S1RM2",
+  "unique_camera_model": "DC-S1RM2",
+  "software": "Ver.1.5",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8152,
+  "native_height": 5432,
+  "native_geometry_note": "8152x5432 most common decoded dims across 18 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "20-60mm F2.8-4 DG | Contemporary 026",
+      20.0,
+      60.0,
+      2.8,
+      ""
+    ],
+    [
+      "35mm F1.4 DG II | Art 026",
+      35.0,
+      35.0,
+      1.4,
+      ""
+    ],
+    [
+      "85mm F1.2 DG | Art 026",
+      85.0,
+      85.0,
+      1.2,
+      ""
+    ],
+    [
+      "LK SAMYANG 14-24mm F2.8",
+      14.0,
+      24.0,
+      2.8,
+      ""
+    ],
+    [
+      "LUMIX S 100-500/F5-7.1",
+      100.0,
+      500.0,
+      5.0,
+      ""
+    ],
+    [
+      "LUMIX S 100/F2.8 MACRO",
+      100.0,
+      100.0,
+      2.8,
+      ""
+    ],
+    [
+      "LUMIX S 20-60/F3.5-5.6",
+      20.0,
+      60.0,
+      3.5,
+      ""
+    ],
+    [
+      "LUMIX S 20/F2.5",
+      20.0,
+      20.0,
+      2.5,
+      ""
+    ],
+    [
+      "LUMIX S 24-60/F2.8",
+      24.0,
+      60.0,
+      2.8,
+      ""
+    ],
+    [
+      "LUMIX S 40/F2",
+      40.0,
+      40.0,
+      2.0,
+      ""
+    ],
+    [
+      "VILTROX AF 16mm F1.8 L",
+      16.0,
+      16.0,
+      1.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    80,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2000,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      6400
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      1,
+      5
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      220,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      360,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "92A",
+    "94A",
+    "93A",
+    "95A"
+  ],
+  "serial_prefixes_note": "fallback (serials non-alphanumeric)",
+  "subprofiles": {
+    "native": {
+      "width": 8152,
+      "height": 5432,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "LK Samyang AF 14-24mm F2.8 L/2957889504.rw2",
+    "LK Samyang AF 14-24mm F2.8 L/9373856473.rw2",
+    "Panasonic Lumix DC-S1RII/1406432606.rw2",
+    "Panasonic Lumix DC-S1RII/4775461970.rw2",
+    "Panasonic Lumix S 100-500mm F5-7.1 OIS/1573465925.rw2",
+    "Panasonic Lumix S 100-500mm F5-7.1 OIS/9597515174.rw2",
+    "Panasonic Lumix S 20mm F2.5/P1031566.RW2",
+    "Panasonic Lumix S 24-60mm F2.8/8969051641.rw2",
+    "Panasonic Lumix S 24-60mm F2.8/9278849358.rw2",
+    "Panasonic Lumix S 40mm F2.0/7175127693.rw2",
+    "Panasonic Lumix S 40mm F2.0/9625478314.rw2",
+    "Sigma 20-60mm F2.8-4 DG Contemporary/P1011077.RW2",
+    "Sigma 20-60mm F2.8-4 DG Contemporary/P1031251.RW2",
+    "Sigma 35mm F1.4 DG II/9164881672.rw2",
+    "Sigma 35mm F1.4 DG II/9592074776.rw2",
+    "Sigma 85mm F1.2 DG Art/P1010981.RW2",
+    "Viltrox AF 16mm F1.8 L/0164541249.rw2",
+    "Viltrox AF 16mm F1.8 L/1694557518.rw2"
+  ],
+  "representative": "LK Samyang AF 14-24mm F2.8 L/2957889504.rw2"
+}

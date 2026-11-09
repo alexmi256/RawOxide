@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "slug": "leica_q3_mono",
+  "display_name": "Leica Q3 MONO",
+  "make": "LEICA CAMERA AG",
+  "model": "LEICA Q3 MONO",
+  "unique_camera_model": "LEICA Q3 MONO",
+  "software": "3.9.0",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    10,
+    10
+  ],
+  "baseline_sharpness": [
+    10,
+    10
+  ],
+  "linear_response_limit": [
+    10,
+    10
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 2048,
+  "opcode_list3_hex": "0000000100000001010400000000000000000044000000013feff9fc6f11c92fbfac0cce31cd1ce2bfb4bc63beecd4683fa6ba4575a116ed000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 9520,
+  "native_height": 6336,
+  "native_geometry_note": "9520x6336 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "SUMMILUX 1:1.7/28 ASPH.",
+      28.0,
+      28.0,
+      1.7,
+      "LEICA CAMERA AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "61"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 9520,
+      "height": 6336,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Leica Q3 Monochrom/1595045130.dng",
+    "Leica Q3 Monochrom/2706748612.dng"
+  ],
+  "representative": "Leica Q3 Monochrom/1595045130.dng"
+}

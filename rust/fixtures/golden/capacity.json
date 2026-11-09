@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "capacity": 1179630,
+      "format_kb": "1,152.0 KB",
+      "format_kb_hi": "1,152.0 KB",
+      "format_kb_lo": "1,151.9 KB",
+      "frames": 1,
+      "lsb_planes": 1,
+      "n_samples_per_frame": 9437184
+    },
+    {
+      "capacity": 4718574,
+      "format_kb": "4,608.0 KB",
+      "format_kb_hi": "4,608.0 KB",
+      "format_kb_lo": "4,607.9 KB",
+      "frames": 1,
+      "lsb_planes": 4,
+      "n_samples_per_frame": 9437184
+    },
+    {
+      "capacity": 2359278,
+      "format_kb": "2,304.0 KB",
+      "format_kb_hi": "2,304.0 KB",
+      "format_kb_lo": "2,303.9 KB",
+      "frames": 2,
+      "lsb_planes": 1,
+      "n_samples_per_frame": 9437184
+    },
+    {
+      "capacity": 786414,
+      "format_kb": "768.0 KB",
+      "format_kb_hi": "768.0 KB",
+      "format_kb_lo": "767.9 KB",
+      "frames": 1,
+      "lsb_planes": 2,
+      "n_samples_per_frame": 3145728
+    },
+    {
+      "capacity": 147435,
+      "format_kb": "144.0 KB",
+      "format_kb_hi": "144.0 KB",
+      "format_kb_lo": "143.9 KB",
+      "frames": 1,
+      "lsb_planes": 1,
+      "n_samples_per_frame": 1179630
+    }
+  ]
+}

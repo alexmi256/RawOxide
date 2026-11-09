@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "slug": "om_system_1",
+  "display_name": "OM System OM-1",
+  "make": "OM Digital Solutions",
+  "model": "OM-1",
+  "unique_camera_model": "OM-1",
+  "software": "Version 1.3",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5220,
+  "native_height": 3912,
+  "native_geometry_note": "5220x3912 most common decoded dims across 16 sample(s) (largest seen 10388x7792 hi-res composite excluded)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "OLYMPUS M.12-100mm F4.0",
+      12.0,
+      100.0,
+      4.0,
+      ""
+    ],
+    [
+      "OLYMPUS M.40-150mm F2.8",
+      40.0,
+      150.0,
+      2.8,
+      ""
+    ],
+    [
+      "OM 12-40mm F2.8 II",
+      12.0,
+      40.0,
+      2.8,
+      ""
+    ],
+    [
+      "OM 40-150mm F4.0",
+      40.0,
+      150.0,
+      4.0,
+      ""
+    ],
+    [
+      "OM 90mm F3.5",
+      90.0,
+      90.0,
+      3.5,
+      ""
+    ],
+    [
+      "OM 90mm F3.5 + MC-20",
+      90.0,
+      90.0,
+      3.5,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2500,
+    3200,
+    6400,
+    10000
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      31,
+      10000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      350,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 5220,
+      "height": 3912,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "OM System 12-40mm F2.8 PRO II/0343035219.orf",
+    "OM System 12-40mm F2.8 PRO II/6880123238.orf",
+    "OM System 40-150mm F4 Pro/6056103892.orf",
+    "OM System 40-150mm F4 Pro/9706352168.orf",
+    "OM System 90mm F3.5 Pro/0538280009.orf",
+    "OM System 90mm F3.5 Pro/5252575739.orf",
+    "OM System M. Zuiko 90mm F3.5 Macro/1185618032.orf",
+    "OM System M. Zuiko 90mm F3.5 Macro/6116345724.orf",
+    "OM System OM-1 2/0040928920.orf",
+    "OM System OM-1 2/1468605140.orf",
+    "OM System OM-1 Indoor Hockey/2317089586.orf",
+    "OM System OM-1 Indoor Hockey/4288553495.orf",
+    "OM System OM-1 rugby/0633086755.orf",
+    "OM System OM-1 rugby/8867024903.orf",
+    "OM System OM-1/0881883472.orf",
+    "OM System OM-1/8266623696.orf"
+  ],
+  "representative": "OM System 12-40mm F2.8 PRO II/0343035219.orf"
+}

@@ -1,0 +1,352 @@
+{
+  "schema": 1,
+  "slug": "nikon_z_9",
+  "display_name": "Nikon Z 9",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON Z 9",
+  "unique_camera_model": "NIKON Z 9",
+  "software": "Ver.03.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8280,
+  "native_height": 5520,
+  "native_geometry_note": "8280x5520 most common decoded dims across 13 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "NIKKOR Z 100-400mm f/4.5-5.6 VR S",
+      100.0,
+      400.0,
+      4.5,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-120mm f/4 S",
+      24.0,
+      120.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-70mm f/2.8 S",
+      24.0,
+      70.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 26mm f/2.8",
+      26.0,
+      26.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 400mm f/2.8 TC VR S",
+      400.0,
+      400.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 400mm f/4.5 VR S",
+      400.0,
+      400.0,
+      4.5,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 400mm f/4.5 VR S Z TC-1.4x",
+      400.0,
+      400.0,
+      4.5,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 50mm f/1.2 S",
+      50.0,
+      50.0,
+      1.2,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 70-200mm f/2.8 VR S",
+      70.0,
+      200.0,
+      2.8,
+      "NIKON"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    220,
+    250,
+    320,
+    400,
+    450,
+    500,
+    560,
+    640,
+    720,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      120,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "30"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8280,
+      "height": 5520,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Nikon 100-400mm F4.5-5.6 VR S/4793464566.nef",
+    "Nikon 100-400mm F4.5-5.6 VR S/9824960324.nef",
+    "Nikon Z 24-120mm F4 S/5648671659.nef",
+    "Nikon Z 26mm F2.8/1090122817.nef",
+    "Nikon Z 26mm F2.8/6259952358.nef",
+    "Nikon Z 400mm F4.5 VR S/0235698154.nef",
+    "Nikon Z 400mm F4.5 VR S/0682451933.nef",
+    "Nikon Z 50mm F1.2 S/7313043037.nef",
+    "Nikon Z 50mm F1.2 S/8556552514.nef",
+    "Nikon Z9 firmware 2.0/3388858452.nef",
+    "Nikon Z9 firmware 2.0/7594074316.nef",
+    "Nikon Z9 rugby/3050885669.nef",
+    "Nikon Z9 rugby/3661603919.nef",
+    "Nikon Z9/1057632638.nef",
+    "Nikon Z9/2438669702.nef"
+  ],
+  "representative": "Nikon 100-400mm F4.5-5.6 VR S/4793464566.nef"
+}

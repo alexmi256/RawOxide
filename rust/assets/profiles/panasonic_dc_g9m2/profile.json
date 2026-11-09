@@ -1,0 +1,261 @@
+{
+  "schema": 1,
+  "slug": "panasonic_dc_g9m2",
+  "display_name": "Panasonic DC-G9M2",
+  "make": "Panasonic",
+  "model": "DC-G9M2",
+  "unique_camera_model": "DC-G9M2",
+  "software": "Ver.2.1",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5784,
+  "native_height": 4344,
+  "native_geometry_note": "5784x4344 most common decoded dims across 4 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "DC-G9M2 built-in lens",
+      12.0,
+      35.0,
+      3.1,
+      "Panasonic"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2000,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1600
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      310,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "92A",
+    "94A",
+    "93A",
+    "95A"
+  ],
+  "serial_prefixes_note": "fallback (serials non-alphanumeric)",
+  "subprofiles": {
+    "native": {
+      "width": 5784,
+      "height": 4344,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Panasonic Lumix DC-G9 II 2/2662298390.rw2",
+    "Panasonic Lumix DC-G9 II 2/4118723195.rw2",
+    "Panasonic Lumix DC-G9 II/5907621582.rw2",
+    "Panasonic Lumix DC-G9 II/9165928236.rw2"
+  ],
+  "representative": "Panasonic Lumix DC-G9 II 2/2662298390.rw2"
+}

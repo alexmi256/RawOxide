@@ -1,0 +1,325 @@
+{
+  "schema": 1,
+  "slug": "apple_iphone_7",
+  "display_name": "Apple iPhone 7",
+  "make": "Apple",
+  "model": "iPhone 7",
+  "unique_camera_model": "iPhone 7",
+  "software": "ProCam 8.0",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      1071463104,
+      1073741824
+    ],
+    [
+      -406720480,
+      1073741824
+    ],
+    [
+      -165394560,
+      1073741824
+    ],
+    [
+      -497395424,
+      1073741824
+    ],
+    [
+      1525636864,
+      1073741824
+    ],
+    [
+      286942400,
+      1073741824
+    ],
+    [
+      -48729468,
+      1073741824
+    ],
+    [
+      135415552,
+      1073741824
+    ],
+    [
+      820634688,
+      1073741824
+    ]
+  ],
+  "color_matrix2": [
+    [
+      748492544,
+      1073741824
+    ],
+    [
+      -241942400,
+      1073741824
+    ],
+    [
+      -61580424,
+      1073741824
+    ],
+    [
+      -505051872,
+      1073741824
+    ],
+    [
+      1308884864,
+      1073741824
+    ],
+    [
+      226785424,
+      1073741824
+    ],
+    [
+      -108393824,
+      1073741824
+    ],
+    [
+      143213536,
+      1073741824
+    ],
+    [
+      595292992,
+      1073741824
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": "0000000100000003010300000000000000000038400001cd7dd7034dc015b7d346a4da334034a493773e837cc03b8f5346bf0d3940290156acfd271c3fe00000000000003fe0000000000000",
+  "native_width": 4032,
+  "native_height": 3024,
+  "native_geometry_note": "4032x3024 most common decoded dims across 1 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "iPhone 7 back camera 3.99mm f/1.8",
+      3.99,
+      3.99,
+      1.8,
+      "Apple"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      15
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 4032,
+      "height": 3024,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "iPhone 7/6171790209.dng"
+  ],
+  "representative": "iPhone 7/6171790209.dng"
+}

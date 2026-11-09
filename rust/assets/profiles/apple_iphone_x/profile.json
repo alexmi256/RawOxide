@@ -1,0 +1,343 @@
+{
+  "schema": 1,
+  "slug": "apple_iphone_x",
+  "display_name": "Apple iPhone X",
+  "make": "Apple",
+  "model": "iPhone X",
+  "unique_camera_model": "iPhone X",
+  "software": "Adobe Camera 1.1",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      1675912448,
+      1073741824
+    ],
+    [
+      -962788992,
+      1073741824
+    ],
+    [
+      -149099808,
+      1073741824
+    ],
+    [
+      -518285888,
+      1073741824
+    ],
+    [
+      1591572992,
+      1073741824
+    ],
+    [
+      162835504,
+      1073741824
+    ],
+    [
+      -21493202,
+      1073741824
+    ],
+    [
+      131182544,
+      1073741824
+    ],
+    [
+      809380736,
+      1073741824
+    ]
+  ],
+  "color_matrix2": [
+    [
+      917392256,
+      1073741824
+    ],
+    [
+      -279967680,
+      1073741824
+    ],
+    [
+      -103997368,
+      1073741824
+    ],
+    [
+      -579435520,
+      1073741824
+    ],
+    [
+      1423381376,
+      1073741824
+    ],
+    [
+      189191392,
+      1073741824
+    ],
+    [
+      -101198536,
+      1073741824
+    ],
+    [
+      178002592,
+      1073741824
+    ],
+    [
+      574159744,
+      1073741824
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": "00000001000000030103000000000000000000383fc0cfa92f27a4a33ff5256d55fff804c0053437d48cf28840002f565441ee03bfdb23e91aa19c103fdfc804ff6ac5203fdeb4994754cc62",
+  "native_width": 4032,
+  "native_height": 3024,
+  "native_geometry_note": "4032x3024 most common decoded dims across 2 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "iPhone X back camera 4mm f/1.8",
+      4.0,
+      4.0,
+      1.8,
+      "Apple"
+    ],
+    [
+      "iPhone X back camera 6mm f/2.4",
+      6.0,
+      6.0,
+      2.4,
+      "Apple"
+    ]
+  ],
+  "iso_choices": [
+    16,
+    25,
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      453
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      1,
+      10
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      240,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 4032,
+      "height": 3024,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "iPhone X/4159813066.dng",
+    "iPhone X/8024474106.dng"
+  ],
+  "representative": "iPhone X/4159813066.dng"
+}

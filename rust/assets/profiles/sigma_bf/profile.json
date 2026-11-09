@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "slug": "sigma_bf",
+  "display_name": "Sigma BF",
+  "make": "Sigma",
+  "model": "Sigma BF",
+  "unique_camera_model": "Sigma BF",
+  "software": "Sigma BF Ver1.00.33FC",
+  "dng_version": [
+    1,
+    7,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      247078625,
+      100000000
+    ],
+    [
+      -110472345,
+      100000000
+    ],
+    [
+      -28887129,
+      100000000
+    ],
+    [
+      -12065621,
+      100000000
+    ],
+    [
+      110521917,
+      100000000
+    ],
+    [
+      868898,
+      100000000
+    ],
+    [
+      451310,
+      100000000
+    ],
+    [
+      9705055,
+      100000000
+    ],
+    [
+      23585057,
+      100000000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      82682658,
+      100000000
+    ],
+    [
+      -21722685,
+      100000000
+    ],
+    [
+      -6662944,
+      100000000
+    ],
+    [
+      -49088199,
+      100000000
+    ],
+    [
+      123360632,
+      100000000
+    ],
+    [
+      21395642,
+      100000000
+    ],
+    [
+      -10957767,
+      100000000
+    ],
+    [
+      20453462,
+      100000000
+    ],
+    [
+      53223137,
+      100000000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    10,
+    10
+  ],
+  "baseline_sharpness": [
+    13,
+    10
+  ],
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": 4096,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033ff0006de46e7eeebfa6c297aa949cadbf61b5e5c74a022c3f71162eabd245d6000000000000000000000000000000003feffefc0fa08d4fbfa6af40db249debbf641dad3f4d9c9d3f721edac99f1c4b000000000000000000000000000000003feffe9b16fe8a36bfa69df53b0cc3aabf64c9e7235e5e6b3f72516dd8b57253000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 6016,
+  "native_height": 4012,
+  "native_geometry_note": "6016x4012 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "LUMIX S 20-60/F3.5-5.6",
+      20.0,
+      60.0,
+      3.5,
+      "Panasonic"
+    ],
+    [
+      "35mm F2 DG | Contemporary 020",
+      35.0,
+      35.0,
+      2.0,
+      "Sigma"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    5000,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1300,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "91"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6016,
+      "height": 4012,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Sigma BF photo day/0312754091.dng",
+    "Sigma BF photo day/5952328216.dng",
+    "Sigma BF vacation photo challenge/0397378204.dng",
+    "Sigma BF vacation photo challenge/9609219312.dng",
+    "Sigma BF/4981074255.dng",
+    "Sigma BF/7021580800.dng"
+  ],
+  "representative": "Sigma BF photo day/0312754091.dng"
+}

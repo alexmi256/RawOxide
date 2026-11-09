@@ -1,0 +1,421 @@
+{
+  "schema": 1,
+  "slug": "canon_eos_5ds_r",
+  "display_name": "Canon EOS 5DS R",
+  "make": "Canon",
+  "model": "Canon EOS 5DS R",
+  "unique_camera_model": "Canon EOS 5DS R",
+  "software": "",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8736,
+  "native_height": 5856,
+  "native_geometry_note": "8736x5856 most common decoded dims across 26 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "12-24mm F4 DG HSM | Art 016",
+      12.0,
+      24.0,
+      4.0,
+      ""
+    ],
+    [
+      "14-24mm F2.8 DG HSM | Art 018",
+      14.0,
+      24.0,
+      2.8,
+      ""
+    ],
+    [
+      "14mm",
+      14.0,
+      14.0,
+      1.4,
+      ""
+    ],
+    [
+      "14mm F1.8 DG HSM | Art 017",
+      14.0,
+      14.0,
+      1.8,
+      ""
+    ],
+    [
+      "20mm F1.4 DG HSM | Art 015",
+      20.0,
+      20.0,
+      1.4,
+      ""
+    ],
+    [
+      "24-70mm F2.8 DG OS HSM | Art 017",
+      24.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "28mm F1.4 DG HSM | Art 019",
+      28.0,
+      28.0,
+      1.4,
+      ""
+    ],
+    [
+      "40mm F1.4 DG HSM | Art 018",
+      40.0,
+      40.0,
+      1.4,
+      ""
+    ],
+    [
+      "60-600mm F4.5-6.3 DG OS HSM | Sports 018",
+      60.0,
+      600.0,
+      4.5,
+      ""
+    ],
+    [
+      "70-200mm F2.8 DG OS HSM | Sports 018",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ],
+    [
+      "EF100-400mm f/4.5-5.6L IS II USM",
+      100.0,
+      400.0,
+      4.5,
+      ""
+    ],
+    [
+      "EF16-35mm f/2.8L III USM",
+      16.0,
+      35.0,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2000,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      4000
+    ],
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      20
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2000,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "02"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8736,
+      "height": 5856,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Canon 100-400mm F4.5-5.6L IS II/5388979576.cr2",
+    "Canon 100-400mm F4.5-5.6L IS II/9376721232.cr2",
+    "Canon 16-35mm F2.8L III USM/3379623732.cr2",
+    "Canon EOS 5DS R Real-World/5464364265.cr2",
+    "Canon EOS 5DS R Real-World/5644343782.cr2",
+    "Rokinon 14mm F2.8 EF/0697067845.cr2",
+    "Rokinon 14mm F2.8 EF/6052023823.cr2",
+    "Sigma 12-24 F4 DG HSM Art real-world/1980843946.cr2",
+    "Sigma 12-24 F4 DG HSM Art real-world/2881272183.cr2",
+    "Sigma 14-24mm F2.8 DG HSM Art/4172799374.cr2",
+    "Sigma 14-24mm F2.8 DG HSM Art/8460740279.cr2",
+    "Sigma 14mm F1.8 Art/0643401204.cr2",
+    "Sigma 20mm F1.4 Art/2631451047.cr2",
+    "Sigma 20mm F1.4 Art/9364963616.cr2",
+    "Sigma 24-70mm F2.8 Art/8309723137.cr2",
+    "Sigma 28mm F1.4 DG HSM Art/1084801566.cr2",
+    "Sigma 28mm F1.4 DG HSM Art/5220868373.cr2",
+    "Sigma 40mm F1.4 Art/1288008726.cr2",
+    "Sigma 40mm F1.4 Art/9283131747.cr2",
+    "Sigma 60-600mm F4.5-6.3 Sport/5321151719.cr2",
+    "Sigma 70-200mm F2.8 DG OS HSM Sport/0894170769.cr2",
+    "Tamron 100-400mm F4.5-6.3/9835262878.cr2",
+    "Tamron 24-70mm F2.8 Di VC USD G2/5376476997.cr2",
+    "Tamron 24-70mm F2.8 Di VC USD G2/8910353410.cr2",
+    "Tamron SP 90mm F2.8 DI Macro 11 VC USD/1658452133.cr2",
+    "Tamron SP 90mm F2.8 DI Macro 11 VC USD/7979383460.cr2"
+  ],
+  "representative": "Canon 100-400mm F4.5-5.6L IS II/5388979576.cr2"
+}

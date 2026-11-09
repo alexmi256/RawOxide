@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "slug": "hasselblad_x1d_ii_50c_123",
+  "display_name": "Hasselblad X1D II 50C",
+  "make": "Hasselblad",
+  "model": "X1D II 50C",
+  "unique_camera_model": "X1D II 50C",
+  "software": "1.0.2",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8278,
+  "native_height": 6208,
+  "native_geometry_note": "8278x6208 most common decoded dims across 4 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": null,
+  "crop_factor": 0.79,
+  "lenses": [
+    [
+      "XCD 30",
+      30.0,
+      30.0,
+      4.0,
+      "Hasselblad"
+    ],
+    [
+      "XCD 45 II",
+      45.0,
+      45.0,
+      4.0,
+      "Hasselblad"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      350
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      90
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      1,
+      10
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      14000,
+      10000
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 8278,
+      "height": 6208,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Hasselblad XCD 30mm F3.5/1527527596.3fr",
+    "Hasselblad XCD 30mm F3.5/5432950403.3fr",
+    "Hasselblad XCD 45mm F4/2877876453.3fr",
+    "Hasselblad XCD 45mm F4/7947289678.3fr"
+  ],
+  "representative": "Hasselblad XCD 30mm F3.5/1527527596.3fr"
+}

@@ -1,0 +1,511 @@
+{
+  "schema": 1,
+  "slug": "sony_ilce_7rm3",
+  "display_name": "Sony a7R III",
+  "make": "SONY",
+  "model": "ILCE-7RM3",
+  "unique_camera_model": "ILCE-7RM3",
+  "software": "ILCE-7RM3 v3.10",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 7968,
+  "native_height": 5320,
+  "native_geometry_note": "7968x5320 most common decoded dims across 66 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "#106 35/1.2",
+      35.0,
+      35.0,
+      1.2,
+      ""
+    ],
+    [
+      "105mm F1.4 DG HSM | Art 018",
+      105.0,
+      105.0,
+      1.4,
+      ""
+    ],
+    [
+      "24-70mm F2.8 DG DN | Art 019",
+      24.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "28-70mm F2.8 DG DN | Contemporary 021",
+      28.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "35mm F1.2 DG DN | Art 019",
+      35.0,
+      35.0,
+      1.2,
+      ""
+    ],
+    [
+      "45mm F2.8 DG DN | Contemporary 019",
+      45.0,
+      45.0,
+      2.8,
+      ""
+    ],
+    [
+      "60-600mm F4.5-6.3 DG DN OS | Sports 023",
+      60.0,
+      600.0,
+      4.5,
+      ""
+    ],
+    [
+      "65mm F2 DG DN | Contemporary 020",
+      65.0,
+      65.0,
+      2.0,
+      ""
+    ],
+    [
+      "85mm F1.4 DG DN | Art 020",
+      85.0,
+      85.0,
+      1.4,
+      ""
+    ],
+    [
+      "85mm F1.4 DG HSM | Art 018",
+      85.0,
+      85.0,
+      1.4,
+      ""
+    ],
+    [
+      "E 150-500mm F5-6.7 A057",
+      150.0,
+      500.0,
+      5.0,
+      ""
+    ],
+    [
+      "E 17-28mm F2.8-2.8",
+      17.0,
+      28.0,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      8000
+    ],
+    [
+      1,
+      5000
+    ],
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      2500
+    ],
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      80000,
+      10000
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      130,
+      100
+    ],
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      350,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      670,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1300,
+      100
+    ],
+    [
+      1400,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 7968,
+      "height": 5320,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Canon 70-200mm F4L IS II USM/5960752016.arw",
+    "Rokinon 35mm F2.8 AF/1875626133.arw",
+    "Rokinon 35mm F2.8 AF/2060047688.arw",
+    "Rokinon AF 14mm F2.8 FE/6872089660.arw",
+    "Rokinon AF 14mm F2.8 FE/7702860299.arw",
+    "Rokinon AF 35mm F1.4 FE/2949079920.arw",
+    "Rokinon AF 35mm F1.4 FE/8365205864.arw",
+    "Rokinon AF 50mm F1.4 FE/1418724583.arw",
+    "Rokinon AF 50mm F1.4 FE/8691550443.arw",
+    "Samyang  Rokinon AF 85mm F1.4 FE/0682031742.arw",
+    "Samyang  Rokinon AF 85mm F1.4 FE/8426180819.arw",
+    "Samyang XP  Rokinon SP 35mm F1.2/9574791468.arw",
+    "Sigma 105mm F1.4 DG HSM Art/4719828942.arw",
+    "Sigma 105mm F1.4 DG HSM Art/5425742092.arw",
+    "Sigma 24-70mm F2.8 DG DN/3679919179.arw",
+    "Sigma 24-70mm F2.8 DG DN/9988064314.arw",
+    "Sigma 28-70mm F2.8 DG DN/2771744483.arw",
+    "Sigma 28-70mm F2.8 DG DN/6163049615.arw",
+    "Sigma 35mm F1.2 DG DN Art/2636545420.arw",
+    "Sigma 35mm F1.2 DG DN Art/3223817378.arw",
+    "Sigma 45mm F2.8 DG DN Contemporary/3601902154.arw",
+    "Sigma 45mm F2.8 DG DN Contemporary/9843981347.arw",
+    "Sigma 60-600mm F4.5-6.3 DG DN OS Sports/1049136221.arw",
+    "Sigma 60-600mm F4.5-6.3 DG DN OS Sports/3727533986.arw",
+    "Sigma 65mm F2 DG DN 2/7692628889.arw",
+    "Sigma 65mm F2 DG DN 2/7718318212.arw",
+    "Sigma 85mm F1.4 DG DN/1625084464.arw",
+    "Sigma 85mm F1.4 DG DN/6650614293.arw",
+    "Sigma 85mm F1.4 DG HSM Art lens for Sony E-mount/5403657769.arw",
+    "Sony 12-24mm F2.8 GM 2/3610851837.arw",
+    "Sony 12-24mm F2.8 GM 2/5184794479.arw",
+    "Sony 24-105 F4 G OSS/9117127169.arw",
+    "Sony 24-105 F4 G OSS/9620871305.arw",
+    "Sony 24mm F1.4 GM in Sedona, Arizona/2684470857.arw",
+    "Sony 24mm F1.4 GM in Sedona, Arizona/5276003225.arw",
+    "Sony 24mm F1.4 GM/0961797580.arw",
+    "Sony 24mm F1.4 GM/7953087616.arw",
+    "Sony 35mm F2.8 ZA Carl Zeiss Sonnar T/6196272607.arw",
+    "Sony 35mm F2.8 ZA Carl Zeiss Sonnar T/7086796559.arw",
+    "Sony 70-300mm F4.5-5.6 G OSS/0758349689.arw",
+    "Sony 70-300mm F4.5-5.6 G OSS/1382718936.arw",
+    "Sony FE 28-60mm F4-5.6/7587517498.arw",
+    "Sony FE 28-60mm F4-5.6/8535219086.arw",
+    "Sony FE 35mm F1.8/0806544584.arw",
+    "Sony FE 35mm F1.8/8192784351.arw",
+    "Sony FE 85mm F1.8/0784806998.arw",
+    "Sony a7R III/0144514387.arw",
+    "Sony a7R III/1959107957.arw",
+    "Tamron 150-500mm F5-6.7/2089282747.arw",
+    "Tamron 150-500mm F5-6.7/5886035786.arw",
+    "Tamron 17-28mm F2.8 Di III RXD/2710569415.arw",
+    "Tamron 17-28mm F2.8 Di III RXD/7580670330.arw",
+    "Tamron 20mm F2.8/5054877819.arw",
+    "Tamron 20mm F2.8/6099382880.arw",
+    "Tamron 28-200mm F2.8-5.6 Di III RXD/6746502177.arw",
+    "Tamron 28-200mm F2.8-5.6 Di III RXD/7032299059.arw",
+    "Tamron 28-75mm F2.8 VXD G2/0994835951.arw",
+    "Tamron 28-75mm F2.8 VXD G2/6606192297.arw",
+    "Tamron 28-75mm F2.8/9514606305.arw",
+    "Tamron 28-75mm F2.8/9857119572.arw",
+    "Tamron 35-150mm F2-2.8 VXD/4328507615.arw",
+    "Tamron 35-150mm F2-2.8 VXD/9537318943.arw",
+    "Tamron 35mm F2.8 Di III OSD M12 2/4146068575.arw",
+    "Tamron 35mm F2.8 Di III OSD M12 2/8254157034.arw",
+    "Tamron 70-180mm F2.8/1428362365.arw",
+    "Tamron 70-180mm F2.8/6229755075.arw"
+  ],
+  "representative": "Canon 70-200mm F4L IS II USM/5960752016.arw"
+}

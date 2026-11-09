@@ -1,0 +1,346 @@
+{
+  "schema": 1,
+  "slug": "caira",
+  "display_name": "Camera Intelligence Caira",
+  "make": "Camera Intelligence",
+  "model": "Caira",
+  "unique_camera_model": "Caira",
+  "software": "",
+  "dng_version": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      12006,
+      10000
+    ],
+    [
+      -5066,
+      10000
+    ],
+    [
+      -610,
+      10000
+    ],
+    [
+      -1779,
+      10000
+    ],
+    [
+      10867,
+      10000
+    ],
+    [
+      1028,
+      10000
+    ],
+    [
+      -295,
+      10000
+    ],
+    [
+      1093,
+      10000
+    ],
+    [
+      5098,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      11054,
+      10000
+    ],
+    [
+      -3883,
+      10000
+    ],
+    [
+      -1136,
+      10000
+    ],
+    [
+      -2122,
+      10000
+    ],
+    [
+      11305,
+      10000
+    ],
+    [
+      898,
+      10000
+    ],
+    [
+      -637,
+      10000
+    ],
+    [
+      1452,
+      10000
+    ],
+    [
+      4955,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    100,
+    100
+  ],
+  "baseline_sharpness": [
+    100,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 819388,
+  "opcode_list3_hex": null,
+  "native_width": 4096,
+  "native_height": 2780,
+  "native_geometry_note": "4096x2780 most common decoded dims across 2 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "8.0-25.0 mm f/4.0-22.6",
+      8.0,
+      25.0,
+      4.0,
+      "OLYMPUS M.8-25mm F4.0"
+    ],
+    [
+      "20.0 mm f/1.4",
+      20.0,
+      20.0,
+      1.4,
+      "OM 20mm F1.4"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      7353
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      159
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 4096,
+      "height": 2780,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Camera Intelligence Caira/IMG_0253.dng",
+    "Camera Intelligence Caira/IMG_0475.dng"
+  ],
+  "representative": "Camera Intelligence Caira/IMG_0253.dng"
+}

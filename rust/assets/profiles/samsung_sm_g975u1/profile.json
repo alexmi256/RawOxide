@@ -1,0 +1,330 @@
+{
+  "schema": 1,
+  "slug": "samsung_sm_g975u1",
+  "display_name": "Samsung SM-G975U1",
+  "make": "samsung",
+  "model": "SM-G975U1",
+  "unique_camera_model": "SM-G975U1",
+  "software": "G975U1UEU1ASD3",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      698,
+      1024
+    ],
+    [
+      -90,
+      1024
+    ],
+    [
+      -120,
+      1024
+    ],
+    [
+      -603,
+      1024
+    ],
+    [
+      1517,
+      1024
+    ],
+    [
+      73,
+      1024
+    ],
+    [
+      -206,
+      1024
+    ],
+    [
+      441,
+      1024
+    ],
+    [
+      482,
+      1024
+    ]
+  ],
+  "color_matrix2": [
+    [
+      1395,
+      1024
+    ],
+    [
+      -636,
+      1024
+    ],
+    [
+      -181,
+      1024
+    ],
+    [
+      -462,
+      1024
+    ],
+    [
+      1542,
+      1024
+    ],
+    [
+      -29,
+      1024
+    ],
+    [
+      -61,
+      1024
+    ],
+    [
+      314,
+      1024
+    ],
+    [
+      572,
+      1024
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": 1,
+  "opcode_list3_hex": null,
+  "native_width": 4016,
+  "native_height": 3008,
+  "native_geometry_note": "4016x3008 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "SM-G975U1 built-in lens",
+      4.3,
+      4.3,
+      1.5,
+      "Samsung"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      12,
+      10000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      167,
+      10000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      150,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 4016,
+      "height": 3008,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Samsung Galaxy S10+/0726557120.dng",
+    "Samsung Galaxy S10+/1624969965.dng"
+  ],
+  "representative": "Samsung Galaxy S10+/0726557120.dng"
+}

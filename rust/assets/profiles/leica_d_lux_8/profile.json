@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "slug": "leica_d_lux_8",
+  "display_name": "Leica D-Lux 8",
+  "make": "LEICA CAMERA AG",
+  "model": "LEICA D-Lux 8",
+  "unique_camera_model": "LEICA D-Lux 8",
+  "software": "1.40",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      9994,
+      10000
+    ],
+    [
+      -4900,
+      10000
+    ],
+    [
+      18,
+      10000
+    ],
+    [
+      -4363,
+      10000
+    ],
+    [
+      13152,
+      10000
+    ],
+    [
+      1279,
+      10000
+    ],
+    [
+      -328,
+      10000
+    ],
+    [
+      965,
+      10000
+    ],
+    [
+      5835,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      8585,
+      10000
+    ],
+    [
+      -3127,
+      10000
+    ],
+    [
+      -833,
+      10000
+    ],
+    [
+      -4005,
+      10000
+    ],
+    [
+      12250,
+      10000
+    ],
+    [
+      1953,
+      10000
+    ],
+    [
+      -650,
+      10000
+    ],
+    [
+      1494,
+      10000
+    ],
+    [
+      4862,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    10,
+    10
+  ],
+  "baseline_sharpness": [
+    10,
+    10
+  ],
+  "linear_response_limit": [
+    10,
+    10
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 2056,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033ff0013ea04197f4bf4419c4c84e887f3f2a0d86483d2752bf30647e6db30c40000000000000000000000000000000003ff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003feffdeb61f743c93f524ad6a2c33000bf41ac235afa82f13f3758dcd07d4f01000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 4736,
+  "native_height": 3552,
+  "native_geometry_note": "4736x3552 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "DC VARIO-SUMMILUX 1:1.7-2.8/10.9-34 ASPH.",
+      1.7,
+      2.8,
+      2.8,
+      "LEICA CAMERA AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "59"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 4736,
+      "height": 3552,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica D-Lux 8/6949743966.dng",
+    "Leica D-Lux 8/9824710861.dng"
+  ],
+  "representative": "Leica D-Lux 8/6949743966.dng"
+}

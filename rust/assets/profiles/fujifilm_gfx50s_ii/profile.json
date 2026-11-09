@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "slug": "fujifilm_gfx50s_ii",
+  "display_name": "Fujifilm GFX50S II",
+  "make": "FUJIFILM",
+  "model": "GFX50S II",
+  "unique_camera_model": "GFX50S II",
+  "software": "FUJIFILM Pixel Shift Combiner",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8280,
+  "native_height": 6208,
+  "native_geometry_note": "8280x6208 most common decoded dims across 5 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": null,
+  "crop_factor": 0.79,
+  "lenses": [
+    [
+      "GF110mmF2 R LM WR",
+      110.0,
+      110.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF35-70mmF4.5-5.6 WR",
+      35.0,
+      70.0,
+      4.5,
+      "FUJIFILM"
+    ],
+    [
+      "GF45mmF2.8 R WR",
+      45.0,
+      45.0,
+      2.8,
+      "FUJIFILM"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      550
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      105
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      34
+    ],
+    [
+      1,
+      27
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1000,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "12"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8280,
+      "height": 6208,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "reference-gfx-combiner",
+  "sample_files": [
+    "Fujifilm GFX 50S II 2/2386189818.raf",
+    "Fujifilm GFX 50S II 2/4757769423.raf",
+    "Fujifilm GFX 50S II/7172845065.raf",
+    "Fujifilm GFX 50S II/9572048405.raf",
+    "Laowa 19mm F2.8 Zero-D/2935013775.raf"
+  ],
+  "representative": "Fujifilm GFX 50S II 2/2386189818.raf"
+}

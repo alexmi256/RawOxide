@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "slug": "google_pixel_xl",
+  "display_name": "Google Pixel XL",
+  "make": "Google",
+  "model": "Pixel XL",
+  "unique_camera_model": "Pixel XL",
+  "software": "google/marlin/marlin:7.1/NAE63P/3319494:user/release-keys",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      92,
+      128
+    ],
+    [
+      -25,
+      128
+    ],
+    [
+      -11,
+      128
+    ],
+    [
+      -72,
+      128
+    ],
+    [
+      173,
+      128
+    ],
+    [
+      21,
+      128
+    ],
+    [
+      -29,
+      128
+    ],
+    [
+      40,
+      128
+    ],
+    [
+      70,
+      128
+    ]
+  ],
+  "color_matrix2": [
+    [
+      136,
+      128
+    ],
+    [
+      -40,
+      128
+    ],
+    [
+      -35,
+      128
+    ],
+    [
+      -72,
+      128
+    ],
+    [
+      212,
+      128
+    ],
+    [
+      -15,
+      128
+    ],
+    [
+      -7,
+      128
+    ],
+    [
+      25,
+      128
+    ],
+    [
+      77,
+      128
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": 408393,
+  "opcode_list3_hex": "00000000",
+  "native_width": 4032,
+  "native_height": 3020,
+  "native_geometry_note": "4032x3020 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "Pixel XL built-in lens",
+      4.7,
+      4.7,
+      2.0,
+      "Google"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    51,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2300
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 4032,
+      "height": 3020,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Google Pixel Real World/5962057809.dng",
+    "Google Pixel Real World/9846071095.dng"
+  ],
+  "representative": "Google Pixel Real World/5962057809.dng"
+}

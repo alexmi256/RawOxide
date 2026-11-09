@@ -1,0 +1,20 @@
+* text=auto eol=lf
+
+*.rs text
+*.toml text
+*.md text
+*.yml text
+*.yaml text
+*.json text
+Cargo.lock text
+
+*.dng binary
+*.bin binary
+*.raw binary
+*.tif binary
+*.tiff binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.profraw binary
+*.profdata binary

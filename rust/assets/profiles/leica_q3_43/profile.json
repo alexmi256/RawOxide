@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "slug": "leica_q3_43",
+  "display_name": "Leica Q3 43",
+  "make": "LEICA CAMERA AG",
+  "model": "LEICA Q3 43",
+  "unique_camera_model": "LEICA Q3 43",
+  "software": "2.0.4",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      15406,
+      10000
+    ],
+    [
+      -6866,
+      10000
+    ],
+    [
+      -154,
+      10000
+    ],
+    [
+      -3920,
+      10000
+    ],
+    [
+      13782,
+      10000
+    ],
+    [
+      2304,
+      10000
+    ],
+    [
+      -486,
+      10000
+    ],
+    [
+      1393,
+      10000
+    ],
+    [
+      6457,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      10421,
+      10000
+    ],
+    [
+      -3579,
+      10000
+    ],
+    [
+      -991,
+      10000
+    ],
+    [
+      -3517,
+      10000
+    ],
+    [
+      11355,
+      10000
+    ],
+    [
+      1715,
+      10000
+    ],
+    [
+      -888,
+      10000
+    ],
+    [
+      1752,
+      10000
+    ],
+    [
+      4356,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    10,
+    10
+  ],
+  "baseline_sharpness": [
+    10,
+    10
+  ],
+  "linear_response_limit": [
+    10,
+    10
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 2048,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033fefd4bca5e266563f781249b1ccca22bfbabf2dbdf4aab13f992561a997ccdc000000000000000000000000000000003fefd239c1b6af243f7b72fb1e76d7c0bfbb06cc715cfb883f999565125d75ba000000000000000000000000000000003fefcfe2dc936d623f8058cf90e97f3bbfbb6ffc67c6c65f3f9a29ddbfe6f7ac000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 9520,
+  "native_height": 6336,
+  "native_geometry_note": "9520x6336 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "APO-SUMMICRON 1:2/43 ASPH.",
+      43.0,
+      43.0,
+      2.0,
+      "LEICA CAMERA AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "59"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 9520,
+      "height": 6336,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica Q3 43/1416153915.dng",
+    "Leica Q3 43/4030894411.dng"
+  ],
+  "representative": "Leica Q3 43/1416153915.dng"
+}

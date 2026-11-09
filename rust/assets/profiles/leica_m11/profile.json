@@ -1,0 +1,361 @@
+{
+  "schema": 1,
+  "slug": "leica_m11",
+  "display_name": "Leica M11",
+  "make": "Leica Camera AG",
+  "model": "LEICA M11",
+  "unique_camera_model": "LEICA M11",
+  "software": "1.22.20.21",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      2358,
+      4096
+    ],
+    [
+      -546,
+      4096
+    ],
+    [
+      -66,
+      4096
+    ],
+    [
+      -2488,
+      4096
+    ],
+    [
+      6300,
+      4096
+    ],
+    [
+      1785,
+      4096
+    ],
+    [
+      -403,
+      4096
+    ],
+    [
+      797,
+      4096
+    ],
+    [
+      3504,
+      4096
+    ]
+  ],
+  "color_matrix2": [
+    [
+      1700,
+      4096
+    ],
+    [
+      -326,
+      4096
+    ],
+    [
+      -200,
+      4096
+    ],
+    [
+      -2354,
+      4096
+    ],
+    [
+      5409,
+      4096
+    ],
+    [
+      974,
+      4096
+    ],
+    [
+      -612,
+      4096
+    ],
+    [
+      976,
+      4096
+    ],
+    [
+      2276,
+      4096
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 9528,
+  "native_height": 6328,
+  "native_geometry_note": "9528x6328 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "R-Adapter M",
+      0.0,
+      50.0,
+      2.8,
+      "Leica Camera AG"
+    ],
+    [
+      "Summicron-M 1:2/28 ASPH.",
+      28.0,
+      28.0,
+      2.0,
+      "Leica Camera AG"
+    ],
+    [
+      "Summilux-M 1:1.4/35 ASPH.",
+      35.0,
+      35.0,
+      1.4,
+      "Leica Camera AG"
+    ],
+    [
+      "Summilux-M 1:1.4/50 ASPH.",
+      50.0,
+      50.0,
+      1.4,
+      "Leica Camera AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    80,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      4000
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      25
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "55"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 9528,
+      "height": 6328,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica M11 2/3863343340.dng",
+    "Leica M11 2/7529374231.dng",
+    "Leica M11/1716728168.dng",
+    "Leica M11/7192963984.dng",
+    "Leica Summilux-M 50mm F1.4 ASPH/0972986496.dng",
+    "Leica Summilux-M 50mm F1.4 ASPH/4396123730.dng"
+  ],
+  "representative": "Leica M11 2/3863343340.dng"
+}

@@ -1,0 +1,335 @@
+{
+  "schema": 1,
+  "slug": "autel_xl720",
+  "display_name": "Autel XL720",
+  "make": "Autel Robotics",
+  "model": "XL720",
+  "unique_camera_model": "XL720",
+  "software": "V2.1.7.29",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      13007,
+      10000
+    ],
+    [
+      -7710,
+      10000
+    ],
+    [
+      920,
+      10000
+    ],
+    [
+      -1262,
+      10000
+    ],
+    [
+      8047,
+      10000
+    ],
+    [
+      3842,
+      10000
+    ],
+    [
+      122,
+      10000
+    ],
+    [
+      834,
+      10000
+    ],
+    [
+      5144,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      9945,
+      10000
+    ],
+    [
+      -3550,
+      10000
+    ],
+    [
+      -868,
+      10000
+    ],
+    [
+      -2576,
+      10000
+    ],
+    [
+      10944,
+      10000
+    ],
+    [
+      1866,
+      10000
+    ],
+    [
+      -426,
+      10000
+    ],
+    [
+      1697,
+      10000
+    ],
+    [
+      5299,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    300,
+    100
+  ],
+  "baseline_sharpness": [
+    133,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 819988,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033ff004189374bc6abfb597a24894c448bf8c0ebedfa43fe63f8a2c669057d178bed21b57ec9d6f09bebd1dea6e14d2ed3ff004189374bc6abfb597a24894c448bf8c0ebedfa43fe63f8a2c669057d178bed21b57ec9d6f09bebd1dea6e14d2ed3ff004189374bc6abfb597a24894c448bf8c0ebedfa43fe63f8a2c669057d178bed21b57ec9d6f09bebd1dea6e14d2ed3fe00000000000003fe0000000000000",
+  "native_width": 5472,
+  "native_height": 3648,
+  "native_geometry_note": "5472x3648 most common decoded dims across 2 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 2.7,
+  "lenses": [
+    [
+      "XL720 built-in lens",
+      10.6,
+      10.6,
+      2.8,
+      "Autel"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1400
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      150
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 5472,
+      "height": 3648,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Autel EVO Lite+/2203151315.dng",
+    "Autel EVO Lite+/7296763790.dng"
+  ],
+  "representative": "Autel EVO Lite+/2203151315.dng"
+}

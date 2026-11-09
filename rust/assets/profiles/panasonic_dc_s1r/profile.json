@@ -1,0 +1,423 @@
+{
+  "schema": 1,
+  "slug": "panasonic_dc_s1r",
+  "display_name": "Panasonic DC-S1R",
+  "make": "Panasonic",
+  "model": "DC-S1R",
+  "unique_camera_model": "DC-S1R",
+  "software": "Ver.1.9",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8392,
+  "native_height": 5620,
+  "native_geometry_note": "8392x5620 most common decoded dims across 61 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "DC-S1R built-in lens",
+      0.0,
+      600.0,
+      1.4,
+      "Panasonic"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    5000,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      10000
+    ],
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1300
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      25
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      16000,
+      10000
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      40000,
+      10000
+    ],
+    [
+      50000,
+      10000
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      80000,
+      10000
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      350,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1000,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "SAM"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8392,
+      "height": 5620,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Laowa 15mm F4.5 Zero-D Shift/0025043063.rw2",
+    "Laowa 15mm F4.5 Zero-D Shift/5265025760.rw2",
+    "Panasonic LUMIX S 18mm F1.8/2965034422.rw2",
+    "Panasonic LUMIX S 18mm F1.8/4574268687.rw2",
+    "Panasonic Lumix 14-28mm F4-5.6 macro/4837294677.rw2",
+    "Panasonic Lumix 14-28mm F4-5.6 macro/7839877485.rw2",
+    "Panasonic Lumix S 20-60mm F3.5-5.6 2/0081769380.rw2",
+    "Panasonic Lumix S 20-60mm F3.5-5.6 2/0294313651.rw2",
+    "Panasonic Lumix S 20-60mm F3.5-5.6/0699344465.rw2",
+    "Panasonic Lumix S 20-60mm F3.5-5.6/5068329519.rw2",
+    "Panasonic Lumix S 20mm F2.5/1099463.RW2",
+    "Panasonic Lumix S 24-105mm F4 Macro OIS/7890992022.rw2",
+    "Panasonic Lumix S 24mm F1.8/2072398790.rw2",
+    "Panasonic Lumix S 24mm F1.8/4222837744.rw2",
+    "Panasonic Lumix S 85mm F1.8/0083142345.rw2",
+    "Panasonic Lumix S 85mm F1.8/9233678011.rw2",
+    "Panasonic Lumix S Pro 24-70mm F2.8/0175889940.rw2",
+    "Panasonic Lumix S Pro 24-70mm F2.8/3377347593.rw2",
+    "Panasonic Lumix S Pro 70-200mm F2.8 O.I.S/1321589302.rw2",
+    "Panasonic Lumix S Pro 70-200mm F2.8 O.I.S/9922789534.rw2",
+    "Panasonic Lumix S Pro 70-200mm F4 OIS/0287870504.rw2",
+    "Panasonic Lumix S Pro 70-200mm F4 OIS/3045368922.rw2",
+    "Panasonic Lumix S1R at the Combine Demolition Derby/9547761840.rw2",
+    "Panasonic Lumix S1R at the Combine Demolition Derby/9921615738.rw2",
+    "Panasonic Lumix S1R/3011555477.rw2",
+    "Panasonic Lumix S1R/9523835889.rw2",
+    "Panasonic S 18mm F1.8/3402252554.rw2",
+    "Panasonic S 18mm F1.8/5103532004.rw2",
+    "Panasonic S 20-60mm F3.5-5.6/2451961451.rw2",
+    "Panasonic S 35mm F1.8 2/7737362931.rw2",
+    "Panasonic S 70-300mm F4.5-5.6 Macro OIS/1741144524.rw2",
+    "Panasonic S 70-300mm F4.5-5.6 Macro OIS/3603094764.rw2",
+    "Panasonic S1R/5429040673.rw2",
+    "Panasonic S1R/8840356406.rw2",
+    "Sigma 14mm F1.4 DG DN/0016815066.rw2",
+    "Sigma 14mm F1.4 DG DN/0712195366.rw2",
+    "Sigma 150-600mm F5-6.3 DG DN Sport/3309085080.rw2",
+    "Sigma 150-600mm F5-6.3 DG DN Sport/8811401218.rw2",
+    "Sigma 15mm F1.4 DG DN Diagonal Fisheye lens/0452254477.rw2",
+    "Sigma 15mm F1.4 DG DN Diagonal Fisheye lens/2515265394.rw2",
+    "Sigma 16-28mm F2.8 DG DN/3498052377.rw2",
+    "Sigma 16-28mm F2.8 DG DN/4997427276.rw2",
+    "Sigma 20mm F1.4 DG DN  Art/6792071345.rw2",
+    "Sigma 20mm F1.4 DG DN  Art/8306342154.rw2",
+    "Sigma 20mm F2 DG DN/3255153287.rw2",
+    "Sigma 23mm F1.4 DC DN Contemporary/6392622925.rw2",
+    "Sigma 23mm F1.4 DC DN Contemporary/7508541954.rw2",
+    "Sigma 24mm F1.4 DG DN/5064812963.rw2",
+    "Sigma 24mm F1.4 DG DN/9839091254.rw2",
+    "Sigma 24mm F2 DG DN 2/2021840075.rw2",
+    "Sigma 24mm F2 DG DN 2/6750659930.rw2",
+    "Sigma 28-105mm F2.8 DG DN Art/3556327690.rw2",
+    "Sigma 28-105mm F2.8 DG DN Art/9233361974.rw2",
+    "Sigma 28-70mm F2.8 DG DN 2/2108148876.rw2",
+    "Sigma 28-70mm F2.8 DG DN 2/7891785578.rw2",
+    "Sigma 35mm F1.4 DG DN Art 2/2442356305.rw2",
+    "Sigma 35mm F1.4 DG DN Art 2/3961564867.rw2",
+    "Sigma 65mm F2 DG DN/4921555970.rw2",
+    "Sigma 65mm F2 DG DN/9339116563.rw2",
+    "Sigma 85mm F1.2 DG Art/1100682.RW2",
+    "Venus Laowa 9mm F5.6 FF RL/0885741312.rw2"
+  ],
+  "representative": "Laowa 15mm F4.5 Zero-D Shift/0025043063.rw2"
+}

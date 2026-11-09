@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "slug": "sigma_sd_quattro_h",
+  "display_name": "Sigma sd Quattro H",
+  "make": "SIGMA",
+  "model": "sd Quattro H",
+  "unique_camera_model": "sd Quattro H",
+  "software": "SIGMA sd Quattro H ver1.1.0.0512",
+  "dng_version": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      84159,
+      65536
+    ],
+    [
+      2806,
+      65536
+    ],
+    [
+      -22293,
+      65536
+    ],
+    [
+      31640,
+      65536
+    ],
+    [
+      43719,
+      65536
+    ],
+    [
+      -10506,
+      65536
+    ],
+    [
+      18966,
+      65536
+    ],
+    [
+      38470,
+      65536
+    ],
+    [
+      10660,
+      65536
+    ]
+  ],
+  "color_matrix2": [
+    [
+      85018,
+      65536
+    ],
+    [
+      3005,
+      65536
+    ],
+    [
+      -23530,
+      65536
+    ],
+    [
+      19634,
+      65536
+    ],
+    [
+      51469,
+      65536
+    ],
+    [
+      -5867,
+      65536
+    ],
+    [
+      1893,
+      65536
+    ],
+    [
+      46059,
+      65536
+    ],
+    [
+      21413,
+      65536
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    18,
+    1
+  ],
+  "baseline_sharpness": [
+    22,
+    10
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 1,
+  "opcode_list3_hex": null,
+  "native_width": 6192,
+  "native_height": 4128,
+  "native_geometry_note": "6192x4128 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "35mm F1.4 DG HSM | Art 012",
+      35.0,
+      35.0,
+      1.4,
+      "SIGMA"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "91"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6192,
+      "height": 4128,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Sigma sd Quattro H/1255722523.dng",
+    "Sigma sd Quattro H/4291410509.dng"
+  ],
+  "representative": "Sigma sd Quattro H/1255722523.dng"
+}

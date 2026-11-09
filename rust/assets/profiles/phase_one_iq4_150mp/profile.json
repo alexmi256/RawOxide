@@ -1,0 +1,330 @@
+{
+  "schema": 1,
+  "slug": "phase_one_iq4_150mp",
+  "display_name": "Phase One IQ4 150MP",
+  "make": "Phase One",
+  "model": "IQ4 150MP",
+  "unique_camera_model": "IQ4 150MP",
+  "software": "Capture One 12 Macintosh",
+  "dng_version": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      665934655,
+      2147483647
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      1731516031,
+      2147483647
+    ]
+  ],
+  "color_matrix2": [
+    [
+      520335295,
+      2147483647
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      2126223615,
+      2147483647
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      1715624703,
+      2147483647
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 14204,
+  "native_height": 10652,
+  "native_geometry_note": "14204x10652 most common decoded dims across 2 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 0.79,
+  "lenses": [
+    [
+      "Schneider Kreuznach LS 150mm f/2.8",
+      150.0,
+      150.0,
+      2.8,
+      ""
+    ],
+    [
+      "Schneider Kreuznach LS 35mm LS f/3.5",
+      35.0,
+      35.0,
+      3.5,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      800000,
+      10000
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "JD0"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 14204,
+      "height": 10652,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Phase One IQ4/0315648440.dng",
+    "Phase One IQ4/1706932725.dng"
+  ],
+  "representative": "Phase One IQ4/0315648440.dng"
+}

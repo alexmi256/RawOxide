@@ -1,0 +1,289 @@
+{
+  "schema": 1,
+  "slug": "nikon_z_50",
+  "display_name": "Nikon Z 50",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON Z 50",
+  "unique_camera_model": "NIKON Z 50",
+  "software": "Ver.02.40",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5600,
+  "native_height": 3728,
+  "native_geometry_note": "5600x3728 most common decoded dims across 6 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "NIKKOR Z 24mm f/1.8 S",
+      24.0,
+      24.0,
+      1.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z DX 16-50mm f/3.5-6.3 VR",
+      16.0,
+      50.0,
+      3.5,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z DX 24mm f/1.7",
+      24.0,
+      24.0,
+      1.7,
+      "NIKON"
+    ],
+    [
+      "56mm F1.4 DC DN | Contemporary 018",
+      56.0,
+      56.0,
+      1.4,
+      "SIGMA"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "20",
+    "30"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 5600,
+      "height": 3728,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Nikon Nikkor Z DX 24mm F1.7/4928099113.nef",
+    "Nikon Nikkor Z DX 24mm F1.7/9591944789.nef",
+    "Nikon Z50/5650940899.nef",
+    "Nikon Z50/5930443010.nef",
+    "Sigma 56mm F1.4 DC DN (Z-mount)/6653344801.nef",
+    "Sigma 56mm F1.4 DC DN (Z-mount)/9442664602.nef"
+  ],
+  "representative": "Nikon Nikkor Z DX 24mm F1.7/4928099113.nef"
+}

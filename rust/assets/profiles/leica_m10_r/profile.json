@@ -1,0 +1,362 @@
+{
+  "schema": 1,
+  "slug": "leica_m10_r",
+  "display_name": "Leica M10-R",
+  "make": "Leica Camera AG",
+  "model": "LEICA M10-R",
+  "unique_camera_model": "LEICA M10-R",
+  "software": "20.20.47.37",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      2918,
+      4096
+    ],
+    [
+      -1024,
+      4096
+    ],
+    [
+      -178,
+      4096
+    ],
+    [
+      -2350,
+      4096
+    ],
+    [
+      6358,
+      4096
+    ],
+    [
+      1473,
+      4096
+    ],
+    [
+      -449,
+      4096
+    ],
+    [
+      1197,
+      4096
+    ],
+    [
+      3172,
+      4096
+    ]
+  ],
+  "color_matrix2": [
+    [
+      1998,
+      4096
+    ],
+    [
+      -527,
+      4096
+    ],
+    [
+      -199,
+      4096
+    ],
+    [
+      -2392,
+      4096
+    ],
+    [
+      5612,
+      4096
+    ],
+    [
+      904,
+      4096
+    ],
+    [
+      -739,
+      4096
+    ],
+    [
+      1380,
+      4096
+    ],
+    [
+      2151,
+      4096
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 7864,
+  "native_height": 5200,
+  "native_geometry_note": "7864x5200 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "Apo-Summicron-M 1:2/35 ASPH.",
+      35.0,
+      35.0,
+      2.0,
+      "Leica Camera AG"
+    ],
+    [
+      "Apo-Summicron-M 1:2/50 ASPH.",
+      50.0,
+      50.0,
+      2.0,
+      "Leica Camera AG"
+    ],
+    [
+      "Summilux-M 1:1.4/35 ASPH.",
+      35.0,
+      35.0,
+      1.4,
+      "Leica Camera AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400,
+    12500
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1500
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      360
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      90
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      45
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      240,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "55"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 7864,
+      "height": 5200,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica APO-Summicron-M 35mm F2 ASPH/1973166827.dng",
+    "Leica APO-Summicron-M 35mm F2 ASPH/9856493160.dng",
+    "Leica M10-R 2/7233386414.dng",
+    "Leica M10-R 2/7316945536.dng",
+    "Leica M10-R/1501597993.dng",
+    "Leica M10-R/3769648335.dng"
+  ],
+  "representative": "Leica APO-Summicron-M 35mm F2 ASPH/1973166827.dng"
+}

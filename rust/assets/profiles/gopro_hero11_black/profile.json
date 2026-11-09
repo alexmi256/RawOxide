@@ -1,0 +1,334 @@
+{
+  "schema": 1,
+  "slug": "gopro_hero11_black",
+  "display_name": "GoPro HERO11 Black",
+  "make": "GoPro",
+  "model": "HERO11 Black",
+  "unique_camera_model": "HERO11 Black",
+  "software": "H22.01.01.09.23",
+  "dng_version": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      18331,
+      10000
+    ],
+    [
+      -8166,
+      10000
+    ],
+    [
+      -2478,
+      10000
+    ],
+    [
+      1391,
+      10000
+    ],
+    [
+      8961,
+      10000
+    ],
+    [
+      -367,
+      10000
+    ],
+    [
+      822,
+      10000
+    ],
+    [
+      662,
+      10000
+    ],
+    [
+      2597,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      10344,
+      10000
+    ],
+    [
+      -4210,
+      10000
+    ],
+    [
+      -620,
+      10000
+    ],
+    [
+      -2315,
+      10000
+    ],
+    [
+      10625,
+      10000
+    ],
+    [
+      1948,
+      10000
+    ],
+    [
+      93,
+      10000
+    ],
+    [
+      1058,
+      10000
+    ],
+    [
+      5541,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    100,
+    100
+  ],
+  "baseline_sharpness": [
+    100,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 49163,
+  "opcode_list3_hex": null,
+  "native_width": 5568,
+  "native_height": 4872,
+  "native_geometry_note": "5568x4872 max decoded-RAW dims across the model's samples (incl. masked margins)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 2.7,
+  "lenses": [
+    [
+      "HERO11 Black built-in lens",
+      2.7,
+      2.7,
+      2.5,
+      "GoPro"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    120,
+    125,
+    141,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      877
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      240
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "C34"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 5568,
+      "height": 4872,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "GoPro Hero 11 Black/6250773970.gpr",
+    "GoPro Hero 11 Black/9241827675.gpr"
+  ],
+  "representative": "GoPro Hero 11 Black/6250773970.gpr"
+}

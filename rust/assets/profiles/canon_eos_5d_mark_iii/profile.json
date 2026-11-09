@@ -1,0 +1,284 @@
+{
+  "schema": 1,
+  "slug": "canon_eos_5d_mark_iii",
+  "display_name": "Canon EOS 5D Mark III",
+  "make": "Canon",
+  "model": "Canon EOS 5D Mark III",
+  "unique_camera_model": "Canon EOS 5D Mark III",
+  "software": "",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5796,
+  "native_height": 3870,
+  "native_geometry_note": "5796x3870 most common decoded dims across 5 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "EF35mm f/1.4L II USM",
+      35.0,
+      35.0,
+      1.4,
+      ""
+    ],
+    [
+      "TAMRON SP 35mm F/1.8 Di VC USD F012",
+      35.0,
+      35.0,
+      1.8,
+      ""
+    ],
+    [
+      "TAMRON SP 45mm F/1.8 Di VC USD F013",
+      45.0,
+      45.0,
+      1.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      8000
+    ],
+    [
+      1,
+      3200
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "40"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 5796,
+      "height": 3870,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Canon EF 35mm F1.4L II USM real-world/2819426980.cr2",
+    "Tamron SP 35mm f1.8 Di VC USD/6521622542.cr2",
+    "Tamron SP 35mm f1.8 Di VC USD/8346316587.cr2",
+    "Tamron SP 45mm f1.8 Di VC USD/4242669246.cr2",
+    "Tamron SP 45mm f1.8 Di VC USD/7166048624.cr2"
+  ],
+  "representative": "Canon EF 35mm F1.4L II USM real-world/2819426980.cr2"
+}

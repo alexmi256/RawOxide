@@ -1,0 +1,303 @@
+{
+  "schema": 1,
+  "slug": "fujifilm_x_t2",
+  "display_name": "Fujifilm X-T2",
+  "make": "FUJIFILM",
+  "model": "X-T2",
+  "unique_camera_model": "X-T2",
+  "software": "Digital Camera X-T2 Ver2.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6032,
+  "native_height": 4032,
+  "native_geometry_note": "6032x4032 most common decoded dims across 10 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "XF23mmF2 R WR",
+      23.0,
+      23.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF35mmF2 R WR",
+      35.0,
+      35.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF50-140mmF2.8 R LM OIS WR",
+      50.0,
+      140.0,
+      2.8,
+      "FUJIFILM"
+    ],
+    [
+      "XF50mmF2 R WR",
+      50.0,
+      50.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF55-200mmF3.5-4.8 R LM OIS",
+      55.0,
+      200.0,
+      3.5,
+      "FUJIFILM"
+    ],
+    [
+      "XF80mmF2.8 R LM OIS WR Macro",
+      80.0,
+      80.0,
+      2.8,
+      "FUJIFILM"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2000,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      550
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "63"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6032,
+      "height": 4032,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Fujifilm 23mm F2 R WR/0257086730.raf",
+    "Fujifilm 23mm F2 R WR/8055926374.raf",
+    "Fujifilm X-T2 Beta/1526731315.raf",
+    "Fujifilm X-T2 Beta/8748156538.raf",
+    "Fujifilm X-T2/4039029405.raf",
+    "Fujifilm X-T2/8391831526.raf",
+    "Fujifilm XF 50mm F2 R WR/3303700552.raf",
+    "Fujifilm XF 50mm F2 R WR/8276360886.raf",
+    "Fujifilm XF 80mm F2.8 Macro/1190382799.raf",
+    "Fujifilm XF 80mm F2.8 Macro/6240915761.raf"
+  ],
+  "representative": "Fujifilm 23mm F2 R WR/0257086730.raf"
+}

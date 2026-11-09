@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "slug": "olympus_e_m5markiii",
+  "display_name": "Olympus E-M5MarkIII",
+  "make": "OLYMPUS CORPORATION",
+  "model": "E-M5MarkIII",
+  "unique_camera_model": "E-M5MarkIII",
+  "software": "Version 1.0",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5240,
+  "native_height": 3912,
+  "native_geometry_note": "5240x3912 most common decoded dims across 7 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "OLYMPUS M.12-100mm F4.0",
+      12.0,
+      100.0,
+      4.0,
+      ""
+    ],
+    [
+      "OLYMPUS M.12-40mm F2.8",
+      12.0,
+      40.0,
+      2.8,
+      ""
+    ],
+    [
+      "OLYMPUS M.40-150mm F2.8",
+      40.0,
+      150.0,
+      2.8,
+      ""
+    ],
+    [
+      "OLYMPUS M.7-14mm F2.8",
+      7.0,
+      14.0,
+      2.8,
+      ""
+    ],
+    [
+      "OM 20mm F1.4",
+      20.0,
+      20.0,
+      1.4,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      8000
+    ],
+    [
+      1,
+      2500
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 5240,
+      "height": 3912,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "OM System 20mm F1.4 Pro/0741813784.orf",
+    "OM System 20mm F1.4 Pro/3128957817.orf",
+    "Olympus M.Zuiko Digital ED 12-40mm F2.8 Pro/0398935977.orf",
+    "Olympus OM-D E-M5 III 2/3550972502.orf",
+    "Olympus OM-D E-M5 III 2/5779148726.orf",
+    "Olympus OM-D E-M5 III/2418977870.orf",
+    "Olympus OM-D E-M5 III/6450494232.orf"
+  ],
+  "representative": "OM System 20mm F1.4 Pro/0741813784.orf"
+}

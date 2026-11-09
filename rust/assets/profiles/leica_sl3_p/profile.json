@@ -1,0 +1,343 @@
+{
+  "schema": 1,
+  "slug": "leica_sl3_p",
+  "display_name": "Leica SL3-P",
+  "make": "LEICA CAMERA AG",
+  "model": "LEICA SL3-P",
+  "unique_camera_model": "LEICA SL3-P",
+  "software": "4.2.0-t-alpha.11",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      11483,
+      10000
+    ],
+    [
+      -4242,
+      10000
+    ],
+    [
+      -573,
+      10000
+    ],
+    [
+      -5429,
+      10000
+    ],
+    [
+      15138,
+      10000
+    ],
+    [
+      3353,
+      10000
+    ],
+    [
+      -830,
+      10000
+    ],
+    [
+      1771,
+      10000
+    ],
+    [
+      7757,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      7738,
+      10000
+    ],
+    [
+      -2131,
+      10000
+    ],
+    [
+      -821,
+      10000
+    ],
+    [
+      -5239,
+      10000
+    ],
+    [
+      12941,
+      10000
+    ],
+    [
+      2286,
+      10000
+    ],
+    [
+      -1513,
+      10000
+    ],
+    [
+      2327,
+      10000
+    ],
+    [
+      5248,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    10,
+    10
+  ],
+  "baseline_sharpness": [
+    10,
+    10
+  ],
+  "linear_response_limit": [
+    10,
+    10
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 3252,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033ff001468313fec0bf7f70fc809b1836bf45405a3cdbaa303f675e8322d686bb000000000000000000000000000000003feffe4b681a44a0bf79ed620ec0a328bf635aa0eb7c24953f7027f686f12615000000000000000000000000000000003feffa64e4ac3955bf766038f6747a1fbf6439a94a0d911d3f70b44a5364e8f4000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 8144,
+  "native_height": 5424,
+  "native_geometry_note": "8144x5424 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "SUMMILUX-SL 1:1.4/50 ASPH.",
+      50.0,
+      50.0,
+      1.4,
+      "LEICA CAMERA AG"
+    ],
+    [
+      "VARIO-ELMARIT-SL 1:2.8-4/24-90 ASPH.",
+      2.8,
+      4.0,
+      5.6,
+      "LEICA CAMERA AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1300,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "62"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8144,
+      "height": 5424,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica SL3-P/1633761829.dng",
+    "Leica SL3-P/6429615462.dng"
+  ],
+  "representative": "Leica SL3-P/1633761829.dng"
+}

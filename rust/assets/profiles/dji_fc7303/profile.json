@@ -1,0 +1,333 @@
+{
+  "schema": 1,
+  "slug": "dji_fc7303",
+  "display_name": "DJI FC7303 (drone camera unit)",
+  "make": "DJI",
+  "model": "FC7303",
+  "unique_camera_model": "FC7303",
+  "software": "Adobe Photoshop Lightroom 10.0 Classic (Macintosh)",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      16804,
+      10000
+    ],
+    [
+      -9787,
+      10000
+    ],
+    [
+      -2259,
+      10000
+    ],
+    [
+      -3295,
+      10000
+    ],
+    [
+      13660,
+      10000
+    ],
+    [
+      -113,
+      10000
+    ],
+    [
+      -307,
+      10000
+    ],
+    [
+      1590,
+      10000
+    ],
+    [
+      6367,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      6883,
+      10000
+    ],
+    [
+      -1326,
+      10000
+    ],
+    [
+      -981,
+      10000
+    ],
+    [
+      -4557,
+      10000
+    ],
+    [
+      13643,
+      10000
+    ],
+    [
+      632,
+      10000
+    ],
+    [
+      -1285,
+      10000
+    ],
+    [
+      2585,
+      10000
+    ],
+    [
+      4512,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    100,
+    100
+  ],
+  "baseline_sharpness": [
+    100,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 4080,
+  "opcode_list3_hex": null,
+  "native_width": 4000,
+  "native_height": 3000,
+  "native_geometry_note": "4000x3000 most common decoded dims across 2 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 2.7,
+  "lenses": [
+    [
+      "20.7 mm",
+      20.7,
+      20.7,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    120,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      1,
+      10
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1SF"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 4000,
+      "height": 3000,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "DJI Mavic Mini 2/3450332848.dng",
+    "DJI Mavic Mini 2/8303797075.dng"
+  ],
+  "representative": "DJI Mavic Mini 2/3450332848.dng"
+}

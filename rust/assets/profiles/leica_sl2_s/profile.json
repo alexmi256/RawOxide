@@ -1,0 +1,386 @@
+{
+  "schema": 1,
+  "slug": "leica_sl2_s",
+  "display_name": "Leica SL2-S",
+  "make": "LEICA CAMERA AG",
+  "model": "LEICA SL2-S",
+  "unique_camera_model": "LEICA SL2-S",
+  "software": "Adobe Photoshop Lightroom 10.2 Classic (Macintosh)",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      10946,
+      10000
+    ],
+    [
+      -4156,
+      10000
+    ],
+    [
+      254,
+      10000
+    ],
+    [
+      -4870,
+      10000
+    ],
+    [
+      14366,
+      10000
+    ],
+    [
+      3355,
+      10000
+    ],
+    [
+      -791,
+      10000
+    ],
+    [
+      1776,
+      10000
+    ],
+    [
+      7477,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      7275,
+      10000
+    ],
+    [
+      -1980,
+      10000
+    ],
+    [
+      -514,
+      10000
+    ],
+    [
+      -4369,
+      10000
+    ],
+    [
+      11949,
+      10000
+    ],
+    [
+      2302,
+      10000
+    ],
+    [
+      -1270,
+      10000
+    ],
+    [
+      2137,
+      10000
+    ],
+    [
+      5473,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    10,
+    10
+  ],
+  "baseline_sharpness": [
+    10,
+    10
+  ],
+  "linear_response_limit": [
+    10,
+    10
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 2044,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033feffe85bbc2b2c5bf09e3cd53ee282cbf19b9355779c4873f2b6029dbb9a8a7000000000000000000000000000000003ff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003feffede50787e703f0325e23ae0a27b3f2ff7166f105022bf3748a8785576cc000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 6000,
+  "native_height": 4000,
+  "native_geometry_note": "6000x4000 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "APO-VARIO-ELMARIT-SL 1:2.8-4/90-280",
+      2.8,
+      4.0,
+      2.8,
+      "LEICA CAMERA AG"
+    ],
+    [
+      "SUMMICRON-SL 1:2/35 ASPH.",
+      35.0,
+      35.0,
+      2.0,
+      "LEICA CAMERA AG"
+    ],
+    [
+      "SUPER-VARIO-ELMAR-SL 1:3.5-4.5/16-35 ASPH.",
+      3.5,
+      4.5,
+      2.8,
+      "LEICA CAMERA AG"
+    ],
+    [
+      "VARIO-ELMARIT-SL 1:2.8-4/24-90 ASPH.",
+      2.8,
+      4.0,
+      2.8,
+      "LEICA CAMERA AG"
+    ],
+    [
+      "VARIO-ELMARIT-SL 1:2.8/24-70 ASPH.",
+      24.0,
+      70.0,
+      2.8,
+      "LEICA CAMERA AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "56"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6000,
+      "height": 4000,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica SL2-S 2/2803946909.dng",
+    "Leica SL2-S 2/9059948320.dng",
+    "Leica SL2-S/1634424606.dng",
+    "Leica SL2-S/3354302858.dng",
+    "Leica Summicron-SL 35mm F2 ASPH/3994101940.dng",
+    "Leica Summicron-SL 35mm F2 ASPH/9284029991.dng",
+    "Leica Vario-Elmarit-SL 24-70mm F2.8 ASPH official/2072569711.dng",
+    "Leica Vario-Elmarit-SL 24-70mm F2.8 ASPH official/8926561031.dng"
+  ],
+  "representative": "Leica SL2-S 2/2803946909.dng"
+}

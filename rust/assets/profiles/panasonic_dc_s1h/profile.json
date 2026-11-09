@@ -1,0 +1,346 @@
+{
+  "schema": 1,
+  "slug": "panasonic_dc_s1h",
+  "display_name": "Panasonic DC-S1H",
+  "make": "Panasonic",
+  "model": "DC-S1H",
+  "unique_camera_model": "DC-S1H",
+  "software": "Ver.2.4",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      11335,
+      10000
+    ],
+    [
+      -6469,
+      10000
+    ],
+    [
+      804,
+      10000
+    ],
+    [
+      -4415,
+      10000
+    ],
+    [
+      12413,
+      10000
+    ],
+    [
+      2235,
+      10000
+    ],
+    [
+      -223,
+      10000
+    ],
+    [
+      804,
+      10000
+    ],
+    [
+      6653,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      9397,
+      10000
+    ],
+    [
+      -3719,
+      10000
+    ],
+    [
+      -805,
+      10000
+    ],
+    [
+      -5425,
+      10000
+    ],
+    [
+      13326,
+      10000
+    ],
+    [
+      2309,
+      10000
+    ],
+    [
+      -972,
+      10000
+    ],
+    [
+      1715,
+      10000
+    ],
+    [
+      6034,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    150,
+    100
+  ],
+  "baseline_sharpness": [
+    133,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 523384,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033feffac5485bc3e8bfb13f02d1939b803fa7e00d4e173900bf80807ac2ae3000000000000000000000000000000000003feffb29bd8bbb38bfb1175f09049e003fa7fc18b068bc00bf80af6d0c1af000000000000000000000000000000000003feffe0327938c5fbfb0decb94b415803fa839705ca60b00bf8122aeb41ccc00000000000000000000000000000000003fdffa906490bb8a3fe0000000000000",
+  "native_width": 6024,
+  "native_height": 4016,
+  "native_geometry_note": "6024x4016 most common decoded dims across 5 sample(s) (also seen 6028x4016)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "LUMIX S 20-60/F3.5-5.6",
+      20.0,
+      60.0,
+      3.5,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "92A",
+    "94A",
+    "93A",
+    "95A"
+  ],
+  "serial_prefixes_note": "fallback (serials non-alphanumeric)",
+  "subprofiles": {
+    "native": {
+      "width": 6024,
+      "height": 4016,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Panasonic S 20-60mm F3.5-5.6/6156999779.dng",
+    "Sigma 24mm F2 DG DN/2325811684.rw2",
+    "Sigma 24mm F2 DG DN/7084886804.rw2",
+    "Sigma 35mm F2 DG DN 2/4691372422.rw2",
+    "Sigma 35mm F2 DG DN 2/6973354781.rw2"
+  ],
+  "representative": "Panasonic S 20-60mm F3.5-5.6/6156999779.dng"
+}

@@ -1,0 +1,364 @@
+{
+  "schema": 1,
+  "slug": "nikon_d750",
+  "display_name": "Nikon D750",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON D750",
+  "unique_camera_model": "NIKON D750",
+  "software": "Ver.1.12",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      10019,
+      10000
+    ],
+    [
+      -4200,
+      10000
+    ],
+    [
+      -32,
+      10000
+    ],
+    [
+      -4773,
+      10000
+    ],
+    [
+      12481,
+      10000
+    ],
+    [
+      2572,
+      10000
+    ],
+    [
+      -643,
+      10000
+    ],
+    [
+      1409,
+      10000
+    ],
+    [
+      8486,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      9020,
+      10000
+    ],
+    [
+      -2890,
+      10000
+    ],
+    [
+      -715,
+      10000
+    ],
+    [
+      -4535,
+      10000
+    ],
+    [
+      12436,
+      10000
+    ],
+    [
+      2348,
+      10000
+    ],
+    [
+      -934,
+      10000
+    ],
+    [
+      1919,
+      10000
+    ],
+    [
+      7086,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    60,
+    100
+  ],
+  "baseline_sharpness": [
+    100,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 648594,
+  "opcode_list3_hex": null,
+  "native_width": 6032,
+  "native_height": 4032,
+  "native_geometry_note": "6032x4032 most common decoded dims across 9 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "0.0 mm f/0.0",
+      0.0,
+      0.0,
+      0.0,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    4500,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "30"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6032,
+      "height": 4032,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Lensbaby Sol 45/0081968229.nef",
+    "Lensbaby Sol 45/5482931407.nef",
+    "Nikon 28mm F1.4E ED/2147328785.nef",
+    "Nikon 28mm F1.4E ED/3304550251.nef",
+    "Nikon AF-S Nikkor 24mm F1.8G ED/2554715727.nef",
+    "Petzval 58/0084608808.dng",
+    "Petzval 58/9139738993.dng",
+    "Tamron 85mm F1.8 Di VC USD real-world/5554793353.nef",
+    "Tamron 85mm F1.8 Di VC USD real-world/9516766927.nef"
+  ],
+  "representative": "Petzval 58/0084608808.dng"
+}

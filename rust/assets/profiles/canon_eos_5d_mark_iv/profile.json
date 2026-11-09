@@ -1,0 +1,391 @@
+{
+  "schema": 1,
+  "slug": "canon_eos_5d_mark_iv",
+  "display_name": "Canon EOS 5D Mark IV",
+  "make": "Canon",
+  "model": "Canon EOS 5D Mark IV",
+  "unique_camera_model": "Canon EOS 5D Mark IV",
+  "software": "",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6744,
+  "native_height": 4502,
+  "native_geometry_note": "6744x4502 most common decoded dims across 20 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "100-400mm F5-6.3 DG OS HSM | Contemporary 017",
+      100.0,
+      400.0,
+      5.0,
+      ""
+    ],
+    [
+      "135mm F1.8 DG HSM | Art 017",
+      135.0,
+      135.0,
+      1.8,
+      ""
+    ],
+    [
+      "24-70mm F2.8 DG OS HSM | Art 017",
+      24.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "85mm F1.4 DG HSM | Art 016",
+      85.0,
+      85.0,
+      1.4,
+      ""
+    ],
+    [
+      "EF16-35mm f/2.8L III USM",
+      16.0,
+      35.0,
+      2.8,
+      ""
+    ],
+    [
+      "EF24-105mm f/4L IS II USM",
+      24.0,
+      105.0,
+      4.0,
+      ""
+    ],
+    [
+      "EF28mm f/2.8 IS USM",
+      28.0,
+      28.0,
+      2.8,
+      ""
+    ],
+    [
+      "EF35mm f/2 IS USM",
+      35.0,
+      35.0,
+      2.0,
+      ""
+    ],
+    [
+      "EF70-200mm f/2.8L IS II USM",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ],
+    [
+      "EF70-200mm f/4L IS II USM",
+      70.0,
+      200.0,
+      4.0,
+      ""
+    ],
+    [
+      "TAMRON SP 150-600mm F/5-6.3 Di VC USD G2 A022",
+      150.0,
+      600.0,
+      5.0,
+      ""
+    ],
+    [
+      "TAMRON SP 70-200mm F/2.8 Di VC USD G2 A025",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400,
+    12800
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      16000,
+      10000
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      300000,
+      10000
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      160,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "02"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6744,
+      "height": 4502,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Canon 16-35mm F2.8L III USM/2537130705.cr2",
+    "Canon 24-105mm F4 L IS II USM/7671399860.cr2",
+    "Canon 24-105mm F4 L IS II USM/8153745849.cr2",
+    "Canon 28mm F2.8 IS USM/0946567910.cr2",
+    "Canon 28mm F2.8 IS USM/5513010723.cr2",
+    "Canon 70-200mm F4L IS II USM/4614241680.cr2",
+    "Canon EF 35mm F2 IS USM/0185883396.cr2",
+    "Canon EF 35mm F2 IS USM/8515081499.cr2",
+    "Canon EOS 5D Mark IV/3639632992.cr2",
+    "Canon EOS 5D Mark IV/3832538881.cr2",
+    "Sigma 100-400mm F5-6.3/3908631012.cr2",
+    "Sigma 100-400mm F5-6.3/7921839412.cr2",
+    "Sigma 135mm F1.8 Art/5668418262.cr2",
+    "Sigma 135mm F1.8 Art/5956779693.cr2",
+    "Sigma 24-70mm F2.8 Art/7921849860.cr2",
+    "Sigma 85mm F1.4 DG HSM Art/1021722009.cr2",
+    "Sigma 85mm F1.4 DG HSM Art/5083568808.cr2",
+    "Tamron SP 150-600mm F5-6.3/3174878562.cr2",
+    "Tamron SP 150-600mm F5-6.3/8608245733.cr2",
+    "Tamron SP 70-200mm F2.8 Di VC USD G2/5330073446.cr2"
+  ],
+  "representative": "Canon 16-35mm F2.8L III USM/2537130705.cr2"
+}

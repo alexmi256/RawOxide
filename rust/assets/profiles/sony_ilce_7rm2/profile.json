@@ -1,0 +1,399 @@
+{
+  "schema": 1,
+  "slug": "sony_ilce_7rm2",
+  "display_name": "Sony a7R II",
+  "make": "SONY",
+  "model": "ILCE-7RM2",
+  "unique_camera_model": "ILCE-7RM2",
+  "software": "ILCE-7RM2 v4.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 7968,
+  "native_height": 5320,
+  "native_geometry_note": "7968x5320 most common decoded dims across 28 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "----",
+      0.0,
+      198.0,
+      1.4,
+      ""
+    ],
+    [
+      "30mm F1.4 DC DN | Contemporary 016",
+      30.0,
+      30.0,
+      1.4,
+      ""
+    ],
+    [
+      "FE 100mm F2.8 STF GM OSS",
+      100.0,
+      100.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 16-35mm F2.8 GM",
+      16.0,
+      35.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 24-70mm F2.8 GM",
+      24.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 35mm F1.4 ZA",
+      35.0,
+      35.0,
+      1.4,
+      ""
+    ],
+    [
+      "FE 50mm F1.4 ZA",
+      50.0,
+      50.0,
+      1.4,
+      ""
+    ],
+    [
+      "FE 50mm F1.8",
+      50.0,
+      50.0,
+      1.8,
+      ""
+    ],
+    [
+      "FE 50mm F2.8 Macro",
+      50.0,
+      50.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 70-200mm F2.8 GM OSS",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 85mm F1.4 GM",
+      85.0,
+      85.0,
+      1.4,
+      ""
+    ],
+    [
+      "FE 85mm F1.8",
+      85.0,
+      85.0,
+      1.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    4000,
+    6400,
+    8000
+  ],
+  "exposure_choices": [
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      4000,
+      10000
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 7968,
+      "height": 5320,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Mitakon Speedmaster 135mm F1.4/2685164070.arw",
+    "Sigma 30mm F1.4 DC DN C/3757563033.arw",
+    "Sigma 30mm F1.4 DC DN C/5049481647.arw",
+    "Sony Alpha 7R II/1550334196.arw",
+    "Sony Alpha 7R II/6137665681.arw",
+    "Sony FE 100mm F2.8 STF/2420743171.arw",
+    "Sony FE 100mm F2.8 STF/4113622260.arw",
+    "Sony FE 16-35mm F2.8 GM/2217284085.arw",
+    "Sony FE 16-35mm F2.8 GM/2874102974.arw",
+    "Sony FE 24-70mm F2.8 G Master real world/0384927025.arw",
+    "Sony FE 24-70mm F2.8 G Master real world/3445987038.arw",
+    "Sony FE 50mm F1.8 Real World/2121807339.arw",
+    "Sony FE 50mm F1.8 Real World/6912769716.arw",
+    "Sony FE 50mm F2.8 Macro/0677017284.arw",
+    "Sony FE 50mm F2.8 Macro/9097453261.arw",
+    "Sony FE 70-200 F2.8 GM OSS at Roller Derby Playoffs/5072752036.arw",
+    "Sony FE 70-200 F2.8 GM OSS at Roller Derby Playoffs/6638582949.arw",
+    "Sony FE 85mm F1.4 G Master real world/1160306007.arw",
+    "Sony FE 85mm F1.4 G Master real world/3567250051.arw",
+    "Sony FE 85mm F1.8/9823406927.arw",
+    "Sony Planar T FE 50mm F1.4 ZA/0488298882.arw",
+    "Sony Planar T FE 50mm F1.4 ZA/6821794647.arw",
+    "Venus Optics Laowa 15mm f2 FE Zero-D/5270949304.arw",
+    "Venus Optics Laowa 15mm f2 FE Zero-D/6413890789.arw",
+    "Voigtlander 15mm Super Wide Angle Lens/7231278453.arw",
+    "Voigtlander 15mm Super Wide Angle Lens/9329548960.arw",
+    "Voigtl\u00e4nder 65mm F2 Macro/3912237583.arw",
+    "Voigtl\u00e4nder 65mm F2 Macro/6303782228.arw"
+  ],
+  "representative": "Mitakon Speedmaster 135mm F1.4/2685164070.arw"
+}

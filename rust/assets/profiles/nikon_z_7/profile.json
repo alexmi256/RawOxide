@@ -1,0 +1,495 @@
+{
+  "schema": 1,
+  "slug": "nikon_z_7",
+  "display_name": "Nikon Z 7",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON Z 7",
+  "unique_camera_model": "NIKON Z 7",
+  "software": "Ver.03.40",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8288,
+  "native_height": 5520,
+  "native_geometry_note": "8288x5520 most common decoded dims across 49 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "Viltrox AF 40/2.5 Z",
+      40.0,
+      40.0,
+      2.5,
+      ""
+    ],
+    [
+      "NIKKOR Z 14-24mm f/2.8 S",
+      14.0,
+      24.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 14-30mm f/4 S",
+      14.0,
+      30.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-120mm f/4 S",
+      24.0,
+      120.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-200mm f/4-6.3 VR",
+      24.0,
+      200.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-70mm f/2.8 S",
+      24.0,
+      70.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-70mm f/4 S",
+      24.0,
+      70.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 28mm f/2.8",
+      28.0,
+      28.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 35mm f/1.8 S",
+      35.0,
+      35.0,
+      1.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 40mm f/2",
+      40.0,
+      40.0,
+      2.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 50mm f/1.2 S",
+      50.0,
+      50.0,
+      1.2,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 50mm f/1.8 S",
+      50.0,
+      50.0,
+      1.8,
+      "NIKON"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    72,
+    80,
+    100,
+    110,
+    125,
+    160,
+    200,
+    220,
+    250,
+    280,
+    320,
+    400,
+    450,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2000,
+    2200,
+    3200,
+    4000,
+    5000,
+    6400,
+    7200,
+    25600
+  ],
+  "exposure_choices": [
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      2500
+    ],
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      350
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      25
+    ],
+    [
+      1,
+      20
+    ],
+    [
+      1,
+      15
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      200000,
+      10000
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      95,
+      100
+    ],
+    [
+      110,
+      100
+    ],
+    [
+      130,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      350,
+      100
+    ],
+    [
+      380,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "30"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8288,
+      "height": 5520,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "7Artisans 55mm F1.4 Mark II/0016032595.nef",
+    "7Artisans 55mm F1.4 Mark II/9191485550.nef",
+    "Laowa 15mm F2 Zero-D/1573699622.nef",
+    "Laowa 15mm F2 Zero-D/6211568992.nef",
+    "Nikon 500mm F5.6 PF ED VR/6850819073.nef",
+    "Nikon AF-S Nikkor 120-300mm F2.8E FL ED SR VR/6212018022.nef",
+    "Nikon AF-S Nikkor 120-300mm F2.8E FL ED SR VR/8123397433.nef",
+    "Nikon Micro-Nikkor 55mm F2.8 AIS/6407945961.nef",
+    "Nikon Micro-Nikkor 55mm F2.8 AIS/7994940185.nef",
+    "Nikon NIKKOR Z MC 105mm F2.8 VR S/3399948695.nef",
+    "Nikon NIKKOR Z MC 105mm F2.8 VR S/7651957067.nef",
+    "Nikon NIKKOR Z MC 50mm F2.8/7315811978.nef",
+    "Nikon NIKKOR Z MC 50mm F2.8/7943989389.nef",
+    "Nikon Nikkor Z 70-200mm F2.8 VR S/2368186473.nef",
+    "Nikon Nikkor Z 70-200mm F2.8 VR S/7180872795.nef",
+    "Nikon Z 14-24mm F2.8 S 2/3850735985.nef",
+    "Nikon Z 14-24mm F2.8 S 2/7227886777.nef",
+    "Nikon Z 14-30mm F4 S real-world/1376551099.nef",
+    "Nikon Z 14-30mm F4 S real-world/8765831149.nef",
+    "Nikon Z 24-120mm F4 S 2/6972818432.nef",
+    "Nikon Z 24-120mm F4 S 2/8540833367.nef",
+    "Nikon Z 24-120mm F4 S/5319550004.nef",
+    "Nikon Z 24-200mm F4-6.3 VR/6739378857.nef",
+    "Nikon Z 24-200mm F4-6.3 VR/7718662839.nef",
+    "Nikon Z 24-70mm F2.8 S 2/0267491527.nef",
+    "Nikon Z 24-70mm F2.8 S 2/7220547381.nef",
+    "Nikon Z 24-70mm F2.8 S/7502738406.nef",
+    "Nikon Z 24-70mm F2.8 S/9745444653.nef",
+    "Nikon Z 28mm F2.8/6677468061.nef",
+    "Nikon Z 28mm F2.8/6757805268.nef",
+    "Nikon Z 35mm f1.8 S/5588196904.nef",
+    "Nikon Z 35mm f1.8 S/9157684464.nef",
+    "Nikon Z 40mm F2/5306527317.nef",
+    "Nikon Z 40mm F2/6889859032.nef",
+    "Nikon Z 50mm F1.2 S 2/8619276172.nef",
+    "Nikon Z 50mm F1.8 S/2739222007.nef",
+    "Nikon Z 50mm F1.8 S/4561172211.nef",
+    "Nikon Z 58mm F0.95 S Noct/0124553622.nef",
+    "Nikon Z 58mm F0.95 S Noct/1166485387.nef",
+    "Nikon Z 85mm F1.8 S/1395250400.nef",
+    "Nikon Z 85mm F1.8 S/5275569564.nef",
+    "Nikon Z7/0974881432.nef",
+    "Nikon Z7/6125623728.nef",
+    "Tamron SP 35mm F1.4 Di USD 2/0012136663.nef",
+    "Tamron SP 35mm F1.4 Di USD 2/9687398222.nef",
+    "Tamron SP 35mm F1.4 Di USD/5574576574.nef",
+    "Tamron SP 35mm F1.4 Di USD/6831208168.nef",
+    "Viltrox AF 40mm F2.5 Z/2883769072.nef",
+    "Viltrox AF 40mm F2.5 Z/6206418168.nef"
+  ],
+  "representative": "7Artisans 55mm F1.4 Mark II/0016032595.nef"
+}

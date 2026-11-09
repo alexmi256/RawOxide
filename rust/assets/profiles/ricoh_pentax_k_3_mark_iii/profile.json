@@ -1,0 +1,352 @@
+{
+  "schema": 1,
+  "slug": "ricoh_pentax_k_3_mark_iii",
+  "display_name": "Ricoh PENTAX K-3 Mark III",
+  "make": "RICOH IMAGING COMPANY, LTD.",
+  "model": "PENTAX K-3 Mark III",
+  "unique_camera_model": "PENTAX K-3 Mark III",
+  "software": "PENTAX K-3 Mark III Ver. 1.01",
+  "dng_version": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      49916,
+      65536
+    ],
+    [
+      -20511,
+      65536
+    ],
+    [
+      -2277,
+      65536
+    ],
+    [
+      -24969,
+      65536
+    ],
+    [
+      65342,
+      65536
+    ],
+    [
+      29280,
+      65536
+    ],
+    [
+      -716,
+      65536
+    ],
+    [
+      2252,
+      65536
+    ],
+    [
+      45958,
+      65536
+    ]
+  ],
+  "color_matrix2": [
+    [
+      45896,
+      65536
+    ],
+    [
+      -10602,
+      65536
+    ],
+    [
+      -5814,
+      65536
+    ],
+    [
+      -30238,
+      65536
+    ],
+    [
+      83413,
+      65536
+    ],
+    [
+      13536,
+      65536
+    ],
+    [
+      -4229,
+      65536
+    ],
+    [
+      9443,
+      65536
+    ],
+    [
+      37576,
+      65536
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    1,
+    1
+  ],
+  "baseline_sharpness": [
+    1,
+    1
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 256,
+  "opcode_list3_hex": null,
+  "native_width": 6192,
+  "native_height": 4128,
+  "native_geometry_note": "6192x4128 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "HD PENTAX-DA 20-40mm F2.8-4 Limited",
+      20.0,
+      40.0,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    5000,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 6192,
+      "height": 4128,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Pentax DA 20-40mm F2.8-4 WR/6587307867.dng",
+    "Pentax DA 20-40mm F2.8-4 WR/7887488406.dng",
+    "Pentax K-3 Mark III 2/6974781584.dng",
+    "Pentax K-3 Mark III 2/9992388841.dng",
+    "Pentax K-3 Mark III/1643488331.dng",
+    "Pentax K-3 Mark III/5977691702.dng"
+  ],
+  "representative": "Pentax DA 20-40mm F2.8-4 WR/6587307867.dng"
+}

@@ -1,0 +1,355 @@
+{
+  "schema": 1,
+  "slug": "hasselblad_l2d_20c",
+  "display_name": "Hasselblad L2D-20c",
+  "make": "Hasselblad",
+  "model": "L2D-20c",
+  "unique_camera_model": "L2D-20c",
+  "software": "10.01.67.27",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      13364,
+      10000
+    ],
+    [
+      -8291,
+      10000
+    ],
+    [
+      1230,
+      10000
+    ],
+    [
+      -3009,
+      10000
+    ],
+    [
+      11905,
+      10000
+    ],
+    [
+      3937,
+      10000
+    ],
+    [
+      446,
+      10000
+    ],
+    [
+      -215,
+      10000
+    ],
+    [
+      8437,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      8575,
+      10000
+    ],
+    [
+      -3219,
+      10000
+    ],
+    [
+      -868,
+      10000
+    ],
+    [
+      -3351,
+      10000
+    ],
+    [
+      11451,
+      10000
+    ],
+    [
+      1593,
+      10000
+    ],
+    [
+      207,
+      10000
+    ],
+    [
+      468,
+      10000
+    ],
+    [
+      4876,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    100,
+    100
+  ],
+  "baseline_sharpness": [
+    100,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 4100,
+  "opcode_list3_hex": null,
+  "native_width": 5280,
+  "native_height": 3956,
+  "native_geometry_note": "5280x3956 most common decoded dims across 6 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 0.79,
+  "lenses": [
+    [
+      "L2D-20c built-in lens",
+      12.3,
+      12.3,
+      2.8,
+      "Hasselblad"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    120,
+    125,
+    130,
+    160,
+    190,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1500
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      240
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "49"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 5280,
+      "height": 3956,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "DJI Mavic 3 Cine/1433194902.dng",
+    "DJI Mavic 3 Cine/6686608347.dng",
+    "DJI Mavic 3 Classic/0459566529.dng",
+    "DJI Mavic 3 Classic/8601017911.dng",
+    "DJI Mavic 3 Pro/0438447193.dng",
+    "DJI Mavic 3 Pro/1230048989.dng"
+  ],
+  "representative": "DJI Mavic 3 Cine/1433194902.dng"
+}

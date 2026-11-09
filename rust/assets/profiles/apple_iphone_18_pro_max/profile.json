@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "slug": "apple_iphone_18_pro_max",
+  "display_name": "Apple iPhone 18 Pro Max",
+  "make": "Apple",
+  "model": "iPhone 18 Pro Max",
+  "unique_camera_model": "iPhone 18 Pro Max",
+  "software": "27.0",
+  "dng_version": [
+    1,
+    7,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    7,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      27979,
+      23063
+    ],
+    [
+      -15131,
+      25136
+    ],
+    [
+      -5108,
+      24475
+    ],
+    [
+      -56321,
+      130725
+    ],
+    [
+      47051,
+      31980
+    ],
+    [
+      3080,
+      192667
+    ],
+    [
+      -9277,
+      291031
+    ],
+    [
+      34181,
+      288159
+    ],
+    [
+      33555,
+      50449
+    ]
+  ],
+  "color_matrix2": [
+    [
+      12380,
+      14047
+    ],
+    [
+      -18864,
+      55505
+    ],
+    [
+      -816,
+      6665
+    ],
+    [
+      -8574,
+      20887
+    ],
+    [
+      22439,
+      17411
+    ],
+    [
+      107067,
+      1100084
+    ],
+    [
+      -4150,
+      44547
+    ],
+    [
+      7197,
+      38183
+    ],
+    [
+      125834,
+      262691
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": [
+    3,
+    2
+  ],
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": 1,
+  "opcode_list3_hex": null,
+  "native_width": 8064,
+  "native_height": 6048,
+  "native_geometry_note": "8064x6048 max decoded-RAW dims across the model's samples (incl. masked margins)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "iPhone 18 Pro Max back triple camera 6.93mm f/1.48",
+      6.93,
+      6.93,
+      1.48,
+      "Apple"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      5587
+    ],
+    [
+      1,
+      2088
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      150,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 8064,
+      "height": 6048,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "iPhone 18 Pro and Pro Max/IMG_4586.DNG",
+    "iPhone 18 Pro and Pro Max/IMG_4589.DNG"
+  ],
+  "representative": "iPhone 18 Pro and Pro Max/IMG_4586.DNG"
+}

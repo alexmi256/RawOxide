@@ -1,0 +1,335 @@
+{
+  "schema": 1,
+  "slug": "ricoh_pentax_k_3_ii",
+  "display_name": "Ricoh PENTAX K-3 II",
+  "make": "RICOH IMAGING COMPANY, LTD.",
+  "model": "PENTAX K-3 II",
+  "unique_camera_model": "PENTAX K-3 II",
+  "software": "PENTAX K-3 II Ver. 0.20",
+  "dng_version": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      63660,
+      65536
+    ],
+    [
+      -31530,
+      65536
+    ],
+    [
+      -5221,
+      65536
+    ],
+    [
+      -22911,
+      65536
+    ],
+    [
+      64449,
+      65536
+    ],
+    [
+      28093,
+      65536
+    ],
+    [
+      -1354,
+      65536
+    ],
+    [
+      2831,
+      65536
+    ],
+    [
+      51779,
+      65536
+    ]
+  ],
+  "color_matrix2": [
+    [
+      56174,
+      65536
+    ],
+    [
+      -16976,
+      65536
+    ],
+    [
+      -7523,
+      65536
+    ],
+    [
+      -26184,
+      65536
+    ],
+    [
+      80617,
+      65536
+    ],
+    [
+      12325,
+      65536
+    ],
+    [
+      -6894,
+      65536
+    ],
+    [
+      12088,
+      65536
+    ],
+    [
+      45959,
+      65536
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    1,
+    1
+  ],
+  "baseline_sharpness": [
+    1,
+    1
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 4,
+  "opcode_list3_hex": null,
+  "native_width": 6016,
+  "native_height": 4000,
+  "native_geometry_note": "6016x4000 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "HD PENTAX-DA 20-40mm F2.8-4 Limited",
+      20.0,
+      40.0,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 6016,
+      "height": 4000,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Pentax K-3 II/8274731402.dng",
+    "Pentax K-3 II/9862872686.dng"
+  ],
+  "representative": "Pentax K-3 II/8274731402.dng"
+}

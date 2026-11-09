@@ -1,0 +1,395 @@
+{
+  "schema": 1,
+  "slug": "nikon_z_8",
+  "display_name": "Nikon Z 8",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON Z 8",
+  "unique_camera_model": "NIKON Z 8",
+  "software": "Ver.03.10",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8280,
+  "native_height": 5520,
+  "native_geometry_note": "8280x5520 max decoded-RAW dims across the model's samples (incl. masked margins)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "TAMRON 12-20mm F2.8 A084 Z",
+      12.0,
+      20.0,
+      2.8,
+      ""
+    ],
+    [
+      "TAMRON 70-180mm F2.8 A065 Z",
+      70.0,
+      180.0,
+      2.8,
+      ""
+    ],
+    [
+      "VR 70-200mm f/2.8G",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ],
+    [
+      "Viltrox AF 35mm f/1.2 LAB Z",
+      35.0,
+      35.0,
+      1.2,
+      ""
+    ],
+    [
+      "Viltrox AF 55mm f/1.8 Z",
+      55.0,
+      55.0,
+      1.8,
+      ""
+    ],
+    [
+      "NIKKOR Z 100-400mm f/4.5-5.6 VR S",
+      100.0,
+      400.0,
+      4.5,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-105mm f/4-7.1",
+      24.0,
+      105.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-70mm f/2.8 S II",
+      24.0,
+      70.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 24-70mm f/4 S",
+      24.0,
+      70.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 400mm f/4.5 VR S",
+      400.0,
+      400.0,
+      4.5,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 50mm f/1.4",
+      50.0,
+      50.0,
+      1.4,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 70-200mm f/2.8 VR S II",
+      70.0,
+      200.0,
+      2.8,
+      "NIKON"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    90,
+    100,
+    110,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    450,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2000,
+    2800,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      15
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      120,
+      100
+    ],
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "30"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8280,
+      "height": 5520,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Nikon 24-105mm F4-7.1/3791560995.nef",
+    "Nikon 24-105mm F4-7.1/5082882996.nef",
+    "Nikon 24-70mm F2.8 S II/4627224320.nef",
+    "Nikon 24-70mm F2.8 S II/4968891060.nef",
+    "Nikon Nikkor Z 50mm F1.4/6669677399.nef",
+    "Nikon Nikkor Z 50mm F1.4/9807561213.nef",
+    "Nikon Z 70-200mm F2.8 S II/4874986870.nef",
+    "Nikon Z 70-200mm F2.8 S II/7129194257.nef",
+    "Nikon Z8 Taylor Swift  Capitol Hill Block Party/0213368669.nef",
+    "Nikon Z8 Taylor Swift  Capitol Hill Block Party/4437084574.nef",
+    "Nikon Z8/1783024282.nef",
+    "Nikon Z8/6831977438.nef",
+    "Tamron 12-20mm F2.8/DSC_3579.NEF",
+    "Tamron 12-20mm F2.8/DSC_3989.NEF",
+    "Tamron 70-180mm F2.8 Di III VC VXD G2/5386946487.nef",
+    "Tamron 70-180mm F2.8 Di III VC VXD G2/7377488562.nef",
+    "Viltrox 35mm F1.2 Lab/7513706411.nef",
+    "Viltrox 35mm F1.2 Lab/8955252203.nef",
+    "Viltrox AF 55mm F1.8 Evo/0505627485.nef",
+    "Viltrox AF 55mm F1.8 Evo/9812849842.nef"
+  ],
+  "representative": "Nikon 24-105mm F4-7.1/3791560995.nef"
+}

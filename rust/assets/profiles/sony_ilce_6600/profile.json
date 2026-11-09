@@ -1,0 +1,309 @@
+{
+  "schema": 1,
+  "slug": "sony_ilce_6600",
+  "display_name": "Sony a6600",
+  "make": "SONY",
+  "model": "ILCE-6600",
+  "unique_camera_model": "ILCE-6600",
+  "software": "ILCE-6600 v1.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6024,
+  "native_height": 4024,
+  "native_geometry_note": "6024x4024 most common decoded dims across 12 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "18-50mm F2.8 DC DN | Contemporary 021",
+      18.0,
+      50.0,
+      2.8,
+      ""
+    ],
+    [
+      "E 16-55mm F2.8 G",
+      16.0,
+      55.0,
+      2.8,
+      ""
+    ],
+    [
+      "E 17-70mm F2.8 B070",
+      17.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "E 70-350mm F4.5-6.3 G OSS",
+      70.0,
+      350.0,
+      4.5,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1600
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 6024,
+      "height": 4024,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Sigma 18-50mm F2.8 DC DN 2/0741481541.arw",
+    "Sigma 18-50mm F2.8 DC DN 2/3717465192.arw",
+    "Sigma 18-50mm F2.8 DC DN/1732132975.arw",
+    "Sigma 18-50mm F2.8 DC DN/8901878200.arw",
+    "Sony E 70-350mm F4.5-6.3 G OSS/2246263152.arw",
+    "Sony E 70-350mm F4.5-6.3 G OSS/7275621026.arw",
+    "Sony a6600 2/4238323968.arw",
+    "Sony a6600 2/7236976504.arw",
+    "Sony a6600/0166328585.arw",
+    "Sony a6600/3459296042.arw",
+    "Tamron 17-70 F2.8 Di III-A VC RXD/1444564476.arw",
+    "Tamron 17-70 F2.8 Di III-A VC RXD/4859022718.arw"
+  ],
+  "representative": "Sigma 18-50mm F2.8 DC DN 2/0741481541.arw"
+}

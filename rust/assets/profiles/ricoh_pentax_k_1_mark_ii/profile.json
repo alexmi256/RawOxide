@@ -1,0 +1,419 @@
+{
+  "schema": 1,
+  "slug": "ricoh_pentax_k_1_mark_ii",
+  "display_name": "Ricoh PENTAX K-1 Mark II",
+  "make": "RICOH IMAGING COMPANY, LTD.",
+  "model": "PENTAX K-1 Mark II",
+  "unique_camera_model": "PENTAX K-1 Mark II",
+  "software": "PENTAX K-1 Mark II Ver. 1.20",
+  "dng_version": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      73259,
+      65536
+    ],
+    [
+      -37819,
+      65536
+    ],
+    [
+      -7883,
+      65536
+    ],
+    [
+      -22358,
+      65536
+    ],
+    [
+      66626,
+      65536
+    ],
+    [
+      24809,
+      65536
+    ],
+    [
+      -1149,
+      65536
+    ],
+    [
+      2650,
+      65536
+    ],
+    [
+      47185,
+      65536
+    ]
+  ],
+  "color_matrix2": [
+    [
+      58762,
+      65536
+    ],
+    [
+      -18834,
+      65536
+    ],
+    [
+      -8242,
+      65536
+    ],
+    [
+      -23670,
+      65536
+    ],
+    [
+      79980,
+      65536
+    ],
+    [
+      10157,
+      65536
+    ],
+    [
+      -5798,
+      65536
+    ],
+    [
+      10906,
+      65536
+    ],
+    [
+      40657,
+      65536
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    1,
+    1
+  ],
+  "baseline_sharpness": [
+    1,
+    1
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 257,
+  "opcode_list3_hex": null,
+  "native_width": 7360,
+  "native_height": 4912,
+  "native_geometry_note": "7360x4912 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "HD PENTAX-D FA 24-70mm F2.8ED SDM WR",
+      24.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "HD PENTAX-D FA 70-210mm F4 ED SDM WR",
+      70.0,
+      210.0,
+      4.0,
+      ""
+    ],
+    [
+      "HD PENTAX-D FA* 50mm F1.4 SDM AW",
+      50.0,
+      50.0,
+      1.4,
+      ""
+    ],
+    [
+      "HD PENTAX-FA 43mm F1.9 Limited",
+      43.0,
+      43.0,
+      1.9,
+      ""
+    ],
+    [
+      "HD PENTAX-FA 77mm F1.8 Limited",
+      77.0,
+      77.0,
+      1.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      13
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      16000,
+      10000
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      190,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 7360,
+      "height": 4912,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "HD Pentax-FA 43mm F1.9 Limited/1039780769.dng",
+    "HD Pentax-FA 43mm F1.9 Limited/6743838432.dng",
+    "Pentax K-1 II/5278601701.dng",
+    "Pentax K-1 II/9642250847.dng",
+    "Pentax K-1 Mark II Dynamic pixel shift/2794294224.dng",
+    "Pentax K-1 Mark II Dynamic pixel shift/9383172133.dng",
+    "Pentax-D FA 50mm F1.4/5281341165.dng",
+    "Pentax-D FA 50mm F1.4/5366476653.dng",
+    "Pentax-D FA 70-210mm F4/0402749402.dng",
+    "Pentax-D FA 70-210mm F4/2541266638.dng",
+    "Pentax-D FA 85mm F1.4/4949255334.dng",
+    "Pentax-D FA 85mm F1.4/5186179416.dng",
+    "Ricoh HD-Pentax-FA 77mm F1.8/1123101868.dng",
+    "Ricoh HD-Pentax-FA 77mm F1.8/5325600780.dng"
+  ],
+  "representative": "HD Pentax-FA 43mm F1.9 Limited/1039780769.dng"
+}

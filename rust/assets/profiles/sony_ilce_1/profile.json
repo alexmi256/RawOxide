@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "slug": "sony_ilce_1",
+  "display_name": "Sony a1",
+  "make": "SONY",
+  "model": "ILCE-1",
+  "unique_camera_model": "ILCE-1",
+  "software": "ILCE-1 v1.30",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8660,
+  "native_height": 5784,
+  "native_geometry_note": "8660x5784 most common decoded dims across 17 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "----",
+      0.0,
+      277.0,
+      1.2,
+      ""
+    ],
+    [
+      "E 50-400mm F4.5-6.3 A067",
+      50.0,
+      400.0,
+      4.5,
+      ""
+    ],
+    [
+      "FE 135mm F1.8 GM",
+      135.0,
+      135.0,
+      1.8,
+      ""
+    ],
+    [
+      "FE 14mm F1.8 GM",
+      14.0,
+      14.0,
+      1.8,
+      ""
+    ],
+    [
+      "FE 24-70mm F2.8 GM II",
+      24.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 35mm F1.4 GM",
+      35.0,
+      35.0,
+      1.4,
+      ""
+    ],
+    [
+      "FE 50mm F1.2 GM",
+      50.0,
+      50.0,
+      1.2,
+      ""
+    ],
+    [
+      "FE 70-200mm F2.8 GM OSS II",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 70-200mm F4 Macro G OSS II",
+      70.0,
+      200.0,
+      4.0,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      4000
+    ],
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      120,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 8660,
+      "height": 5784,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "NiSi 15mm F4 \u2018Sunstar\u2019/4481586183.arw",
+    "NiSi 15mm F4 \u2018Sunstar\u2019/8059766977.arw",
+    "Sony 24-70mm F2.8 GM II/5344816037.arw",
+    "Sony 24-70mm F2.8 GM II/8675301367.arw",
+    "Sony 70-200mm F2.8 GM II 2/1400533992.arw",
+    "Sony 70-200mm F2.8 GM II 2/1454891185.arw",
+    "Sony 70-200mm F4 G OSS II/6622417377.arw",
+    "Sony 70-200mm F4 G OSS II/9320223706.arw",
+    "Sony FE 14mm F1.8 GM/5933425121.arw",
+    "Sony FE 50mm F1.2 GM/3351406034.arw",
+    "Sony FE 50mm F1.2 GM/6720801474.arw",
+    "Sony a1 2/5895941620.arw",
+    "Sony a1 2/7177702655.arw",
+    "Sony a1/8524471040.arw",
+    "Sony a1/8804777089.arw",
+    "Tamron 50-400mm F4.5-6.3 Di III VC VXD/0435974305.arw",
+    "Tamron 50-400mm F4.5-6.3 Di III VC VXD/5446840890.arw"
+  ],
+  "representative": "NiSi 15mm F4 \u2018Sunstar\u2019/4481586183.arw"
+}

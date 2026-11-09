@@ -1,0 +1,287 @@
+{
+  "schema": 1,
+  "slug": "nikon_z_5",
+  "display_name": "Nikon Z 5",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON Z 5",
+  "unique_camera_model": "NIKON Z 5",
+  "software": "Ver.01.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6040,
+  "native_height": 4032,
+  "native_geometry_note": "6040x4032 most common decoded dims across 8 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "50mm f/1.4G",
+      50.0,
+      50.0,
+      1.4,
+      ""
+    ],
+    [
+      "NIKKOR Z 24-50mm f/4-6.3",
+      24.0,
+      50.0,
+      4.0,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 50mm f/1.8 S",
+      50.0,
+      50.0,
+      1.8,
+      "NIKON"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    110,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    900,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400,
+    14400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      3200
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "30",
+    "40"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6040,
+      "height": 4032,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Nikon Nikkor Z 24-50mm F4-6.3/7385037734.nef",
+    "Nikon Nikkor Z 24-50mm F4-6.3/8902569178.nef",
+    "Nikon Z5 2/1624858600.nef",
+    "Nikon Z5 2/4538016802.nef",
+    "Nikon Z5/7729435109.nef",
+    "Nikon Z5/9932796926.nef",
+    "Techart Sony E to Nikon Z adapter/0234824269.nef",
+    "Techart Sony E to Nikon Z adapter/5908855479.nef"
+  ],
+  "representative": "Nikon Nikkor Z 24-50mm F4-6.3/7385037734.nef"
+}

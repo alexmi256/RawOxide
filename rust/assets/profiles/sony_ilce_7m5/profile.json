@@ -1,0 +1,326 @@
+{
+  "schema": 1,
+  "slug": "sony_ilce_7m5",
+  "display_name": "Sony a7 V",
+  "make": "SONY",
+  "model": "ILCE-7M5",
+  "unique_camera_model": "ILCE-7M5",
+  "software": "ILCE-7M5 v2.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 7168,
+  "native_height": 5120,
+  "native_geometry_note": "7168x5120 most common decoded dims across 10 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "FE 35mm F1.4 GM",
+      35.0,
+      35.0,
+      1.4,
+      ""
+    ],
+    [
+      "FE 400mm F4.5 GM OSS",
+      400.0,
+      400.0,
+      4.5,
+      ""
+    ],
+    [
+      "FE 600mm F6.3 GM OSS",
+      600.0,
+      600.0,
+      6.3,
+      ""
+    ],
+    [
+      "FE 8-14mm F3.5 Fisheye G",
+      8.0,
+      14.0,
+      3.5,
+      ""
+    ],
+    [
+      "FE 85mm F1.4 GM II",
+      85.0,
+      85.0,
+      1.4,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      5000
+    ],
+    [
+      1,
+      2500
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      220,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 7168,
+      "height": 5120,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Sony FE 400mm F4.5 GM OSS/DSC01120.ARW",
+    "Sony FE 400mm F4.5 GM OSS/DSC01971.ARW",
+    "Sony FE 600mm F6.3 GM OSS/DSC00142.ARW",
+    "Sony FE 600mm F6.3 GM OSS/DSC00422.ARW",
+    "Sony FE 8-14mm F3.5 Fisheye G/DSC09022.ARW",
+    "Sony FE 8-14mm F3.5 Fisheye G/DSC09027.ARW",
+    "Sony a7 V 2/7849945770.arw",
+    "Sony a7 V 2/8691198572.arw",
+    "Sony a7 V/5197037029.arw",
+    "Sony a7 V/6364402986.arw"
+  ],
+  "representative": "Sony FE 400mm F4.5 GM OSS/DSC01120.ARW"
+}

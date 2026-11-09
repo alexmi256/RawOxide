@@ -1,0 +1,365 @@
+{
+  "schema": 1,
+  "slug": "olympus_e_m1markii",
+  "display_name": "Olympus E-M1MarkII",
+  "make": "OLYMPUS CORPORATION",
+  "model": "E-M1MarkII",
+  "unique_camera_model": "E-M1MarkII",
+  "software": "Version 2.1",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5240,
+  "native_height": 3912,
+  "native_geometry_note": "5240x3912 most common decoded dims across 16 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "LEICA DG 8-18/F2.8-4.0",
+      8.0,
+      18.0,
+      2.8,
+      ""
+    ],
+    [
+      "OLYMPUS M.12-100mm F4.0",
+      12.0,
+      100.0,
+      4.0,
+      ""
+    ],
+    [
+      "OLYMPUS M.12-200mm F3.5-6.3",
+      12.0,
+      200.0,
+      3.5,
+      ""
+    ],
+    [
+      "OLYMPUS M.12-40mm F2.8",
+      12.0,
+      40.0,
+      2.8,
+      ""
+    ],
+    [
+      "OLYMPUS M.25mm F1.2",
+      25.0,
+      25.0,
+      1.2,
+      ""
+    ],
+    [
+      "OLYMPUS M.45mm F1.2",
+      45.0,
+      45.0,
+      1.2,
+      ""
+    ],
+    [
+      "OLYMPUS M.7-14mm F2.8",
+      7.0,
+      14.0,
+      2.8,
+      ""
+    ],
+    [
+      "OLYMPUS M.8mm F1.8",
+      8.0,
+      8.0,
+      1.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      2500
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      209400,
+      10000
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      120,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 5240,
+      "height": 3912,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Heliskiing with the Olympus E-M1 Mark II/6112199813.orf",
+    "Heliskiing with the Olympus E-M1 Mark II/9657828628.orf",
+    "Olympus 12-200 F3.5-6.3/3796079728.orf",
+    "Olympus 12-200 F3.5-6.3/8545109913.orf",
+    "Olympus 12\u2011100mm F4 IS Pro/3734224540.orf",
+    "Olympus 12\u2011100mm F4 IS Pro/9700066325.orf",
+    "Olympus 45mm F1.2/7376168698.orf",
+    "Olympus 45mm F1.2/9517616424.orf",
+    "Olympus OM-D E-M1 Mark II Iceland/2654120687.orf",
+    "Olympus OM-D E-M1 Mark II Iceland/3090964252.orf",
+    "Olympus OM-D E-M1 Mark II real-world/4320169069.orf",
+    "Olympus OM-D E-M1 Mark II real-world/9149077137.orf",
+    "Olympus OM-D E-M1 Mark II, 25mm F1.2 Pro in Thailand/3158161481.orf",
+    "Olympus OM-D E-M1 Mark II, 25mm F1.2 Pro in Thailand/3914847272.orf",
+    "Panasonic Leica DG Vario-Elmarit 8-18mm F2.8-4/1300428839.orf",
+    "Panasonic Leica DG Vario-Elmarit 8-18mm F2.8-4/5635026411.orf"
+  ],
+  "representative": "Heliskiing with the Olympus E-M1 Mark II/6112199813.orf"
+}

@@ -1,0 +1,260 @@
+{
+  "schema": 1,
+  "slug": "canon_eos_1d_x_mark_ii",
+  "display_name": "Canon EOS-1D X Mark II",
+  "make": "Canon",
+  "model": "Canon EOS-1D X Mark II",
+  "unique_camera_model": "Canon EOS-1D X Mark II",
+  "software": "",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5496,
+  "native_height": 3670,
+  "native_geometry_note": "5496x3670 most common decoded dims across 5 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "EF100-400mm f/4.5-5.6L IS II USM",
+      100.0,
+      400.0,
+      4.5,
+      ""
+    ],
+    [
+      "TAMRON 70-210mm F/4 Di VC USD A034",
+      70.0,
+      210.0,
+      4.0,
+      ""
+    ],
+    [
+      "TAMRON SP 70-200mm F/2.8 Di VC USD G2 A025",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1600
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "02"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 5496,
+      "height": 3670,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Canon\u2019s EOS-1D X Mark II real-world/0292885574.cr2",
+    "Canon\u2019s EOS-1D X Mark II real-world/9421234256.cr2",
+    "Tamron 70-210mm F4 Di VC USD/1050379707.cr2",
+    "Tamron 70-210mm F4 Di VC USD/2283476924.cr2",
+    "Tamron SP 70-200mm F2.8 Di VC USD G2/0433302760.cr2"
+  ],
+  "representative": "Canon\u2019s EOS-1D X Mark II real-world/0292885574.cr2"
+}

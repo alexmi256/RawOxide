@@ -1,0 +1,350 @@
+{
+  "schema": 1,
+  "slug": "ricoh_pentax_k_70",
+  "display_name": "Ricoh PENTAX K-70",
+  "make": "RICOH IMAGING COMPANY, LTD.",
+  "model": "PENTAX K-70",
+  "unique_camera_model": "PENTAX K-70",
+  "software": "PENTAX K-70 Ver. 1.11",
+  "dng_version": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      34273,
+      65536
+    ],
+    [
+      -5330,
+      65536
+    ],
+    [
+      23644,
+      65536
+    ],
+    [
+      -32348,
+      65536
+    ],
+    [
+      66185,
+      65536
+    ],
+    [
+      64554,
+      65536
+    ],
+    [
+      287,
+      65536
+    ],
+    [
+      -7184,
+      65536
+    ],
+    [
+      79153,
+      65536
+    ]
+  ],
+  "color_matrix2": [
+    [
+      49270,
+      65536
+    ],
+    [
+      -15144,
+      65536
+    ],
+    [
+      -3446,
+      65536
+    ],
+    [
+      -27430,
+      65536
+    ],
+    [
+      72863,
+      65536
+    ],
+    [
+      18004,
+      65536
+    ],
+    [
+      -4204,
+      65536
+    ],
+    [
+      6705,
+      65536
+    ],
+    [
+      42512,
+      65536
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": 257,
+  "opcode_list3_hex": null,
+  "native_width": 6000,
+  "native_height": 4000,
+  "native_geometry_note": "6000x4000 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "HD PENTAX-DA 55-300mm F4.5-6.3 ED PLM WR RE",
+      55.0,
+      300.0,
+      4.5,
+      ""
+    ],
+    [
+      "smc PENTAX-DA 18-135mm F3.5-5.6 ED AL[IF] DC WR",
+      18.0,
+      135.0,
+      3.5,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "63"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6000,
+      "height": 4000,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Pentax 55-300mm F4.5-6.3 ED PLM WR RE/1799575229.dng",
+    "Pentax 55-300mm F4.5-6.3 ED PLM WR RE/9371331238.dng",
+    "Pentax DA 11-18mm F2.8/2077432261.dng",
+    "Pentax DA 11-18mm F2.8/8234187056.dng",
+    "Pentax K-70 real-world/1268879021.dng",
+    "Pentax K-70 real-world/6740023401.dng"
+  ],
+  "representative": "Pentax 55-300mm F4.5-6.3 ED PLM WR RE/1799575229.dng"
+}

@@ -1,0 +1,326 @@
+{
+  "schema": 1,
+  "slug": "huawei_eva_l09",
+  "display_name": "Huawei EVA-L09",
+  "make": "HUAWEI",
+  "model": "EVA-L09",
+  "unique_camera_model": "EVA-L09",
+  "software": "HUAWEI/EVA-L09/HWEVA:6.0/HUAWEIEVA-L09/C900B122:user/release-keys",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      1094,
+      1024
+    ],
+    [
+      -306,
+      1024
+    ],
+    [
+      -146,
+      1024
+    ],
+    [
+      -442,
+      1024
+    ],
+    [
+      1388,
+      1024
+    ],
+    [
+      52,
+      1024
+    ],
+    [
+      -104,
+      1024
+    ],
+    [
+      250,
+      1024
+    ],
+    [
+      600,
+      1024
+    ]
+  ],
+  "color_matrix2": [
+    [
+      2263,
+      1024
+    ],
+    [
+      -1364,
+      1024
+    ],
+    [
+      -145,
+      1024
+    ],
+    [
+      -194,
+      1024
+    ],
+    [
+      1257,
+      1024
+    ],
+    [
+      -56,
+      1024
+    ],
+    [
+      -24,
+      1024
+    ],
+    [
+      187,
+      1024
+    ],
+    [
+      618,
+      1024
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": 1,
+  "opcode_list3_hex": "00000000",
+  "native_width": 3952,
+  "native_height": 2960,
+  "native_geometry_note": "3952x2960 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "EVA-L09 built-in lens",
+      4.5,
+      4.5,
+      2.2,
+      "Huawei"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2200
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      220,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 3952,
+      "height": 2960,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Huawei P9 real-world/2460970096.dng",
+    "Huawei P9 real-world/6584105446.dng"
+  ],
+  "representative": "Huawei P9 real-world/2460970096.dng"
+}

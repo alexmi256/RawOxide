@@ -1,0 +1,345 @@
+{
+  "schema": 1,
+  "slug": "ricoh_gr_iv",
+  "display_name": "Ricoh GR IV",
+  "make": "RICOH IMAGING COMPANY, LTD.",
+  "model": "RICOH GR IV",
+  "unique_camera_model": "RICOH GR IV",
+  "software": "RICOH GR IV Ver. 1.01",
+  "dng_version": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      45814,
+      65536
+    ],
+    [
+      -18825,
+      65536
+    ],
+    [
+      -2090,
+      65536
+    ],
+    [
+      -24969,
+      65536
+    ],
+    [
+      65342,
+      65536
+    ],
+    [
+      29280,
+      65536
+    ],
+    [
+      -740,
+      65536
+    ],
+    [
+      2326,
+      65536
+    ],
+    [
+      47485,
+      65536
+    ]
+  ],
+  "color_matrix2": [
+    [
+      42124,
+      65536
+    ],
+    [
+      -9731,
+      65536
+    ],
+    [
+      -5337,
+      65536
+    ],
+    [
+      -30238,
+      65536
+    ],
+    [
+      83413,
+      65536
+    ],
+    [
+      13536,
+      65536
+    ],
+    [
+      -4370,
+      65536
+    ],
+    [
+      9757,
+      65536
+    ],
+    [
+      38825,
+      65536
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    1,
+    1
+  ],
+  "baseline_sharpness": [
+    1,
+    1
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 4370,
+  "opcode_list3_hex": null,
+  "native_width": 6192,
+  "native_height": 4128,
+  "native_geometry_note": "6192x4128 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "RICOH GR IV built-in lens",
+      18.3,
+      18.3,
+      2.8,
+      "Ricoh"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 6192,
+      "height": 4128,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Ricoh GR IV street/8901472343.dng",
+    "Ricoh GR IV street/9809913719.dng",
+    "Ricoh GR IV/4024978768.dng",
+    "Ricoh GR IV/6069367571.dng"
+  ],
+  "representative": "Ricoh GR IV street/8901472343.dng"
+}

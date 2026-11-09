@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "slug": "fujifilm_gfx_50s",
+  "display_name": "Fujifilm GFX 50S",
+  "make": "FUJIFILM",
+  "model": "GFX 50S",
+  "unique_camera_model": "GFX 50S",
+  "software": "FUJIFILM Pixel Shift Combiner",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8280,
+  "native_height": 6208,
+  "native_geometry_note": "8280x6208 most common decoded dims across 16 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": null,
+  "crop_factor": 0.79,
+  "lenses": [
+    [
+      "GF100-200mmF5.6 R LM OIS WR",
+      100.0,
+      200.0,
+      5.6,
+      "FUJIFILM"
+    ],
+    [
+      "GF110mmF2 R LM WR",
+      110.0,
+      110.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF23mmF4 R LM WR",
+      23.0,
+      23.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF250mmF4 R LM OIS WR",
+      250.0,
+      250.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF32-64mmF4 R LM WR",
+      32.0,
+      64.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF63mmF2.8 R WR",
+      63.0,
+      63.0,
+      2.8,
+      "FUJIFILM"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      680
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      1,
+      480
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      300
+    ],
+    [
+      1,
+      280
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "71"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8280,
+      "height": 6208,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "reference-gfx-combiner",
+  "sample_files": [
+    "Fujifilm GF 100-200mm F5.6/3095277039.raf",
+    "Fujifilm GF 100-200mm F5.6/9882524430.raf",
+    "Fujifilm GF 110mm F2/4685367629.raf",
+    "Fujifilm GF 110mm F2/8610467773.raf",
+    "Fujifilm GF 23mm F4/3525797272.raf",
+    "Fujifilm GF 23mm F4/8399847431.raf",
+    "Fujifilm GF 250mm F4 R LM OIS WR/4494349416.raf",
+    "Fujifilm GF 250mm F4 R LM OIS WR/9780960492.raf",
+    "Fujifilm GF 32-64mm F4 R LM WR/3744450734.raf",
+    "Fujifilm GF 32-64mm F4 R LM WR/4403307912.raf",
+    "Fujifilm GFX 45mm F2.8 R WR/1212305649.raf",
+    "Fujifilm GFX 45mm F2.8 R WR/5299399097.raf",
+    "Fujifilm GFX 50S 2/1791218568.raf",
+    "Fujifilm GFX 50S 2/2292124194.raf",
+    "Fujifilm GFX 50S/0213505697.raf",
+    "Fujifilm GFX 50S/8622046211.raf"
+  ],
+  "representative": "Fujifilm GF 100-200mm F5.6/3095277039.raf"
+}

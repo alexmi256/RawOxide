@@ -1,0 +1,305 @@
+{
+  "schema": 1,
+  "slug": "fujifilm_x_s10",
+  "display_name": "Fujifilm X-S10",
+  "make": "FUJIFILM",
+  "model": "X-S10",
+  "unique_camera_model": "X-S10",
+  "software": "Digital Camera X-S10 Ver1.02",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6246,
+  "native_height": 4170,
+  "native_geometry_note": "6246x4170 most common decoded dims across 8 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "XF16-80mmF4 R OIS WR",
+      16.0,
+      80.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF18-135mmF3.5-5.6R LM OIS WR",
+      18.0,
+      135.0,
+      3.5,
+      "FUJIFILM"
+    ],
+    [
+      "XF18mmF1.4 R LM WR",
+      18.0,
+      18.0,
+      1.4,
+      "FUJIFILM"
+    ],
+    [
+      "XF70-300mmF4-5.6 R LM OIS WR",
+      70.0,
+      300.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "atx-m 33mm F1.4 X",
+      33.0,
+      33.0,
+      1.4,
+      "Tokina"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      12000
+    ],
+    [
+      1,
+      4000
+    ],
+    [
+      1,
+      3000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      220,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "0D0"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6246,
+      "height": 4170,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Fujifilm X-S10 2/4074373265.raf",
+    "Fujifilm X-S10 3/2836581470.raf",
+    "Fujifilm X-S10 3/7185191951.raf",
+    "Fujifilm XF 18mm F1.4 R LM WR 2/4062857523.raf",
+    "Fujifilm XF 70-300mm F4-5.6 LM WR/2504544829.raf",
+    "Fujifilm XF 70-300mm F4-5.6 LM WR/5783558045.raf",
+    "Tokina atx-m 33mm F1.4 X/8088985604.raf",
+    "Tokina atx-m 33mm F1.4 X/9596916538.raf"
+  ],
+  "representative": "Fujifilm X-S10 2/4074373265.raf"
+}

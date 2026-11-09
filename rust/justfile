@@ -1,0 +1,90 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+default: ci
+
+# Fetch dependencies and print the active toolchain.
+setup:
+    cargo fetch
+    rustc --version
+    cargo --version
+
+# Install the developer tools used by CI (user-level; no sudo).
+tools:
+    cargo install --locked cargo-nextest cargo-llvm-cov cargo-deny cargo-audit cargo-insta cargo-mutants
+
+fmt:
+    cargo fmt --all
+
+fmt-check:
+    cargo fmt --all -- --check
+
+lint:
+    cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+check:
+    cargo check --workspace --all-targets --all-features
+
+test:
+    cargo nextest run --workspace --all-features
+
+test-doc:
+    cargo test --workspace --doc --all-features
+
+test-all: test test-doc
+
+coverage:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -z "${LLVM_PROFDATA:-}" ] && command -v llvm-profdata >/dev/null 2>&1; then
+        export LLVM_PROFDATA="$(command -v llvm-profdata)"
+        export LLVM_COV="$(command -v llvm-cov)"
+    fi
+    cargo llvm-cov nextest --workspace --all-features --lcov --output-path lcov.info
+    echo "wrote lcov.info"
+
+coverage-html:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -z "${LLVM_PROFDATA:-}" ] && command -v llvm-profdata >/dev/null 2>&1; then
+        export LLVM_PROFDATA="$(command -v llvm-profdata)"
+        export LLVM_COV="$(command -v llvm-cov)"
+    fi
+    cargo llvm-cov nextest --workspace --all-features --html
+    echo "open target/llvm-cov/html/index.html"
+
+deny:
+    cargo deny check
+
+audit:
+    cargo audit
+
+doc:
+    RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --document-private-items
+
+bench:
+    cargo bench -p rawhide-core
+
+mutants:
+    cargo mutants --workspace
+
+machete:
+    cargo machete
+
+typos:
+    typos
+
+# Regenerate committed golden vectors and DNG fixtures with the Python oracle.
+fixtures:
+    python3 scripts/gen_fixtures.py
+
+# Run the Python reference suite (used as the specification/oracle).
+oracle:
+    ../RawHide/.venv/bin/python -m pytest ../RawHide/tests -q
+
+run:
+    cargo run -p rawhide-cli --
+
+ci: fmt-check lint check test test-doc deny audit doc
+
+clean:
+    cargo clean

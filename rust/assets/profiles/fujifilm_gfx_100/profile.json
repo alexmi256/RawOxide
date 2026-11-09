@@ -1,0 +1,452 @@
+{
+  "schema": 1,
+  "slug": "fujifilm_gfx_100",
+  "display_name": "Fujifilm GFX 100",
+  "make": "FUJIFILM",
+  "model": "GFX 100",
+  "unique_camera_model": "GFX 100",
+  "software": "Digital Camera GFX 100 Ver3.00",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      17191,
+      10000
+    ],
+    [
+      -11000,
+      10000
+    ],
+    [
+      1278,
+      10000
+    ],
+    [
+      -3574,
+      10000
+    ],
+    [
+      11733,
+      10000
+    ],
+    [
+      2076,
+      10000
+    ],
+    [
+      -3,
+      10000
+    ],
+    [
+      497,
+      10000
+    ],
+    [
+      6540,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      16212,
+      10000
+    ],
+    [
+      -8423,
+      10000
+    ],
+    [
+      -1583,
+      10000
+    ],
+    [
+      -4336,
+      10000
+    ],
+    [
+      12583,
+      10000
+    ],
+    [
+      1937,
+      10000
+    ],
+    [
+      -195,
+      10000
+    ],
+    [
+      726,
+      10000
+    ],
+    [
+      6199,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    100,
+    100
+  ],
+  "baseline_sharpness": [
+    133,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 63491,
+  "opcode_list3_hex": "00000001000000010103000000000001000000a4000000033ff00b391f2634e1bf78fcc3c82f5600bf7608b041f5c0003f7699dee903f400000000000000000000000000000000003ff00b09c48b1ffabf7b00ad637f6b13bf72f7079048835f3f7552d07651a9dd000000000000000000000000000000003ff00b830789a668bf7c3dfa83e65e00bf70edaf3f54b8003f74602c97583000000000000000000000000000000000003fdff627627627623fe000f00f00f00f",
+  "native_width": 11662,
+  "native_height": 8746,
+  "native_geometry_note": "11662x8746 most common decoded dims across 20 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 0.79,
+  "lenses": [
+    [
+      "GF110mmF2 R LM WR",
+      110.0,
+      110.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF120mmF4 R LM OIS WR Macro",
+      120.0,
+      120.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF30mmF3.5 R WR",
+      30.0,
+      30.0,
+      3.5,
+      "FUJIFILM"
+    ],
+    [
+      "GF32-64mmF4 R LM WR",
+      32.0,
+      64.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF45-100mmF4 R LM OIS WR",
+      45.0,
+      100.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "GF45mmF2.8 R WR",
+      45.0,
+      45.0,
+      2.8,
+      "FUJIFILM"
+    ],
+    [
+      "GF50mmF3.5 R LM WR",
+      50.0,
+      50.0,
+      3.5,
+      "FUJIFILM"
+    ],
+    [
+      "GF63mmF2.8 R WR",
+      63.0,
+      63.0,
+      2.8,
+      "FUJIFILM"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2500,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1900
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      170
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      150
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      1,
+      110
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      85
+    ],
+    [
+      1,
+      75
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      20
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      1176,
+      10000
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      17000,
+      10000
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1000,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "92"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 11662,
+      "height": 8746,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Fujifilm GF 120mm F4 Macro R LM OIS WR/4818411838.raf",
+    "Fujifilm GF 120mm F4 Macro R LM OIS WR/6967435252.raf",
+    "Fujifilm GF 30mm F3.5 R WR/1149919031.raf",
+    "Fujifilm GF 30mm F3.5 R WR/1952441971.dng",
+    "Fujifilm GF 45-100mm F4 R LM OIS WR/1108839282.raf",
+    "Fujifilm GF 45-100mm F4 R LM OIS WR/3196594861.raf",
+    "Fujifilm GF 45-100mm F4/1818973067.raf",
+    "Fujifilm GF 45-100mm F4/5854387480.raf",
+    "Fujifilm GF 50mm F3.5 2/1887437989.raf",
+    "Fujifilm GF 50mm F3.5 2/2603165501.raf",
+    "Fujifilm GF 63mm F2.8 R WR/3313184059.raf",
+    "Fujifilm GF 63mm F2.8 R WR/9234412100.raf",
+    "Fujifilm GFX 100 2/1584559975.raf",
+    "Fujifilm GFX 100 2/8377621302.raf",
+    "Fujifilm GFX 100 3/2868438236.raf",
+    "Fujifilm GFX 100 3/4288906096.raf",
+    "Fujifilm GFX 100 in Japan/6242776110.raf",
+    "Fujifilm GFX 100 in Japan/7798777717.raf",
+    "Fujifilm GFX 100/5231173054.raf",
+    "Fujifilm GFX 100/8046109700.raf"
+  ],
+  "representative": "Fujifilm GF 30mm F3.5 R WR/1952441971.dng"
+}

@@ -1,0 +1,351 @@
+{
+  "schema": 1,
+  "slug": "ricoh_gr_iii",
+  "display_name": "Ricoh GR III",
+  "make": "RICOH IMAGING COMPANY, LTD.",
+  "model": "RICOH GR III",
+  "unique_camera_model": "RICOH GR III",
+  "software": "RICOH GR III Ver. 1.10",
+  "dng_version": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    2,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      43566,
+      65536
+    ],
+    [
+      -17901,
+      65536
+    ],
+    [
+      -1987,
+      65536
+    ],
+    [
+      -24969,
+      65536
+    ],
+    [
+      65342,
+      65536
+    ],
+    [
+      29280,
+      65536
+    ],
+    [
+      -736,
+      65536
+    ],
+    [
+      2315,
+      65536
+    ],
+    [
+      47256,
+      65536
+    ]
+  ],
+  "color_matrix2": [
+    [
+      40057,
+      65536
+    ],
+    [
+      -9253,
+      65536
+    ],
+    [
+      -5075,
+      65536
+    ],
+    [
+      -30238,
+      65536
+    ],
+    [
+      83413,
+      65536
+    ],
+    [
+      13536,
+      65536
+    ],
+    [
+      -4349,
+      65536
+    ],
+    [
+      9710,
+      65536
+    ],
+    [
+      38638,
+      65536
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    1,
+    1
+  ],
+  "baseline_sharpness": [
+    1,
+    1
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 520,
+  "opcode_list3_hex": null,
+  "native_width": 6000,
+  "native_height": 4000,
+  "native_geometry_note": "6000x4000 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "RICOH GR III built-in lens",
+      18.3,
+      18.3,
+      2.8,
+      "Ricoh"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1250
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 6000,
+      "height": 4000,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Ricoh GR III 2/3972944157.dng",
+    "Ricoh GR III 2/4897927126.dng",
+    "Ricoh GR III 3/0464016410.dng",
+    "Ricoh GR III 3/7093371365.dng",
+    "Ricoh GR III/6241599827.dng",
+    "Ricoh GR III/7851509507.dng"
+  ],
+  "representative": "Ricoh GR III 2/3972944157.dng"
+}

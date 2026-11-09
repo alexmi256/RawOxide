@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "slug": "panasonic_dmc_gx8",
+  "display_name": "Panasonic DMC-GX8",
+  "make": "Panasonic",
+  "model": "DMC-GX8",
+  "unique_camera_model": "DMC-GX8",
+  "software": "Ver.2.2",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 5200,
+  "native_height": 3904,
+  "native_geometry_note": "5200x3904 most common decoded dims across 8 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 2.0,
+  "lenses": [
+    [
+      "DMC-GX8 built-in lens",
+      12.0,
+      400.0,
+      2.8,
+      "Panasonic"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1300
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 5200,
+      "height": 3904,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Leica DG Vario-Elmar 100-400mm F4-6.3 ASPH Real World/8386965466.rw2",
+    "Leica DG Vario-Elmar 100-400mm F4-6.3 ASPH Real World/8724585670.rw2",
+    "Panasonic 12-60mm F2.8-4.0/3793505688.rw2",
+    "Panasonic 12-60mm F2.8-4.0/7959435112.rw2",
+    "Panasonic Lumix DMC-GX8 real-world/0201264141.rw2",
+    "Panasonic Lumix DMC-GX8 real-world/4344673563.rw2",
+    "Panasonic Lumix G Leica DG Summilux 12mm F1.4 ASPH lens/6121735894.rw2",
+    "Panasonic Lumix G Leica DG Summilux 12mm F1.4 ASPH lens/9155092983.rw2"
+  ],
+  "representative": "Leica DG Vario-Elmar 100-400mm F4-6.3 ASPH Real World/8386965466.rw2"
+}

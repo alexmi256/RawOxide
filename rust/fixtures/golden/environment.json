@@ -1,0 +1,8 @@
+{
+  "command": "python3 scripts/gen_fixtures.py --force",
+  "numpy": "2.5.3",
+  "pillow": "12.3.0",
+  "python": "3.14.9 (main, Oct 25 2026, 14:52:47) [GCC 16.2.1 20260810]",
+  "stegodng": "1.0.0",
+  "tifffile": "2026.9.20"
+}

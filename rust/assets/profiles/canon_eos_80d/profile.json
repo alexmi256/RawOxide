@@ -1,0 +1,310 @@
+{
+  "schema": 1,
+  "slug": "canon_eos_80d",
+  "display_name": "Canon EOS 80D",
+  "make": "Canon",
+  "model": "Canon EOS 80D",
+  "unique_camera_model": "Canon EOS 80D",
+  "software": "",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6024,
+  "native_height": 4020,
+  "native_geometry_note": "6024x4020 most common decoded dims across 9 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.6,
+  "lenses": [
+    [
+      "EF100-400mm f/4.5-5.6L IS II USM",
+      100.0,
+      400.0,
+      4.5,
+      ""
+    ],
+    [
+      "EF16-35mm f/4L IS USM",
+      16.0,
+      35.0,
+      4.0,
+      ""
+    ],
+    [
+      "EF70-300mm f/4-5.6 IS II USM",
+      70.0,
+      300.0,
+      4.0,
+      ""
+    ],
+    [
+      "TAMRON 10-24mm F/3.5-4.5 Di II VC HLD B023",
+      10.0,
+      24.0,
+      3.5,
+      ""
+    ],
+    [
+      "TAMRON 100-400mm F/4.5-6.3 Di VC USD A035",
+      100.0,
+      400.0,
+      4.5,
+      ""
+    ],
+    [
+      "TAMRON 18-400mm F/3.5-6.3 Di II VC HLD B028",
+      18.0,
+      400.0,
+      3.5,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400,
+    8000
+  ],
+  "exposure_choices": [
+    [
+      1,
+      1000
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      900,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "02"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6024,
+      "height": 4020,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Canon EF 70-300mm f4-5.6 IS II USM/4840024914.cr2",
+    "Canon EF 70-300mm f4-5.6 IS II USM/8770892000.cr2",
+    "Canon EOS 80D real world/2568349275.cr2",
+    "Canon EOS 80D real world/5703715541.cr2",
+    "Tamron 10-24mm/7515107045.cr2",
+    "Tamron 10-24mm/8568008177.cr2",
+    "Tamron 100-400mm F4.5-6.3/2095488021.cr2",
+    "Tamron 18-400mm F3.5-6.3 Di II VC/5521206719.cr2",
+    "Tamron 18-400mm F3.5-6.3 Di II VC/8964243508.cr2"
+  ],
+  "representative": "Canon EF 70-300mm f4-5.6 IS II USM/4840024914.cr2"
+}

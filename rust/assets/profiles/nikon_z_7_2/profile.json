@@ -1,0 +1,351 @@
+{
+  "schema": 1,
+  "slug": "nikon_z_7_2",
+  "display_name": "Nikon Z 7_2",
+  "make": "NIKON CORPORATION",
+  "model": "NIKON Z 7_2",
+  "unique_camera_model": "NIKON Z 7_2",
+  "software": "Ver.01.50",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 8288,
+  "native_height": 5520,
+  "native_geometry_note": "8288x5520 most common decoded dims across 13 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "VR 70-200mm f/2.8E",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ],
+    [
+      "NIKKOR Z 14-24mm f/2.8 S",
+      14.0,
+      24.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 17-28mm f/2.8",
+      17.0,
+      28.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 28-75mm f/2.8",
+      28.0,
+      75.0,
+      2.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 50mm f/1.2 S",
+      50.0,
+      50.0,
+      1.2,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 50mm f/1.8 S",
+      50.0,
+      50.0,
+      1.8,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 58mm f/0.95 S Noct",
+      58.0,
+      58.0,
+      0.95,
+      "NIKON"
+    ],
+    [
+      "NIKKOR Z 85mm f/1.8 S",
+      85.0,
+      85.0,
+      1.8,
+      "NIKON"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      5000
+    ],
+    [
+      1,
+      3200
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      160
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      6250,
+      10000
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      40000,
+      10000
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      300000,
+      10000
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      95,
+      100
+    ],
+    [
+      120,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "30"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 8288,
+      "height": 5520,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Nikkor 58mm F0.95 Noct/5825695530.nef",
+    "Nikkor 58mm F0.95 Noct/7557545260.nef",
+    "Nikon 17-28mm F2.8/6825976733.nef",
+    "Nikon 17-28mm F2.8/9691432863.nef",
+    "Nikon 28-75mm F2.8/5846766828.nef",
+    "Nikon 28-75mm F2.8/6620598286.nef",
+    "Nikon Z 14-24mm F2.8 S/2848811489.nef",
+    "Nikon Z 14-24mm F2.8 S/8180492306.nef",
+    "Nikon Z 50mm F1.2 S 2/0980037653.nef",
+    "Nikon Z7 II 2/1239297587.nef",
+    "Nikon Z7 II 2/4661418069.nef",
+    "Nikon Z7 II/2215147371.nef",
+    "Nikon Z7 II/5352164398.nef"
+  ],
+  "representative": "Nikkor 58mm F0.95 Noct/5825695530.nef"
+}

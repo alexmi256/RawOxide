@@ -1,0 +1,280 @@
+{
+  "schema": 1,
+  "slug": "fujifilm_x_e4",
+  "display_name": "Fujifilm X-E4",
+  "make": "FUJIFILM",
+  "model": "X-E4",
+  "unique_camera_model": "X-E4",
+  "software": "Digital Camera X-E4 Ver1.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6246,
+  "native_height": 4170,
+  "native_geometry_note": "6246x4170 most common decoded dims across 8 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "XF50mmF2 R WR",
+      50.0,
+      50.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "atx-m 23mm F1.4 X",
+      23.0,
+      23.0,
+      1.4,
+      "Tokina"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      4000
+    ],
+    [
+      1,
+      1700
+    ],
+    [
+      1,
+      1500
+    ],
+    [
+      1,
+      850
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      420
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      150
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1S0"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6246,
+      "height": 4170,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Fujifilm X-E4 2/3685037890.raf",
+    "Fujifilm X-E4 2/9822976431.raf",
+    "Fujifilm X-E4/0019625941.raf",
+    "Fujifilm X-E4/9894855431.raf",
+    "Tokina atx-m 23mm F1.4 X/0850347989.raf",
+    "Tokina atx-m 23mm F1.4 X/4109848695.raf",
+    "Venus Laowa \u2018Argus\u2019 33mm F0.95 CF APO/4199808717.raf",
+    "Venus Laowa \u2018Argus\u2019 33mm F0.95 CF APO/8196203229.raf"
+  ],
+  "representative": "Fujifilm X-E4 2/3685037890.raf"
+}

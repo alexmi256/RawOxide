@@ -1,0 +1,444 @@
+{
+  "schema": 1,
+  "slug": "sony_ilce_7rm5",
+  "display_name": "Sony a7R V",
+  "make": "SONY",
+  "model": "ILCE-7RM5",
+  "unique_camera_model": "ILCE-7RM5",
+  "software": "ILCE-7RM5 v4.00",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 9566,
+  "native_height": 6374,
+  "native_geometry_note": "9566x6374 most common decoded dims across 42 sample(s) (also seen 9564x6376)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.0,
+  "lenses": [
+    [
+      "10-18mm F2.8 DC DN | Contemporary 023",
+      10.0,
+      18.0,
+      2.8,
+      ""
+    ],
+    [
+      "17-40mm F1.8 DC | Art 025",
+      17.0,
+      40.0,
+      1.8,
+      ""
+    ],
+    [
+      "200mm F2 DG OS | Sports 025",
+      200.0,
+      200.0,
+      2.0,
+      ""
+    ],
+    [
+      "50mm F1.2 DG DN | Art 024",
+      50.0,
+      50.0,
+      1.2,
+      ""
+    ],
+    [
+      "60-600mm F4.5-6.3 DG DN OS | Sports 023",
+      60.0,
+      600.0,
+      4.5,
+      ""
+    ],
+    [
+      "70-200mm F2.8 DG DN OS | Sports 023",
+      70.0,
+      200.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 100-400mm F5.6-8 OSS",
+      100.0,
+      400.0,
+      5.6,
+      ""
+    ],
+    [
+      "FE 100mm F2.8 Macro GM OSS",
+      100.0,
+      100.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 135mm F1.8 GM",
+      135.0,
+      135.0,
+      1.8,
+      ""
+    ],
+    [
+      "FE 20-70mm F4 G",
+      20.0,
+      70.0,
+      4.0,
+      ""
+    ],
+    [
+      "FE 24-70mm F2.8 GM II",
+      24.0,
+      70.0,
+      2.8,
+      ""
+    ],
+    [
+      "FE 24mm F2.8 G",
+      24.0,
+      24.0,
+      2.8,
+      ""
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2500,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      4000
+    ],
+    [
+      1,
+      2000
+    ],
+    [
+      1,
+      1600
+    ],
+    [
+      1,
+      1250
+    ],
+    [
+      1,
+      1000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      400
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      1,
+      200
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      100
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      1,
+      40
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      20
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      16000,
+      10000
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      350,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      630,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1300,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 9566,
+      "height": 6374,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "LK Samyang AF 60-180mm F2.8/DSC00664.ARW",
+    "LK Samyang AF 60-180mm F2.8/DSC09103.ARW",
+    "Sigma 10-18mm F2.8 DC DN/4388295491.arw",
+    "Sigma 10-18mm F2.8 DC DN/6418690470.arw",
+    "Sigma 17-40mm F1.8 DC Art/4415236196.arw",
+    "Sigma 17-40mm F1.8 DC Art/5915064317.arw",
+    "Sigma 200mm F2 DG OS Sport/5380347238.arw",
+    "Sigma 200mm F2 DG OS Sport/7895894598.arw",
+    "Sigma 50mm F1.2 DG DN Art/4304402276.arw",
+    "Sigma 50mm F1.2 DG DN Art/7816915858.arw",
+    "Sigma 60-600mm F4.5-6.3 DG DN OS/2540354291.arw",
+    "Sigma 60-600mm F4.5-6.3 DG DN OS/6231489563.arw",
+    "Sigma 70-200mm F2.8 DG DN/6260921355.arw",
+    "Sigma 70-200mm F2.8 DG DN/9657647907.arw",
+    "Sony 20-70mm F4 G/2456697637.arw",
+    "Sony 20-70mm F4 G/5401332858.arw",
+    "Sony 50mm F1.4 GM/2676095998.arw",
+    "Sony 50mm F1.4 GM/5948163004.arw",
+    "Sony FE 100-400mm F5.6-8mm OSS/DSC00037.ARW",
+    "Sony FE 100-400mm F5.6-8mm OSS/DSC00462.ARW",
+    "Sony FE 100mm F2.8 Macro GM/2129863672.arw",
+    "Sony FE 100mm F2.8 Macro GM/3863223197.arw",
+    "Sony FE 400-800mm F6.3-8/1375396846.arw",
+    "Sony FE 400-800mm F6.3-8/3133996418.arw",
+    "Sony FE 50-150mm F2 GM/3096769517.arw",
+    "Sony FE 50-150mm F2 GM/6126079644.arw",
+    "Sony FE 85mm F1.4 GM II/2923672179.arw",
+    "Sony FE 85mm F1.4 GM II/3308960122.arw",
+    "Sony a7R V 2/1526491141.arw",
+    "Sony a7R V 2/2565304906.arw",
+    "Sony a7R V 3/5418049587.arw",
+    "Sony a7R V 3/7865302501.arw",
+    "Sony a7R V/2553708813.arw",
+    "Sony a7R V/7217487086.arw",
+    "Tamron 16-30mm F2.8 Di III VXD G2/1448550720.arw",
+    "Tamron 16-30mm F2.8 Di III VXD G2/7800372588.arw",
+    "Tamron 35-100mm F2.8 Di III VXD/0780779040.arw",
+    "Tamron 35-100mm F2.8 Di III VXD/9272630444.arw",
+    "Thypoch Voyager 24-50mm F2.8/8053234459.arw",
+    "Thypoch Voyager 24-50mm F2.8/9933947911.arw",
+    "Zeiss Otus ML 50mm F1.4/5440464809.arw",
+    "Zeiss Otus ML 50mm F1.4/7017719241.arw"
+  ],
+  "representative": "LK Samyang AF 60-180mm F2.8/DSC00664.ARW"
+}

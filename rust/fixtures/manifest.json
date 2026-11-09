@@ -1,0 +1,81 @@
+{
+  "files": [
+    {
+      "bytes": 42822,
+      "path": "dng/cfa_128x96_14bit_2planes.dng",
+      "sha256": "a68cde6158428ac1ec1f7a561c82027d4b6de4e5c7363c8e8c3f67c03590494b"
+    },
+    {
+      "bytes": 243766,
+      "path": "dng/linear_128x96_16bit_3frames.dng",
+      "sha256": "9a9378b4b3157f44d64bbce21dff0df273b6f64cd3dbfe6040ef821b85646677"
+    },
+    {
+      "bytes": 95024,
+      "path": "dng/linear_128x96_16bit_4planes_keyed.dng",
+      "sha256": "e8188207b1e03436ca4ce09113ad694167fc1340f88327815fdafb230c006540"
+    },
+    {
+      "bytes": 38316,
+      "path": "dng/linear_128x96_8bit_deflate.dng",
+      "sha256": "ba51ecccd6d9830fc11d895b9fb663a67c97d935ab363d279fe13fe3370137d6"
+    },
+    {
+      "bytes": 333900,
+      "path": "dng/linear_256x192_16bit_1plane.dng",
+      "sha256": "98553916bedb94a5de485494fa50457dc6989154204d6255309e6cbfc226321a"
+    },
+    {
+      "bytes": 95089,
+      "path": "dng/split0001.dng",
+      "sha256": "054f829fbbe140365a6403aa87c72086c5d7eac46f0373e4eea593071e157b8f"
+    },
+    {
+      "bytes": 95055,
+      "path": "dng/split0002.dng",
+      "sha256": "0f684f326e771cded6173510e0e9f3485356c5eb0ef8948a459f4357d897d2ca"
+    },
+    {
+      "bytes": 1126,
+      "path": "golden/capacity.json",
+      "sha256": "734e34326a8b418eb54268f20a0c2a39214b28257d049bb5f028b9de368f4a28"
+    },
+    {
+      "bytes": 2846,
+      "path": "golden/codec.json",
+      "sha256": "157f0ac5d71f91483f93e96c247ce84bf7d6384c1601fc3387d0f79f3e946f14"
+    },
+    {
+      "bytes": 225,
+      "path": "golden/environment.json",
+      "sha256": "245459992bb79b79fb2271a1e0116b3120ca60fced1db7b74096c6d03cb01926"
+    },
+    {
+      "bytes": 496,
+      "path": "golden/framing.json",
+      "sha256": "f13e500989be1e4ceb2b6eb5b44ce4a93123db62678b3f1032686f183990c8a0"
+    },
+    {
+      "bytes": 1000,
+      "path": "payloads/payload_1000.bin",
+      "sha256": "c60d893e1748056f41ac586c63d669370f2ddababffc51ace540a16b163704a8"
+    },
+    {
+      "bytes": 3000,
+      "path": "payloads/payload_3000.bin",
+      "sha256": "fa7904c14dcf213829431d8ee3c3430e61be5ba35f1a6823c15bf4a9b953c9df"
+    },
+    {
+      "bytes": 5000,
+      "path": "payloads/payload_5000.bin",
+      "sha256": "8ba92a69c6f8d4bae33e0c6b724d034f343d6f91f688a23a25ae07c8f26f237b"
+    },
+    {
+      "bytes": 8000,
+      "path": "payloads/payload_8000.bin",
+      "sha256": "1270f30b2e7a994b36d77e213bf7c451e37d09622773f3087cbda37a1425ad8a"
+    }
+  ],
+  "generated_by": "RawHide Python reference (stegodng)",
+  "note": "Regenerate with rust/scripts/gen_fixtures.py --force; review the diff."
+}

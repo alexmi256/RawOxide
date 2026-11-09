@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "slug": "vivo_v2114",
+  "display_name": "Vivo V2114",
+  "make": "vivo",
+  "model": "V2114",
+  "unique_camera_model": "V2114",
+  "software": "vivo/2114i/2114:11/RP1A.200720.012/compiler0919003023:user/release-keys",
+  "dng_version": [
+    1,
+    4,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      114,
+      128
+    ],
+    [
+      -39,
+      128
+    ],
+    [
+      -16,
+      128
+    ],
+    [
+      -58,
+      128
+    ],
+    [
+      169,
+      128
+    ],
+    [
+      13,
+      128
+    ],
+    [
+      -19,
+      128
+    ],
+    [
+      46,
+      128
+    ],
+    [
+      65,
+      128
+    ]
+  ],
+  "color_matrix2": [
+    [
+      162,
+      128
+    ],
+    [
+      -83,
+      128
+    ],
+    [
+      -17,
+      128
+    ],
+    [
+      -63,
+      128
+    ],
+    [
+      188,
+      128
+    ],
+    [
+      26,
+      128
+    ],
+    [
+      -3,
+      128
+    ],
+    [
+      22,
+      128
+    ],
+    [
+      109,
+      128
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": 409994,
+  "opcode_list3_hex": "0000000100000001010300000000000100000044000000013ff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003fe03f63030303033fe00caaeaeaeaeb",
+  "native_width": 4064,
+  "native_height": 3044,
+  "native_geometry_note": "4064x3044 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "Bayer (unidentified)",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "V2114 built-in lens",
+      6.5,
+      6.5,
+      1.6,
+      "Vivo"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    289,
+    320,
+    400,
+    413,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      50
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      1,
+      20
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      160,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 4064,
+      "height": 3044,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Vivo X70 Pro+/5302803402.dng",
+    "Vivo X70 Pro+/7987518740.dng"
+  ],
+  "representative": "Vivo X70 Pro+/5302803402.dng"
+}

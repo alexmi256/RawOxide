@@ -1,0 +1,341 @@
+{
+  "schema": 1,
+  "slug": "google_pixel_7a",
+  "display_name": "Google Pixel 7a",
+  "make": "Google",
+  "model": "Pixel 7a",
+  "unique_camera_model": "Pixel 7a",
+  "software": "HDR+ 1.0.529852275zd",
+  "dng_version": [
+    1,
+    6,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      18584,
+      10000
+    ],
+    [
+      -12861,
+      10000
+    ],
+    [
+      -3264,
+      10000
+    ],
+    [
+      -9399,
+      10000
+    ],
+    [
+      19119,
+      10000
+    ],
+    [
+      -68,
+      10000
+    ],
+    [
+      550,
+      10000
+    ],
+    [
+      -1294,
+      10000
+    ],
+    [
+      11643,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      14750,
+      10000
+    ],
+    [
+      -6998,
+      10000
+    ],
+    [
+      -2269,
+      10000
+    ],
+    [
+      -9935,
+      10000
+    ],
+    [
+      19229,
+      10000
+    ],
+    [
+      426,
+      10000
+    ],
+    [
+      415,
+      10000
+    ],
+    [
+      -1521,
+      10000
+    ],
+    [
+      7881,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    100,
+    100
+  ],
+  "baseline_sharpness": [
+    100,
+    100
+  ],
+  "linear_response_limit": [
+    100,
+    100
+  ],
+  "shadow_scale": null,
+  "black_level_ref": 1049689,
+  "opcode_list3_hex": "0000000100000001010300000000000100000044000000013fef0f0f200000003fb0b955e0000000bfb81cb7000000003fae922c80000000000000000000000000000000000000003fe080c2534435263fe0022025c04b81",
+  "native_width": 4624,
+  "native_height": 3472,
+  "native_geometry_note": "4624x3472 most common decoded dims across 2 sample(s)",
+  "suggested_bit_depth": 16,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 7.0,
+  "lenses": [
+    [
+      "Pixel 7a built-in lens",
+      5.4,
+      5.4,
+      1.9,
+      "Google"
+    ]
+  ],
+  "iso_choices": [
+    45,
+    47,
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      26,
+      10000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      333,
+      10000
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      190,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "1A",
+    "4E",
+    "7B",
+    "C2"
+  ],
+  "serial_prefixes_note": "generic fallback (no serial tags observed)",
+  "subprofiles": {
+    "native": {
+      "width": 4624,
+      "height": 3472,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Google Pixel 7a/2209513503.dng",
+    "Google Pixel 7a/5533615701.dng"
+  ],
+  "representative": "Google Pixel 7a/2209513503.dng"
+}

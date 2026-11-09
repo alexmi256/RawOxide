@@ -1,0 +1,339 @@
+{
+  "schema": 1,
+  "slug": "leica_tl2",
+  "display_name": "Leica TL2",
+  "make": "LEICA CAMERA AG",
+  "model": "LEICA TL2",
+  "unique_camera_model": "LEICA TL2",
+  "software": "1.0",
+  "dng_version": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "dng_backward": [
+    1,
+    3,
+    0,
+    0
+  ],
+  "color_matrix1": [
+    [
+      7516,
+      10000
+    ],
+    [
+      -2443,
+      10000
+    ],
+    [
+      22,
+      10000
+    ],
+    [
+      -5508,
+      10000
+    ],
+    [
+      14751,
+      10000
+    ],
+    [
+      3673,
+      10000
+    ],
+    [
+      -914,
+      10000
+    ],
+    [
+      1800,
+      10000
+    ],
+    [
+      7771,
+      10000
+    ]
+  ],
+  "color_matrix2": [
+    [
+      5485,
+      10000
+    ],
+    [
+      -1528,
+      10000
+    ],
+    [
+      -608,
+      10000
+    ],
+    [
+      -5060,
+      10000
+    ],
+    [
+      12524,
+      10000
+    ],
+    [
+      2125,
+      10000
+    ],
+    [
+      -1134,
+      10000
+    ],
+    [
+      2001,
+      10000
+    ],
+    [
+      5508,
+      10000
+    ]
+  ],
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": [
+    1,
+    1
+  ],
+  "baseline_sharpness": [
+    1,
+    1
+  ],
+  "linear_response_limit": [
+    1,
+    1
+  ],
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": "00000001000000010103000000000000000000a4000000033fefdc9ce35eaccebf8344fe405b68aa3f95141f072d1e74bf86d058811fb8c2000000000000000000000000000000003fefdcaca06af957bf84270c4df496013f957413109ed1a5bf872fc388be5340000000000000000000000000000000003fefdf6043401338bf856ece7f565a593f960f27a3790143bf87cae9a8801bd5000000000000000000000000000000003fe00000000000003fe0000000000000",
+  "native_width": 6000,
+  "native_height": 4000,
+  "native_geometry_note": "6000x4000 active area (harvested DefaultCropSize)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": "RGGB",
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "Summicron TL 1:2 23 ASPH.",
+      23.0,
+      23.0,
+      2.0,
+      "LEICA CAMERA AG"
+    ],
+    [
+      "Super-Vario-Elmar-TL  1:3.5-4.5 / 11-23 ASPH.",
+      3.5,
+      4.5,
+      2.0,
+      "LEICA CAMERA AG"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      640
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "00"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6000,
+      "height": 4000,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "harvested-dng",
+  "sample_files": [
+    "Leica TL2/1643738655.dng",
+    "Leica TL2/7496361913.dng"
+  ],
+  "representative": "Leica TL2/1643738655.dng"
+}

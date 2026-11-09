@@ -1,0 +1,397 @@
+{
+  "schema": 1,
+  "slug": "fujifilm_x_t3",
+  "display_name": "Fujifilm X-T3",
+  "make": "FUJIFILM",
+  "model": "X-T3",
+  "unique_camera_model": "X-T3",
+  "software": "Digital Camera X-T3 Ver4.10",
+  "dng_version": null,
+  "dng_backward": null,
+  "color_matrix1": null,
+  "color_matrix2": null,
+  "calib_illuminant1": 17,
+  "calib_illuminant2": 21,
+  "baseline_noise": null,
+  "baseline_sharpness": null,
+  "linear_response_limit": null,
+  "shadow_scale": null,
+  "black_level_ref": null,
+  "opcode_list3_hex": null,
+  "native_width": 6246,
+  "native_height": 4170,
+  "native_geometry_note": "6246x4170 most common decoded dims across 20 sample(s)",
+  "suggested_bit_depth": 14,
+  "cfa_pattern": null,
+  "crop_factor": 1.5,
+  "lenses": [
+    [
+      "XF10-24mmF4 R OIS WR",
+      10.0,
+      24.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF16-55mmF2.8 R LM WR",
+      16.0,
+      55.0,
+      2.8,
+      "FUJIFILM"
+    ],
+    [
+      "XF16-80mmF4 R OIS WR",
+      16.0,
+      80.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF16mmF2.8 R WR",
+      16.0,
+      16.0,
+      2.8,
+      "FUJIFILM"
+    ],
+    [
+      "XF18mmF1.4 R LM WR",
+      18.0,
+      18.0,
+      1.4,
+      "FUJIFILM"
+    ],
+    [
+      "XF200mmF2 R LM OIS WR",
+      200.0,
+      200.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF200mmF2 R LM OIS WR + 1.4x F2",
+      200.0,
+      200.0,
+      2.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF50-140mmF2.8 R LM OIS WR",
+      50.0,
+      140.0,
+      2.8,
+      "FUJIFILM"
+    ],
+    [
+      "XF70-300mmF4-5.6 R LM OIS WR",
+      70.0,
+      300.0,
+      4.0,
+      "FUJIFILM"
+    ],
+    [
+      "XF8-16mmF2.8 R LM WR",
+      8.0,
+      16.0,
+      2.8,
+      "FUJIFILM"
+    ]
+  ],
+  "iso_choices": [
+    50,
+    64,
+    100,
+    125,
+    160,
+    200,
+    250,
+    320,
+    400,
+    500,
+    640,
+    800,
+    1000,
+    1250,
+    1600,
+    2500,
+    3200,
+    6400
+  ],
+  "exposure_choices": [
+    [
+      1,
+      6400
+    ],
+    [
+      10,
+      8000
+    ],
+    [
+      1,
+      800
+    ],
+    [
+      1,
+      750
+    ],
+    [
+      1,
+      500
+    ],
+    [
+      10,
+      4000
+    ],
+    [
+      1,
+      320
+    ],
+    [
+      1,
+      300
+    ],
+    [
+      1,
+      250
+    ],
+    [
+      10,
+      2000
+    ],
+    [
+      1,
+      170
+    ],
+    [
+      1,
+      125
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      1,
+      110
+    ],
+    [
+      1,
+      105
+    ],
+    [
+      10,
+      1000
+    ],
+    [
+      1,
+      80
+    ],
+    [
+      1,
+      60
+    ],
+    [
+      10,
+      500
+    ],
+    [
+      1,
+      38
+    ],
+    [
+      1,
+      30
+    ],
+    [
+      10,
+      250
+    ],
+    [
+      10,
+      125
+    ],
+    [
+      10,
+      60
+    ],
+    [
+      10,
+      30
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      8
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      30,
+      10
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      50,
+      10
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      100000,
+      10000
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "fnumber_choices": [
+    [
+      140,
+      100
+    ],
+    [
+      170,
+      100
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      250,
+      100
+    ],
+    [
+      280,
+      100
+    ],
+    [
+      320,
+      100
+    ],
+    [
+      360,
+      100
+    ],
+    [
+      400,
+      100
+    ],
+    [
+      450,
+      100
+    ],
+    [
+      500,
+      100
+    ],
+    [
+      560,
+      100
+    ],
+    [
+      710,
+      100
+    ],
+    [
+      800,
+      100
+    ],
+    [
+      1100,
+      100
+    ],
+    [
+      1600,
+      100
+    ],
+    [
+      2200,
+      100
+    ],
+    [
+      3200,
+      100
+    ]
+  ],
+  "metering_choices": [
+    2,
+    3,
+    5
+  ],
+  "exposure_program_choices": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "serial_prefixes": [
+    "8CA"
+  ],
+  "serial_prefixes_note": "observed serial formats",
+  "subprofiles": {
+    "native": {
+      "width": 6246,
+      "height": 4170,
+      "description": "native sensor geometry"
+    }
+  },
+  "calibration_source": "exif-plus-fallback",
+  "sample_files": [
+    "Fujifilm 8-16mm F2.8/0997056950.raf",
+    "Fujifilm 8-16mm F2.8/2300095429.raf",
+    "Fujifilm X-T3/7998472691.raf",
+    "Fujifilm X-T3/9547167208.raf",
+    "Fujifilm XF 10-24mm F4 R OIS WR/2043991384.raf",
+    "Fujifilm XF 10-24mm F4 R OIS WR/4565629507.raf",
+    "Fujifilm XF 16-80mm F4 R OIS WR 2/1207403303.raf",
+    "Fujifilm XF 16-80mm F4 R OIS WR 2/3227148999.raf",
+    "Fujifilm XF 16-80mm F4 R OIS WR/1522382293.raf",
+    "Fujifilm XF 16-80mm F4 R OIS WR/6028945468.raf",
+    "Fujifilm XF 16mm F2.8/2255308780.raf",
+    "Fujifilm XF 16mm F2.8/3874697122.raf",
+    "Fujifilm XF 18mm F1.4/8736087462.raf",
+    "Fujifilm XF 200mm F2 R LM OIS WR 2/5921283517.raf",
+    "Fujifilm XF 200mm F2 R LM OIS WR 2/7546690002.raf",
+    "Fujifilm XF 200mm F2 R LM OIS WR/4006129617.raf",
+    "Fujifilm XF 200mm F2 R LM OIS WR/6929086928.raf",
+    "Fujifilm XF 70-300mm F4-5.6/0912035283.raf",
+    "Fujifilm XF 8-16mm F2.8 R LM WR/0437610337.raf",
+    "Fujifilm XF 8-16mm F2.8 R LM WR/1509158735.raf"
+  ],
+  "representative": "Fujifilm 8-16mm F2.8/0997056950.raf"
+}
