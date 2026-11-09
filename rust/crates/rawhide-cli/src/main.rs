@@ -87,7 +87,8 @@ struct EncodeArgs {
     #[arg(long)]
     seed: Option<u64>,
 
-    /// Preview source: synthetic, random (offline noise), or an image path.
+    /// Preview source: synthetic, random (Wikimedia Commons, offline-noise
+    /// fallback), or an image path.
     #[arg(long, default_value = "synthetic")]
     thumbnail: String,
 

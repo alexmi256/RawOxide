@@ -1,6 +1,6 @@
 //! Preview source preparation.
 
-use rawhide_core::thumbnail::{PreviewSource, rgb};
+use rawhide_core::thumbnail::{PreviewSource, noise_rgb, rgb};
 
 #[test]
 fn file_thumbnail_is_cropped_and_resized() {
@@ -26,12 +26,12 @@ fn synthetic_and_noise_sources_are_deterministic() {
         rgb(PreviewSource::Synthetic, 8, 6, Some(9)).unwrap()
     );
     assert_eq!(
-        rgb(PreviewSource::Random, 8, 6, Some(9)).unwrap(),
-        rgb(PreviewSource::Random, 8, 6, Some(9)).unwrap()
+        noise_rgb(8, 6, Some(9)).unwrap(),
+        noise_rgb(8, 6, Some(9)).unwrap()
     );
     assert_ne!(
-        rgb(PreviewSource::Random, 8, 6, Some(9)).unwrap(),
-        rgb(PreviewSource::Random, 8, 6, Some(10)).unwrap()
+        noise_rgb(8, 6, Some(9)).unwrap(),
+        noise_rgb(8, 6, Some(10)).unwrap()
     );
 }
 

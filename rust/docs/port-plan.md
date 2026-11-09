@@ -113,7 +113,7 @@ rawhide-cli
         ├── metadata      seeded EXIF randomization (done)
         ├── geo           tz city/land sampler (done)
         ├── cover         synthetic raw covers (in progress)
-        ├── thumbnail     synthetic/offline-noise/file preview
+        ├── thumbnail     synthetic/Commons/offline-noise/file preview
         ├── sizing        auto-fit search (done)
         ├── split         chunk naming/sequencing (done)
         ├── digests       DNG SDK digests (done)
@@ -237,7 +237,7 @@ Done:
 Remaining:
 
 - Other opcode ids and Adobe profile blobs; debug sidecar fields/inventory are done.
-- Commons thumbnail fetching; Adobe profile blobs and full Adobe tag inventory remain.
+- Adobe profile blobs and full Adobe tag inventory remain.
 
 **Acceptance:** profile list/resolve matches Python; sidecar snapshots match the
 documented schema; digests reproduce the Python values for fixed raw/crop/opcode

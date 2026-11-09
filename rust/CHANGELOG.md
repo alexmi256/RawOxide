@@ -64,9 +64,10 @@ semantic versioning.
   adobe_deflate`, 8/16-bit only).
 - `gen-tiff`: plain uncompressed 8-bit RGB TIFF cover generation.
 - `core::cover` cover generator used by `gen-tiff`.
-- Preview sources: synthetic gradient, offline deterministic noise (`random`
-  fallback), and user image files with center-crop + Lanczos resize; profiles'
-  `fidelity.preview_size` controls the IFD0 JPEG dimensions.
+- Preview sources: synthetic gradient, Wikimedia Commons photos with offline
+  deterministic-noise fallback (`random`), and user image files with
+  center-crop + Lanczos resize; profiles' `fidelity.preview_size` controls the
+  IFD0 JPEG dimensions.
 - `--debug-metadata-output`: JSON sidecar with summary, resolved options,
   profile identity and the serialized randomized metadata.
 - `--no-randomize`: deterministic metadata seed 0 (per-chunk offset for split
@@ -80,6 +81,8 @@ semantic versioning.
 - Adobe tag convention (partial): `tag_conventions = "adobe"` profiles omit
   X/YResolution and ResolutionUnit from IFD0.
 - `--progress`/`--no-progress` CLI flags with TTY-aware spinner output.
+- Commons random thumbnails: fetch a random Wikimedia Commons image with
+  retries/timeout, center-crop/Lanczos-resize, and offline noise fallback.
 - Debug sidecar now includes a written-file inventory: IFD0/raw/EXIF/GPS tags
   with type, count, values or size+CRC32 for large blobs.
 - `BigTIFF` output: 64-bit offsets/IFD8 values, automatic switch above 3.5 GB

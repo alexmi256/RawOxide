@@ -18,7 +18,7 @@ rawhide-core        library, no CLI/network policy
   metadata          seeded EXIF randomization (planned)
   geo               tz city + land sampler (planned)
   cover             synthetic raw covers (planned)
-  thumbnail         synthetic/offline-noise/file preview + resize
+  thumbnail         synthetic/Commons/offline-noise/file preview + resize
   sizing            auto-fit search (planned)
   split             chunk naming/sequence
   digests           DNG SDK tile MD5 digests (planned)
@@ -127,8 +127,7 @@ payload. Payload bytes are striped across frames in order, and split chunks use
 DCF-style names. Frames are generated, embedded, encoded and written one at a time, and
 non-digest single frames are banded by tile row, so neither all frames nor a
 full raster are retained. Digest-enabled frames still materialize the frame to
-compute the SDK digest. Remaining work is Commons thumbnails and Adobe tag
-conventions. It was
+compute the SDK digest. Remaining work is Adobe profile/tag support. It was
 validated with Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy`, including
 multi-frame and split sets.
 

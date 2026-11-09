@@ -21,7 +21,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
 | `stegodng/split.py` | `core::split` | ✅ | field parsing, sizes, filename/metadata ordering, chunk bounds/naming, album layout |
 | `stegodng/stego.py` | `core::decode` / `core::writer` | 🚧 | decode, writer, split encode, per-frame and banded streaming done |
-| `stegodng/thumbnails.py` | `core::thumbnail` | 🚧 | synthetic/random-noise/file + Lanczos; Commons fetch not implemented |
+| `stegodng/thumbnails.py` | `core::thumbnail` | ✅ | Commons/synthetic/offline-noise/file + Lanczos |
 | `stegodng/cli.py` | `cli` | 🚧 | `capacity`, `decode` and spike `encode` done; `gen-tiff` stub |
 | `stegodng/profiles/__init__.py` | `core::profiles` | ✅ | 307 JSON + 3 blobs embedded; lazy load, longest-slug resolve |
 | `stegodng/debugmeta.py` | `cli` | ✅ | summary/options/profile/metadata + IFD0/raw/EXIF/GPS tag inventory/CRC |
@@ -33,7 +33,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 |---|---|
 | `capacity` | ✅ |
 | `encode`: input/output/width/height/mode/bit-depth/lsb-planes/key | ✅ (writer path) |
-| `encode`: seed/thumbnail | 🚧 (synthetic/random-noise/file thumbnails; Commons fetch pending) |
+| `encode`: seed/thumbnail | ✅ (Commons/synthetic/offline-noise/file thumbnails) |
 | `encode`: auto-size/frames | ✅ (`--auto-size`, auto planes, `--raw-frames 1-8`) |
 | `encode`: profiles/subprofiles/level-policy | ✅ |
 | `encode`: compression/split/album/metadata fields | ✅ (none/adobe_deflate, split/album/metadata) |
