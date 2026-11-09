@@ -86,17 +86,6 @@ fn version_is_reported() {
 }
 
 #[test]
-fn gen_tiff_scaffold_fails_clearly() {
-    let mut command = cargo_bin_cmd!("rawhide");
-    command.args(["gen-tiff", "-o", "cover.tif"]);
-    command
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("not implemented"))
-        .stderr(predicate::str::contains("port-plan.md"));
-}
-
-#[test]
 fn invalid_plane_count_is_rejected_by_clap() {
     let mut command = cargo_bin_cmd!("rawhide");
     command.args(["capacity", "--lsb-planes", "17"]);
@@ -788,4 +777,178 @@ fn encode_accepts_a_valid_gps_radius() {
     ]);
     encode.assert().success();
     assert_eq!(gps_coordinates(&encoded).0.len(), 3);
+}
+
+#[test]
+fn encode_adobe_deflate_roundtrip() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("deflate.dng");
+    let recovered = dir.path().join("recovered.bin");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--compression",
+        "adobe_deflate",
+    ]);
+    encode.assert().success();
+
+    let mut decode = cargo_bin_cmd!("rawhide");
+    decode.args([
+        "decode",
+        "-i",
+        encoded.to_str().unwrap(),
+        "-o",
+        recovered.to_str().unwrap(),
+    ]);
+    decode.assert().success();
+    assert_eq!(
+        std::fs::read(&recovered).unwrap(),
+        std::fs::read(&payload_path).unwrap()
+    );
+}
+
+#[test]
+fn encode_rejects_deflate_for_packed_depths() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("deflate.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--bit-depth",
+        "12",
+        "--compression",
+        "adobe_deflate",
+    ]);
+    encode
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("requires bit depth 8 or 16"));
+}
+
+#[test]
+fn gen_tiff_writes_a_plain_tiff() {
+    let dir = tempfile::tempdir().unwrap();
+    let output = dir.path().join("cover.tif");
+    let mut command = cargo_bin_cmd!("rawhide");
+    command.args([
+        "gen-tiff",
+        "-o",
+        output.to_str().unwrap(),
+        "--width",
+        "16",
+        "--height",
+        "12",
+        "--seed",
+        "1",
+    ]);
+    command.assert().success();
+    let bytes = std::fs::read(&output).unwrap();
+    assert!(bytes.starts_with(b"II*\0"));
+}
+
+#[test]
+fn encode_deflate_mode_and_depth_matrix_roundtrip() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+    for (mode, depth) in [("linear", 8), ("cfa", 8), ("cfa", 16)] {
+        let encoded = dir.path().join(format!("{mode}-{depth}.dng"));
+        let recovered = dir.path().join(format!("{mode}-{depth}.bin"));
+        let mut encode = cargo_bin_cmd!("rawhide");
+        encode.args([
+            "encode",
+            "-i",
+            payload_path.to_str().unwrap(),
+            "-o",
+            encoded.to_str().unwrap(),
+            "--width",
+            "300",
+            "--height",
+            "257",
+            "--mode",
+            mode,
+            "--bit-depth",
+            &depth.to_string(),
+            "--compression",
+            "adobe_deflate",
+            "--seed",
+            "3",
+        ]);
+        encode.assert().success();
+
+        let mut decode = cargo_bin_cmd!("rawhide");
+        decode.args([
+            "decode",
+            "-i",
+            encoded.to_str().unwrap(),
+            "-o",
+            recovered.to_str().unwrap(),
+        ]);
+        decode.assert().success();
+        assert_eq!(
+            std::fs::read(&recovered).unwrap(),
+            std::fs::read(&payload_path).unwrap()
+        );
+    }
+}
+
+#[test]
+fn encode_deflate_multi_frame_roundtrip() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("frames.dng");
+    let recovered = dir.path().join("recovered.bin");
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "300",
+        "--height",
+        "257",
+        "--raw-frames",
+        "2",
+        "--compression",
+        "adobe_deflate",
+        "--seed",
+        "3",
+    ]);
+    encode.assert().success();
+
+    let mut decode = cargo_bin_cmd!("rawhide");
+    decode.args([
+        "decode",
+        "-i",
+        encoded.to_str().unwrap(),
+        "-o",
+        recovered.to_str().unwrap(),
+    ]);
+    decode.assert().success();
+    assert_eq!(
+        std::fs::read(&recovered).unwrap(),
+        std::fs::read(&payload_path).unwrap()
+    );
 }

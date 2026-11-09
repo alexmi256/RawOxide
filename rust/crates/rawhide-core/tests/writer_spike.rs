@@ -174,6 +174,7 @@ fn writer_handles_multiple_raw_frames() {
         profile: None,
         metadata: None,
         level_policy: rawhide_core::LevelPolicy::Profile,
+        compression: rawhide_core::writer::Compression::None,
         split_id: None,
         split_seq: None,
         split_total: None,
@@ -652,4 +653,27 @@ fn multi_frame_files_omit_raw_digest_tags() {
     let ifd0 = file.ifd(0).unwrap();
     assert!(ifd0.tag(51_111).is_none());
     assert!(ifd0.tag(50_781).is_none());
+}
+
+#[test]
+fn deflate_tiles_roundtrip_at_edge_tiles() {
+    let payload = vec![7_u8; 2000];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("deflate.dng");
+    let options = WriterOptions {
+        width: 300,
+        height: 257,
+        mode: RawMode::Linear,
+        bit_depth: 16,
+        compression: rawhide_core::writer::Compression::AdobeDeflate,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    assert_eq!(
+        decode_files(&[path], &DecodeOptions::default())
+            .unwrap()
+            .payload,
+        payload
+    );
 }

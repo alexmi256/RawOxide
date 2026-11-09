@@ -11,7 +11,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/metadata.py` | `core::metadata` | ✅ | Seeded pools/fields, profile ranges, GPS sampling |
 | `stegodng/geo/` | `core::geo` | ✅ | `zones.bin` embedded, land sampling, tz offsets |
 | `stegodng/filetime.py` | `core::filetime` | ⬜ | birth time (`statx`/`created`), mtime, now |
-| `stegodng/cover.py` | `core::cover` | ⬜ | Banded gradient + noise |
+| `stegodng/cover.py` | `core::cover` / `writer` | 🚧 | synthetic raw covers; plain TIFF gen-tiff |
 | `stegodng/container.py` | `core::dng` reader | ✅ | `tiff-reader` tags/IFDs + custom raw block reader; tile/strip, Deflate, packed, BigTIFF |
 | `stegodng/container.py` | `core::writer` | 🚧 | classic TIFF, tiled raw, LinearRaw/CFA, 8/10/12/14/16-bit, JPEG preview, 1-8 frames, EXIF split markers; Python/rawpy accepted |
 | `stegodng/digests.py` | `core::digests` | ✅ | tile MD5 + RawDataUniqueID incl. GainMap fingerprints |
@@ -36,11 +36,11 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `encode`: seed/thumbnail | 🚧 (seed used for covers/frames/metadata; thumbnail still synthetic) |
 | `encode`: auto-size/frames | ✅ (`--auto-size`, auto planes, `--raw-frames 1-8`) |
 | `encode`: profiles/subprofiles/level-policy | ✅ |
-| `encode`: compression/split/album/metadata fields | 🚧 (split/album/UUID/sequence done; compression planned) |
+| `encode`: compression/split/album/metadata fields | ✅ (none/adobe_deflate, split/album/metadata) |
 | `encode`: image-time/GPS/debug sidecar/progress | 🚧 (`--image-time` and GPS done; debug/progress pending) |
 | `decode`: input set/key/planes/max-bytes/split fields | ✅ |
 | `decode`: progress | ⬜ |
-| `gen-tiff` | ⬜ |
+| `gen-tiff` | ✅ |
 
 ## Required oracle fixtures
 

@@ -60,6 +60,10 @@ semantic versioning.
 - `core::opcodes`: GainMap `OpcodeList2` generation/parsing for CFA profiles
   (four 30x40 phase maps, big-endian opcode layout), SDK fingerprint stream,
   and writer tag 51009. `RawDataUniqueID` now includes the opcode fingerprint.
+- Optional Adobe Deflate raw tiles with predictor 2 (`--compression
+  adobe_deflate`, 8/16-bit only).
+- `gen-tiff`: plain uncompressed 8-bit RGB TIFF cover generation.
+- `core::cover` cover generator used by `gen-tiff`.
 - Writer metadata: per-profile `Make`/`Model`/`Software`/calibration matrices,
   EXIF camera/lens/exposure block, `AsShotNeutral`, `BaselineExposure` and
   `NoiseProfile`. DNG colour/profile tags live in IFD0 (not the raw SubIFD),

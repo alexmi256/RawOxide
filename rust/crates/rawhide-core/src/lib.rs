@@ -13,6 +13,7 @@
 #![forbid(unsafe_code)]
 
 pub mod codec;
+pub mod cover;
 pub mod decode;
 pub mod digests;
 pub mod dng;
@@ -31,6 +32,7 @@ pub mod writer;
 pub use codec::{
     LsbCodec, capacity_bytes, capacity_bytes_total, format_kb, format_kb_hi, format_kb_lo,
 };
+pub use cover::{CoverError, write_cover_tiff};
 pub use decode::{DecodeError, DecodeOptions, DecodeOutcome, decode_files};
 pub use digests::{new_raw_image_digest, raw_data_unique_id};
 pub use dng::{DngError, DngReader, RawFrame};
@@ -49,4 +51,6 @@ pub use split::{
     order_by_markers, order_by_names, parse_chunk_name, parse_size, split_album_dir,
     validate_fields,
 };
-pub use writer::{RawMode, WriteError, WriteInfo, WriterOptions, write_dng, write_spike_dng};
+pub use writer::{
+    Compression, RawMode, WriteError, WriteInfo, WriterOptions, write_dng, write_spike_dng,
+};

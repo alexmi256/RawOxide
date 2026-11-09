@@ -10,10 +10,10 @@ use std::process::ExitCode;
 use anyhow::{Context, Result, bail};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use rawhide_core::{
-    CameraProfile, DecodeOptions, ImageTime, LevelPolicy, MetadataRandomizer, RawMode,
+    CameraProfile, Compression, DecodeOptions, ImageTime, LevelPolicy, MetadataRandomizer, RawMode,
     RecommendOptions, RecommendedConfig, SizingMode, SplitIdField, SplitSeqField, WriterOptions,
     capacity_bytes, chunk_bounds, chunk_path, decode_files, format_kb, parse_size, profiles,
-    recommend, risk_warnings, split_album_dir, write_dng,
+    recommend, risk_warnings, split_album_dir, write_cover_tiff, write_dng,
 };
 use tracing_subscriber::EnvFilter;
 
@@ -42,7 +42,7 @@ enum Command {
     Encode(EncodeArgs),
     /// Extract a payload from one or more DNG files.
     Decode(DecodeArgs),
-    /// Generate a plain TIFF cover (not implemented yet).
+    /// Generate a plain TIFF cover.
     GenTiff(GenTiffArgs),
 }
 
@@ -126,6 +126,10 @@ struct EncodeArgs {
     /// Fidelity level policy.
     #[arg(long, value_enum, default_value_t = LevelPolicyArg::Profile)]
     level_policy: LevelPolicyArg,
+
+    /// Raw tile compression (deflate only with bit depth 8/16).
+    #[arg(long, value_enum, default_value_t = CompressionArg::None)]
+    compression: CompressionArg,
 
     /// Capture time: random, now, input-created, input-modified,
     /// `YYYY:MM:DD HH:MM:SS`, or RFC 3339.
@@ -220,6 +224,24 @@ impl Mode {
         match self {
             Self::Linear => 3,
             Self::Cfa => 1,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+enum CompressionArg {
+    /// Uncompressed tiles.
+    None,
+    /// Adobe Deflate with horizontal predictor.
+    #[value(name = "adobe_deflate")]
+    AdobeDeflate,
+}
+
+impl From<CompressionArg> for Compression {
+    fn from(value: CompressionArg) -> Self {
+        match value {
+            CompressionArg::None => Self::None,
+            CompressionArg::AdobeDeflate => Self::AdobeDeflate,
         }
     }
 }
@@ -338,16 +360,7 @@ fn run(cli: &Cli) -> Result<()> {
         }
         Command::Encode(args) => encode(args),
         Command::Decode(args) => decode(args),
-        Command::GenTiff(args) => not_implemented(
-            "gen-tiff",
-            &format!(
-                "output={}, width={}, height={}, seed={:?}",
-                args.output.display(),
-                args.width,
-                args.height,
-                args.seed
-            ),
-        ),
+        Command::GenTiff(args) => gen_tiff(args),
     }
 }
 
@@ -603,6 +616,7 @@ fn write_one(
         profile: Some(profile),
         metadata: Some(&metadata),
         level_policy: LevelPolicy::from(args.level_policy),
+        compression: Compression::from(args.compression),
         frames: config.frames,
         seed: seed.unwrap_or(seed_offset),
         split_id,
@@ -701,6 +715,15 @@ fn encode_split(
     Ok(())
 }
 
+fn gen_tiff(args: &GenTiffArgs) -> Result<()> {
+    let width = usize::try_from(args.width).map_err(|_| anyhow::anyhow!("width is too large"))?;
+    let height =
+        usize::try_from(args.height).map_err(|_| anyhow::anyhow!("height is too large"))?;
+    let size = write_cover_tiff(&args.output, width, height, args.seed, "RawHide Rust cover")?;
+    println!("wrote {} ({})", args.output.display(), format_kb(size));
+    Ok(())
+}
+
 fn print_write(info: &rawhide_core::WriteInfo) {
     println!("wrote {} ({})", info.path.display(), format_kb(info.size));
     println!(
@@ -761,11 +784,4 @@ fn capacity(args: &CapacityArgs) {
         args.lsb_planes,
         format_kb(capacity)
     );
-}
-
-fn not_implemented(command: &str, detail: &str) -> Result<()> {
-    bail!(
-        "{command} is not implemented in the Rust port yet ({detail}); \
-         see rust/docs/port-plan.md"
-    )
 }

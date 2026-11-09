@@ -193,7 +193,7 @@ Completed in this phase:
 Remaining full-writer work:
 
 - Streaming/banded writes for multi-gigabyte covers.
-- Opcodes/GainMap, Adobe tag conventions, BigTIFF switch, optional Deflate.
+- Adobe tag conventions, BigTIFF switch.
 - Thumbnail sources (file/Commons) and the remaining CLI flag surface.
 
 **Acceptance:** Python decodes Rust output across the L1 matrix (including

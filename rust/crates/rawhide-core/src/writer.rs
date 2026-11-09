@@ -8,8 +8,10 @@
 //! The IFD builder is deliberately small and explicit; the full writer will
 //! replace it with a reusable tag/`IFD` layer informed by `tiff-writer`.
 
+use std::io::Write as _;
 use std::path::{Path, PathBuf};
 
+use flate2::write::ZlibEncoder;
 use image::codecs::jpeg::JpegEncoder;
 use image::{ExtendedColorType, ImageBuffer, Rgb};
 use thiserror::Error;
@@ -86,6 +88,8 @@ pub struct WriterOptions<'a> {
     pub metadata: Option<&'a Metadata>,
     /// Fidelity level policy for white/black levels.
     pub level_policy: LevelPolicy,
+    /// Raw tile compression.
+    pub compression: Compression,
     /// Optional shared chunk-set UUID.
     pub split_id: Option<&'a str>,
     /// Optional chunk sequence (1-based).
@@ -116,6 +120,7 @@ impl Default for WriterOptions<'_> {
             profile: None,
             metadata: None,
             level_policy: LevelPolicy::Profile,
+            compression: Compression::None,
             split_id: None,
             split_seq: None,
             split_total: None,
@@ -173,6 +178,15 @@ pub enum WriteError {
         planes: u8,
         /// Allowed maximum.
         limit: u8,
+    },
+
+    /// Compression is not supported for this bit depth.
+    #[error("{compression} compression requires bit depth 8 or 16 (got {bit_depth})")]
+    UnsupportedCompression {
+        /// Requested compression.
+        compression: &'static str,
+        /// Requested depth.
+        bit_depth: u16,
     },
 
     /// The profile crop margin leaves no image.
@@ -275,6 +289,7 @@ const TAG_STRIP_BYTE_COUNTS: u16 = 279;
 const TAG_X_RESOLUTION: u16 = 282;
 const TAG_Y_RESOLUTION: u16 = 283;
 const TAG_PLANAR_CONFIGURATION: u16 = 284;
+const TAG_PREDICTOR: u16 = 317;
 const TAG_RESOLUTION_UNIT: u16 = 296;
 const TAG_PAGE_NUMBER: u16 = 297;
 const TAG_SOFTWARE: u16 = 305;
@@ -375,6 +390,27 @@ fn xmp_packet() -> Vec<u8> {
     packet
 }
 
+/// Raw tile compression.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Compression {
+    /// Uncompressed tiles.
+    #[default]
+    None,
+    /// Adobe Deflate with horizontal predictor 2 (8/16-bit only).
+    AdobeDeflate,
+}
+
+impl Compression {
+    /// CLI name.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::AdobeDeflate => "adobe_deflate",
+        }
+    }
+}
+
 /// Write a DNG containing `payload` with the given options.
 ///
 /// # Errors
@@ -399,6 +435,7 @@ pub fn write_dng(
         profile,
         metadata,
         level_policy,
+        compression,
         split_id,
         split_seq,
         split_total,
@@ -413,6 +450,12 @@ pub fn write_dng(
     }
     if !matches!(bit_depth, 8 | 10 | 12 | 14 | 16) {
         return Err(WriteError::InvalidBitDepth(bit_depth));
+    }
+    if compression != Compression::None && !matches!(bit_depth, 8 | 16) {
+        return Err(WriteError::UnsupportedCompression {
+            compression: compression.as_str(),
+            bit_depth,
+        });
     }
     let plane_limit = u8::try_from(bit_depth.min(16)).unwrap_or(16);
     if !(1..=plane_limit).contains(&lsb_planes) {
@@ -519,17 +562,38 @@ pub fn write_dng(
     stripe_embed(&mut covers, &frame_bytes, lsb_planes)?;
 
     let tile_row_bytes = tile_row_bytes(tile_width, channels, bit_depth)?;
-    let tile_bytes = tile_row_bytes
-        .checked_mul(tile_height)
-        .ok_or(WriteError::TooLarge)?;
     let across = width.div_ceil(tile_width);
     let down = height.div_ceil(tile_height);
     let tile_count = across.checked_mul(down).ok_or(WriteError::TooLarge)?;
-    let frame_raw_len = tile_bytes
-        .checked_mul(tile_count)
-        .ok_or(WriteError::TooLarge)?;
-    let total_raw_len = frame_raw_len
-        .checked_mul(usize::from(frames))
+    let encoded_frames: Vec<Vec<Vec<u8>>> = covers
+        .iter()
+        .map(|cover| {
+            encode_tiles(
+                cover,
+                width,
+                height,
+                mode,
+                bit_depth,
+                tile_width,
+                tile_height,
+                across,
+                down,
+                tile_row_bytes,
+                compression,
+            )
+        })
+        .collect::<Result<_, _>>()?;
+    let frame_lens: Vec<usize> = encoded_frames
+        .iter()
+        .map(|tiles| {
+            tiles
+                .iter()
+                .fold(0_usize, |total, tile| total.saturating_add(tile.len()))
+        })
+        .collect();
+    let total_raw_len = frame_lens
+        .iter()
+        .try_fold(0_usize, |total, len| total.checked_add(*len))
         .ok_or(WriteError::TooLarge)?;
 
     let preview = synthetic_jpeg(width, height)?;
@@ -637,6 +701,7 @@ pub fn write_dng(
         profile,
         metadata,
         level_policy,
+        compression,
         opcode2.as_deref(),
     );
     let raw_ifd_size = IfdBuilder::from_entries(raw_ifd_template).build(0)?.len();
@@ -706,28 +771,20 @@ pub fn write_dng(
 
     let mut raw_data = Vec::with_capacity(total_raw_len);
     let mut raw_ifds = Vec::with_capacity(usize::from(frames));
-    for (frame_index, cover) in covers.iter().enumerate() {
+    let mut frame_start = u64::from(raw_offset);
+    for (frame_index, tiles) in encoded_frames.iter().enumerate() {
         let mut tile_offsets = Vec::with_capacity(tile_count);
         let mut tile_byte_counts = Vec::with_capacity(tile_count);
-        for tile_index in 0..tile_count {
-            let offset = u64::from(raw_offset)
-                + u64::try_from(frame_index.saturating_mul(frame_raw_len)).unwrap_or(u64::MAX)
-                + u64::try_from(tile_index.saturating_mul(tile_bytes)).unwrap_or(u64::MAX);
-            tile_offsets.push(u32::try_from(offset).map_err(|_| WriteError::TooLarge)?);
-            tile_byte_counts.push(u32::try_from(tile_bytes).map_err(|_| WriteError::TooLarge)?);
+        let mut cursor = frame_start;
+        for tile in tiles {
+            tile_offsets.push(u32::try_from(cursor).map_err(|_| WriteError::TooLarge)?);
+            tile_byte_counts.push(u32::try_from(tile.len()).map_err(|_| WriteError::TooLarge)?);
+            raw_data.extend_from_slice(tile);
+            cursor = cursor
+                .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
+                .ok_or(WriteError::TooLarge)?;
         }
-        raw_data.extend(encode_tiles(
-            cover,
-            width,
-            height,
-            mode,
-            bit_depth,
-            tile_width,
-            tile_height,
-            across,
-            down,
-            tile_row_bytes,
-        ));
+        frame_start = cursor;
         let entries = raw_entries(
             width,
             height,
@@ -740,6 +797,7 @@ pub fn write_dng(
             profile,
             metadata,
             level_policy,
+            compression,
             opcode2.as_deref(),
         );
         raw_ifds.push(IfdBuilder::from_entries(entries).build(raw_ifd_offsets[frame_index])?);
@@ -1270,6 +1328,7 @@ fn raw_entries(
     profile: Option<&CameraProfile>,
     metadata: Option<&Metadata>,
     level_policy: LevelPolicy,
+    compression: Compression,
     opcode2: Option<&[u8]>,
 ) -> Vec<Entry> {
     let channels = mode.channels();
@@ -1293,7 +1352,14 @@ fn raw_entries(
             &[u32::try_from(height).unwrap_or(u32::MAX)],
         ),
         Entry::shorts(TAG_BITS_PER_SAMPLE, &vec![bit_depth; channels]),
-        Entry::shorts(TAG_COMPRESSION, &[1]),
+        Entry::shorts(
+            TAG_COMPRESSION,
+            &[if compression == Compression::None {
+                1
+            } else {
+                8
+            }],
+        ),
         Entry::shorts(TAG_PHOTOMETRIC, &[mode.photometric()]),
         Entry::shorts(
             TAG_SAMPLES_PER_PIXEL,
@@ -1342,6 +1408,9 @@ fn raw_entries(
             TagType::Undefined,
             vec![0, 0, 0, 0],
         ));
+    }
+    if matches!(compression, Compression::AdobeDeflate) {
+        entries.push(Entry::shorts(TAG_PREDICTOR, &[2]));
     }
     if black_values.len() == 4 {
         entries.push(Entry::shorts(TAG_BLACK_LEVEL_REPEAT_DIM, &[2, 2]));
@@ -1424,11 +1493,13 @@ fn encode_tiles(
     across: usize,
     down: usize,
     row_bytes: usize,
-) -> Vec<u8> {
+    compression: Compression,
+) -> Result<Vec<Vec<u8>>, WriteError> {
     let channels = mode.channels();
-    let mut out = Vec::with_capacity(row_bytes * tile_height * across * down);
+    let mut out = Vec::with_capacity(across * down);
     for tile_y in 0..down {
         for tile_x in 0..across {
+            let mut tile_data = Vec::with_capacity(row_bytes * tile_height);
             for row in 0..tile_height {
                 let global_y = tile_y * tile_height + row;
                 let mut row_data = vec![0_u8; row_bytes];
@@ -1459,11 +1530,38 @@ fn encode_tiles(
                         }
                     }
                 }
-                out.extend_from_slice(&row_data);
+                if matches!(compression, Compression::AdobeDeflate) {
+                    apply_predictor(&mut row_data, bit_depth, channels);
+                }
+                tile_data.extend_from_slice(&row_data);
+            }
+            if matches!(compression, Compression::AdobeDeflate) {
+                let mut encoder = ZlibEncoder::new(Vec::new(), flate2::Compression::default());
+                encoder.write_all(&tile_data)?;
+                out.push(encoder.finish()?);
+            } else {
+                out.push(tile_data);
             }
         }
     }
-    out
+    Ok(out)
+}
+
+fn apply_predictor(row: &mut [u8], bit_depth: u16, channels: usize) {
+    if bit_depth == 8 {
+        for index in (channels..row.len()).rev() {
+            row[index] = row[index].wrapping_sub(row[index - channels]);
+        }
+    } else if bit_depth == 16 {
+        let samples = row.len() / 2;
+        for index in (channels..samples).rev() {
+            let current = u16::from_le_bytes([row[index * 2], row[index * 2 + 1]]);
+            let previous =
+                u16::from_le_bytes([row[(index - channels) * 2], row[(index - channels) * 2 + 1]]);
+            row[index * 2..index * 2 + 2]
+                .copy_from_slice(&current.wrapping_sub(previous).to_le_bytes());
+        }
+    }
 }
 
 fn pack_bits(target: &mut [u8], bit_offset: usize, value: u16, bit_depth: u16) {
@@ -1550,4 +1648,27 @@ fn synthetic_jpeg(width: usize, height: usize) -> Result<Vec<u8>, WriteError> {
         )
         .map_err(|error| WriteError::Jpeg(error.to_string()))?;
     Ok(jpeg)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::apply_predictor;
+
+    #[test]
+    fn predictor_uses_the_component_stride() {
+        let mut eight = vec![10, 20, 30, 40, 50, 60, 70, 80, 90];
+        apply_predictor(&mut eight, 8, 3);
+        assert_eq!(eight, vec![10, 20, 30, 30, 30, 30, 30, 30, 30]);
+
+        let mut sixteen: Vec<u8> = [10_u16, 20, 30, 40, 50, 60]
+            .iter()
+            .flat_map(|value| value.to_le_bytes())
+            .collect();
+        apply_predictor(&mut sixteen, 16, 3);
+        let expected: Vec<u8> = [10_u16, 20, 30, 30, 30, 30]
+            .iter()
+            .flat_map(|value| value.to_le_bytes())
+            .collect();
+        assert_eq!(sixteen, expected);
+    }
 }
