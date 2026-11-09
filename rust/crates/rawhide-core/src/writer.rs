@@ -2,7 +2,7 @@
 //! EXIF/GPS/profile metadata, split markers, Deflate and classic/`BigTIFF`
 //! output.
 
-use std::io::{BufWriter, Write as _};
+use std::io::{BufWriter, Seek as _, SeekFrom, Write as _};
 use std::path::{Path, PathBuf};
 
 use flate2::write::ZlibEncoder;
@@ -418,6 +418,19 @@ impl Compression {
     }
 }
 
+struct TempGuard<'a> {
+    path: &'a Path,
+    armed: bool,
+}
+
+impl Drop for TempGuard<'_> {
+    fn drop(&mut self) {
+        if self.armed {
+            let _ = std::fs::remove_file(self.path);
+        }
+    }
+}
+
 /// Write a DNG containing `payload` with the given options.
 ///
 /// # Errors
@@ -554,57 +567,6 @@ pub fn write_dng(
             0
         }
     });
-    let mut covers: Vec<Vec<u16>> = (0..frames)
-        .map(|frame_index| {
-            synthetic_cover(
-                width,
-                height,
-                mode,
-                bit_depth,
-                seed.wrapping_add(u64::from(frame_index)),
-                cover_white,
-                headroom,
-            )
-        })
-        .collect();
-    let frame_bytes = PayloadFrame::pack(payload, key);
-    stripe_embed(&mut covers, &frame_bytes, lsb_planes)?;
-
-    let tile_row_bytes = tile_row_bytes(tile_width, channels, bit_depth)?;
-    let across = width.div_ceil(tile_width);
-    let down = height.div_ceil(tile_height);
-    let tile_count = across.checked_mul(down).ok_or(WriteError::TooLarge)?;
-    let encoded_frames: Vec<Vec<Vec<u8>>> = covers
-        .iter()
-        .map(|cover| {
-            encode_tiles(
-                cover,
-                width,
-                height,
-                mode,
-                bit_depth,
-                tile_width,
-                tile_height,
-                across,
-                down,
-                tile_row_bytes,
-                compression,
-            )
-        })
-        .collect::<Result<_, _>>()?;
-    let frame_lens: Vec<usize> = encoded_frames
-        .iter()
-        .map(|tiles| {
-            tiles
-                .iter()
-                .fold(0_usize, |total, tile| total.saturating_add(tile.len()))
-        })
-        .collect();
-    let total_raw_len = frame_lens
-        .iter()
-        .try_fold(0_usize, |total, len| total.checked_add(*len))
-        .ok_or(WriteError::TooLarge)?;
-
     let (preview_width, preview_height) = preview_size(profile, width, height);
     let preview_rgb = thumbnail_rgb(
         preview,
@@ -613,18 +575,132 @@ pub fn write_dng(
         Some(seed),
     )?;
     let preview = encode_jpeg(&preview_rgb, preview_width, preview_height)?;
+    let bytes_per_sample = if bit_depth <= 8 { 1_u64 } else { 2 };
+    let uncompressed_bytes = u64::try_from(sample_count)
+        .unwrap_or(u64::MAX)
+        .saturating_mul(u64::from(frames))
+        .saturating_mul(bytes_per_sample);
     let big = select_bigtiff(
-        u64::try_from(total_raw_len).unwrap_or(u64::MAX),
+        uncompressed_bytes,
         u64::try_from(preview.len()).unwrap_or(u64::MAX),
         force_bigtiff,
     );
     let preview_offset = if big { 16_u64 } else { 8_u64 };
-    let raw_offset = preview_offset
+    let mut raw_cursor = preview_offset
         .checked_add(u64::try_from(preview.len()).map_err(|_| WriteError::TooLarge)?)
         .ok_or(WriteError::TooLarge)?;
-    let ifd0_offset = raw_offset
-        .checked_add(u64::try_from(total_raw_len).map_err(|_| WriteError::TooLarge)?)
-        .ok_or(WriteError::TooLarge)?;
+
+    let frame_bytes = PayloadFrame::pack(payload, key);
+    let tile_row_bytes = tile_row_bytes(tile_width, channels, bit_depth)?;
+    let across = width.div_ceil(tile_width);
+    let down = height.div_ceil(tile_height);
+    let tile_count = across.checked_mul(down).ok_or(WriteError::TooLarge)?;
+    let opcode2 = if mode == RawMode::Cfa {
+        profile
+            .and_then(|profile| profile.gainmap.as_ref())
+            .map(|gainmap| crate::opcodes::build_opcode_list2(width, height, Some(seed), gainmap))
+    } else {
+        None
+    };
+    let digest_enabled = frames == 1
+        && profile.is_some_and(|profile| {
+            profile
+                .fidelity
+                .as_ref()
+                .is_some_and(|fidelity| fidelity.raw_digests)
+        });
+    let mut raw_digests = None;
+    let mut frame_tiles: Vec<(Vec<u64>, Vec<u64>)> = Vec::with_capacity(usize::from(frames));
+
+    let output_path = path.as_ref();
+    let file_name = output_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("output.dng");
+    let temp_path = output_path.with_file_name(format!(".{file_name}.rawhide.tmp"));
+    let mut guard = TempGuard {
+        path: &temp_path,
+        armed: true,
+    };
+    let mut file = BufWriter::new(std::fs::File::create(&temp_path)?);
+    if big {
+        file.write_all(b"II")?;
+        file.write_all(&43_u16.to_le_bytes())?;
+        file.write_all(&8_u16.to_le_bytes())?;
+        file.write_all(&0_u16.to_le_bytes())?;
+        file.write_all(&0_u64.to_le_bytes())?;
+    } else {
+        file.write_all(b"II*\0")?;
+        file.write_all(&0_u32.to_le_bytes())?;
+    }
+    file.write_all(&preview)?;
+
+    for frame_index in 0..usize::from(frames) {
+        let mut cover = synthetic_cover(
+            width,
+            height,
+            mode,
+            bit_depth,
+            seed.wrapping_add(u64::try_from(frame_index).unwrap_or(u64::MAX)),
+            cover_white,
+            headroom,
+        );
+        embed_frame(
+            &mut cover,
+            &frame_bytes,
+            lsb_planes,
+            u64::try_from(frame_index).unwrap_or(u64::MAX),
+        )?;
+        if digest_enabled && frame_index == 0 {
+            let profile = profile.expect("digest selection requires a profile");
+            let (origin, size) = crop_rect(profile, mode, width, height);
+            let digest =
+                crate::digests::new_raw_image_digest(&cover, width, height, channels, bit_depth);
+            let unique = crate::digests::raw_data_unique_id(
+                &digest,
+                &profile.unique_camera_model,
+                [
+                    (u32::try_from(size.0).unwrap_or(u32::MAX), 1),
+                    (u32::try_from(size.1).unwrap_or(u32::MAX), 1),
+                ],
+                [
+                    (u32::try_from(origin.0).unwrap_or(u32::MAX), 1),
+                    (u32::try_from(origin.1).unwrap_or(u32::MAX), 1),
+                ],
+                if opcode2.is_some() {
+                    [None, opcode2.as_deref(), None]
+                } else {
+                    [None, None, Some(profile.opcode_list3.as_slice())]
+                },
+            )?;
+            raw_digests = Some((digest, unique));
+        }
+        let tiles = encode_tiles(
+            &cover,
+            width,
+            height,
+            mode,
+            bit_depth,
+            tile_width,
+            tile_height,
+            across,
+            down,
+            tile_row_bytes,
+            compression,
+        )?;
+        let mut tile_offsets = Vec::with_capacity(tile_count);
+        let mut tile_byte_counts = Vec::with_capacity(tile_count);
+        for tile in tiles {
+            tile_offsets.push(raw_cursor);
+            tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
+            file.write_all(&tile)?;
+            raw_cursor = raw_cursor
+                .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
+                .ok_or(WriteError::TooLarge)?;
+        }
+        frame_tiles.push((tile_offsets, tile_byte_counts));
+    }
+    let ifd0_offset = raw_cursor;
 
     let (mut ifd0_split, mut exif_entries) = split_entries(
         split_id,
@@ -636,45 +712,6 @@ pub fn write_dng(
     let (metadata_ifd0, metadata_exif) = metadata_entries(profile, metadata);
     ifd0_split.extend(metadata_ifd0);
     exif_entries.extend(metadata_exif);
-    let opcode2 = if mode == RawMode::Cfa {
-        profile
-            .and_then(|profile| profile.gainmap.as_ref())
-            .map(|gainmap| crate::opcodes::build_opcode_list2(width, height, Some(seed), gainmap))
-    } else {
-        None
-    };
-    let raw_digests = if frames == 1
-        && profile.is_some_and(|profile| {
-            profile
-                .fidelity
-                .as_ref()
-                .is_some_and(|fidelity| fidelity.raw_digests)
-        }) {
-        let profile = profile.expect("checked above");
-        let (origin, size) = crop_rect(profile, mode, width, height);
-        let digest =
-            crate::digests::new_raw_image_digest(&covers[0], width, height, channels, bit_depth);
-        let unique = crate::digests::raw_data_unique_id(
-            &digest,
-            &profile.unique_camera_model,
-            [
-                (u32::try_from(size.0).unwrap_or(u32::MAX), 1),
-                (u32::try_from(size.1).unwrap_or(u32::MAX), 1),
-            ],
-            [
-                (u32::try_from(origin.0).unwrap_or(u32::MAX), 1),
-                (u32::try_from(origin.1).unwrap_or(u32::MAX), 1),
-            ],
-            if opcode2.is_some() {
-                [None, opcode2.as_deref(), None]
-            } else {
-                [None, None, Some(profile.opcode_list3.as_slice())]
-            },
-        )?;
-        Some((digest, unique))
-    } else {
-        None
-    };
     if let Some((digest, unique)) = raw_digests {
         ifd0_split.push(Entry::bytes(
             TAG_NEW_RAW_IMAGE_DIGEST,
@@ -802,19 +839,7 @@ pub fn write_dng(
     )?;
 
     let mut raw_ifds = Vec::with_capacity(usize::from(frames));
-    let mut frame_start = raw_offset;
-    for (frame_index, tiles) in encoded_frames.iter().enumerate() {
-        let mut tile_offsets = Vec::with_capacity(tile_count);
-        let mut tile_byte_counts = Vec::with_capacity(tile_count);
-        let mut cursor = frame_start;
-        for tile in tiles {
-            tile_offsets.push(cursor);
-            tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
-            cursor = cursor
-                .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
-                .ok_or(WriteError::TooLarge)?;
-        }
-        frame_start = cursor;
+    for (frame_index, (tile_offsets, tile_byte_counts)) in frame_tiles.iter().enumerate() {
         let entries = raw_entries(
             width,
             height,
@@ -822,8 +847,8 @@ pub fn write_dng(
             bit_depth,
             tile_width,
             tile_height,
-            &tile_offsets,
-            &tile_byte_counts,
+            tile_offsets,
+            tile_byte_counts,
             profile,
             metadata,
             level_policy,
@@ -854,27 +879,19 @@ pub fn write_dng(
         _ => None,
     };
 
-    let mut file = BufWriter::new(std::fs::File::create(path.as_ref())?);
+    file.flush()?;
+    let offset_field = if big { 8_u64 } else { 4_u64 };
+    file.seek(SeekFrom::Start(offset_field))?;
     if big {
-        file.write_all(b"II")?;
-        file.write_all(&43_u16.to_le_bytes())?;
-        file.write_all(&8_u16.to_le_bytes())?;
-        file.write_all(&0_u16.to_le_bytes())?;
         file.write_all(&ifd0_offset.to_le_bytes())?;
     } else {
-        file.write_all(b"II*\0")?;
         file.write_all(
             &u32::try_from(ifd0_offset)
                 .map_err(|_| WriteError::TooLarge)?
                 .to_le_bytes(),
         )?;
     }
-    file.write_all(&preview)?;
-    for tiles in &encoded_frames {
-        for tile in tiles {
-            file.write_all(tile)?;
-        }
-    }
+    file.seek(SeekFrom::End(0))?;
     file.write_all(&ifd0)?;
     for ifd in &raw_ifds {
         file.write_all(ifd)?;
@@ -886,7 +903,10 @@ pub fn write_dng(
         file.write_all(ifd)?;
     }
     file.flush()?;
-    let size = std::fs::metadata(path.as_ref())?.len();
+    drop(file);
+    std::fs::rename(&temp_path, output_path)?;
+    guard.armed = false;
+    let size = std::fs::metadata(output_path)?.len();
     Ok(WriteInfo {
         path: path.as_ref().to_path_buf(),
         size,
@@ -928,37 +948,31 @@ pub fn write_spike_dng(
     )
 }
 
-fn stripe_embed(covers: &mut [Vec<u16>], frame: &[u8], lsb_planes: u8) -> Result<(), WriteError> {
-    let total_slots = covers.iter().fold(0_u64, |total, cover| {
-        total.saturating_add(
-            u64::try_from(cover.len())
-                .unwrap_or(u64::MAX)
-                .saturating_mul(u64::from(lsb_planes)),
-        )
-    });
-    let total_bits = u64::try_from(frame.len())
-        .unwrap_or(u64::MAX)
-        .saturating_mul(8);
-    if total_bits > total_slots {
-        return Err(WriteError::TooLarge);
-    }
-
+fn embed_frame(
+    cover: &mut [u16],
+    frame: &[u8],
+    lsb_planes: u8,
+    frame_index: u64,
+) -> Result<(), WriteError> {
     let planes = usize::from(lsb_planes);
-    let mut global_bit = 0_usize;
-    for cover in covers {
-        if global_bit >= frame.len().saturating_mul(8) {
-            break;
-        }
-        let slots = cover.len().saturating_mul(planes);
-        let take = slots.min(frame.len().saturating_mul(8) - global_bit);
-        for local in 0..take {
-            let index = global_bit + local;
-            let bit = (frame[index / 8] >> (7 - (index % 8))) & 1;
-            let sample = local / planes;
-            let plane = u8::try_from(local % planes).unwrap_or(0);
-            cover[sample] = (cover[sample] & !(1_u16 << plane)) | (u16::from(bit) << plane);
-        }
-        global_bit += take;
+    let slots = cover
+        .len()
+        .checked_mul(planes)
+        .ok_or(WriteError::TooLarge)?;
+    let total_bits = frame.len().checked_mul(8).ok_or(WriteError::TooLarge)?;
+    let start =
+        usize::try_from(frame_index.saturating_mul(u64::try_from(slots).unwrap_or(u64::MAX)))
+            .unwrap_or(usize::MAX);
+    if start >= total_bits {
+        return Ok(());
+    }
+    let take = (total_bits - start).min(slots);
+    for local in 0..take {
+        let index = start + local;
+        let bit = (frame[index / 8] >> (7 - (index % 8))) & 1;
+        let sample = local / planes;
+        let plane = u8::try_from(local % planes).unwrap_or(0);
+        cover[sample] = (cover[sample] & !(1_u16 << plane)) | (u16::from(bit) << plane);
     }
     Ok(())
 }
@@ -1016,8 +1030,8 @@ fn split_entries(
     Ok((ifd0, exif))
 }
 
-const fn select_bigtiff(encoded_raw: u64, preview: u64, force: bool) -> bool {
-    force || encoded_raw.saturating_add(preview) > 3_500_000_000
+const fn select_bigtiff(raw_bytes: u64, preview: u64, force: bool) -> bool {
+    force || raw_bytes.saturating_add(preview) > 3_500_000_000
 }
 
 fn build_ifd(builder: &IfdBuilder, offset: u64, big: bool) -> Result<Vec<u8>, WriteError> {
@@ -1768,7 +1782,7 @@ mod tests {
     use super::{apply_predictor, select_bigtiff};
 
     #[test]
-    fn layout_selection_uses_encoded_bytes_and_force() {
+    fn layout_selection_uses_raw_bytes_and_force() {
         assert!(!select_bigtiff(3_500_000_000, 0, false));
         assert!(select_bigtiff(3_500_000_001, 0, false));
         assert!(select_bigtiff(3_000_000_000, 500_000_001, false));

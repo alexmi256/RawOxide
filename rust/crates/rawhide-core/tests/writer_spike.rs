@@ -864,3 +864,25 @@ fn opcode_lists_follow_the_profile() {
     ));
     assert!(raw.tag(51_022).is_none());
 }
+
+#[test]
+fn successful_write_leaves_no_temporary_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("atomic.dng");
+    write_dng(
+        &path,
+        &[1_u8; 200],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let leftovers: Vec<_> = std::fs::read_dir(dir.path())
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name())
+        .filter(|name| name.to_string_lossy().contains(".rawhide.tmp"))
+        .collect();
+    assert!(leftovers.is_empty(), "temporary files left: {leftovers:?}");
+}

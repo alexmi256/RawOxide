@@ -73,10 +73,11 @@ semantic versioning.
   sets), matching Python’s no-randomize mode.
 - Profile `OpcodeList3` bytes are written instead of an empty placeholder, and
   are included in `RawDataUniqueID` fingerprints.
-- Output files are written through a buffered stream instead of assembling a
-  second full-file buffer.
+- Raw frames are generated, payload-embedded, encoded and written one frame at
+  a time; encoded tiles and raw data are no longer retained for the whole file.
+  Single-frame rasters still require a full frame in memory.
 - `BigTIFF` output: 64-bit offsets/IFD8 values, automatic switch above 3.5 GB
-  encoded raw + preview and `--bigtiff` override; pointers, tile tables and split/EXIF/GPS
+  uncompressed raw + preview and `--bigtiff` override; pointers, tile tables and split/EXIF/GPS
   IFDs use 64-bit fields when active.
 - Writer metadata: per-profile `Make`/`Model`/`Software`/calibration matrices,
   EXIF camera/lens/exposure block, `AsShotNeutral`, `BaselineExposure` and

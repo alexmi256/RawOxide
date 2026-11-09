@@ -192,7 +192,7 @@ Completed in this phase:
 
 Remaining full-writer work:
 
-- Streaming/banded writes for multi-gigabyte covers.
+- Single-frame banded generation; per-frame streaming is done.
 - Adobe tag conventions.
 - Commons thumbnail fetching; file/synthetic/offline-random previews are done.
 
