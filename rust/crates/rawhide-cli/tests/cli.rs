@@ -1153,3 +1153,82 @@ fn bigtiff_output_roundtrips() {
         std::fs::read(&payload_path).unwrap()
     );
 }
+
+#[test]
+fn no_randomize_produces_deterministic_metadata() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+    let mut stamps = Vec::new();
+    for index in 0..2 {
+        let encoded = dir.path().join(format!("det{index}.dng"));
+        let mut encode = cargo_bin_cmd!("rawhide");
+        encode.args([
+            "encode",
+            "-i",
+            payload_path.to_str().unwrap(),
+            "-o",
+            encoded.to_str().unwrap(),
+            "--width",
+            "64",
+            "--height",
+            "48",
+            "--no-randomize",
+            "--debug-metadata-output",
+        ]);
+        encode.assert().success();
+        let sidecar = dir.path().join(format!("det{index}.json"));
+        let value: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(sidecar).unwrap()).unwrap();
+        stamps.push(value["metadata"]["datetime"].as_str().unwrap().to_owned());
+    }
+    assert_eq!(stamps[0], stamps[1]);
+}
+
+#[test]
+fn no_randomize_split_sets_are_deterministic_per_chunk() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+    let fixed_id = "00000000000000000000000000000001";
+    let mut runs = Vec::new();
+    let mut metadata = Vec::new();
+    for run in 0..2 {
+        let output_dir = dir.path().join(format!("run{run}"));
+        std::fs::create_dir_all(&output_dir).unwrap();
+        let encoded = output_dir.join("vol.dng");
+        let mut encode = cargo_bin_cmd!("rawhide");
+        encode.args([
+            "encode",
+            "-i",
+            payload_path.to_str().unwrap(),
+            "-o",
+            encoded.to_str().unwrap(),
+            "--width",
+            "128",
+            "--height",
+            "96",
+            "--split-file",
+            "3000",
+            "--split-file-id",
+            fixed_id,
+            "--no-randomize",
+            "--debug-metadata-output",
+        ]);
+        encode.assert().success();
+        let album = output_dir.join("payload_5000");
+        let mut chunk_bytes = Vec::new();
+        let mut chunk_meta = Vec::new();
+        for seq in [1_u32, 2] {
+            chunk_bytes.push(std::fs::read(album.join(format!("vol{seq:04}.dng"))).unwrap());
+            let sidecar: serde_json::Value = serde_json::from_slice(
+                &std::fs::read(album.join(format!("vol{seq:04}.json"))).unwrap(),
+            )
+            .unwrap();
+            chunk_meta.push(sidecar["metadata"].clone());
+        }
+        runs.push(chunk_bytes);
+        metadata.push(chunk_meta);
+    }
+    assert_eq!(runs[0], runs[1]);
+    assert_eq!(metadata[0], metadata[1]);
+    assert_ne!(metadata[0][0], metadata[0][1]);
+}

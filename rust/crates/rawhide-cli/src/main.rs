@@ -136,6 +136,10 @@ struct EncodeArgs {
     #[arg(long)]
     bigtiff: bool,
 
+    /// Disable randomized metadata; use deterministic seed 0.
+    #[arg(long)]
+    no_randomize: bool,
+
     /// Capture time: random, now, input-created, input-modified,
     /// `YYYY:MM:DD HH:MM:SS`, or RFC 3339.
     #[arg(long)]
@@ -622,7 +626,16 @@ fn write_one(
     shared_location: Option<&rawhide_core::Location>,
 ) -> Result<rawhide_core::WriteInfo> {
     let seed = args.seed.map(|seed| seed.wrapping_add(seed_offset));
-    let metadata = MetadataRandomizer::new(seed, Some(profile))
+    let metadata_seed = if args.no_randomize {
+        if split_seq.is_some() {
+            seed.or(Some(seed_offset))
+        } else {
+            Some(0)
+        }
+    } else {
+        seed
+    };
+    let metadata = MetadataRandomizer::new(metadata_seed, Some(profile))
         .with_gps_radius(args.gps_radius)?
         .randomize_with_location(image_time, shared_location);
     let options = WriterOptions {
@@ -707,6 +720,7 @@ fn write_debug_sidecar(
                 "thumbnail": args.thumbnail,
                 "seed": args.seed,
                 "keyed": args.key.is_some(),
+                "no_randomize": args.no_randomize,
             },
             "capacity": {"bytes": info.capacity},
         },
@@ -753,7 +767,8 @@ fn encode_split(
         .as_ref()
         .is_some_and(|fidelity| fidelity.emit_gps)
     {
-        let mut rng = rawhide_core::Rng64::new(args.seed);
+        let mut rng =
+            rawhide_core::Rng64::new(args.seed.or_else(|| args.no_randomize.then_some(0)));
         Some(rawhide_core::geo::sample_location(
             &mut rng,
             args.gps_radius,

@@ -2,7 +2,7 @@
 //! EXIF/GPS/profile metadata, split markers, Deflate and classic/`BigTIFF`
 //! output.
 
-use std::io::Write as _;
+use std::io::{BufWriter, Write as _};
 use std::path::{Path, PathBuf};
 
 use flate2::write::ZlibEncoder;
@@ -665,7 +665,11 @@ pub fn write_dng(
                 (u32::try_from(origin.0).unwrap_or(u32::MAX), 1),
                 (u32::try_from(origin.1).unwrap_or(u32::MAX), 1),
             ],
-            opcode2.as_deref(),
+            if opcode2.is_some() {
+                [None, opcode2.as_deref(), None]
+            } else {
+                [None, None, Some(profile.opcode_list3.as_slice())]
+            },
         )?;
         Some((digest, unique))
     } else {
@@ -797,7 +801,6 @@ pub fn write_dng(
         big,
     )?;
 
-    let mut raw_data = Vec::with_capacity(total_raw_len);
     let mut raw_ifds = Vec::with_capacity(usize::from(frames));
     let mut frame_start = raw_offset;
     for (frame_index, tiles) in encoded_frames.iter().enumerate() {
@@ -807,7 +810,6 @@ pub fn write_dng(
         for tile in tiles {
             tile_offsets.push(cursor);
             tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
-            raw_data.extend_from_slice(tile);
             cursor = cursor
                 .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
                 .ok_or(WriteError::TooLarge)?;
@@ -852,41 +854,38 @@ pub fn write_dng(
         _ => None,
     };
 
-    let mut file = Vec::with_capacity(
-        usize::try_from(ifd0_offset).unwrap_or(usize::MAX)
-            + ifd0.len()
-            + raw_ifds.iter().map(Vec::len).sum::<usize>()
-            + exif_ifd.as_ref().map_or(0, Vec::len)
-            + gps_ifd.as_ref().map_or(0, Vec::len),
-    );
+    let mut file = BufWriter::new(std::fs::File::create(path.as_ref())?);
     if big {
-        file.extend_from_slice(b"II");
-        file.extend_from_slice(&43_u16.to_le_bytes());
-        file.extend_from_slice(&8_u16.to_le_bytes());
-        file.extend_from_slice(&0_u16.to_le_bytes());
-        file.extend_from_slice(&ifd0_offset.to_le_bytes());
+        file.write_all(b"II")?;
+        file.write_all(&43_u16.to_le_bytes())?;
+        file.write_all(&8_u16.to_le_bytes())?;
+        file.write_all(&0_u16.to_le_bytes())?;
+        file.write_all(&ifd0_offset.to_le_bytes())?;
     } else {
-        file.extend_from_slice(b"II*\0");
-        file.extend_from_slice(
+        file.write_all(b"II*\0")?;
+        file.write_all(
             &u32::try_from(ifd0_offset)
                 .map_err(|_| WriteError::TooLarge)?
                 .to_le_bytes(),
-        );
+        )?;
     }
-    file.extend_from_slice(&preview);
-    file.extend_from_slice(&raw_data);
-    file.extend_from_slice(&ifd0);
+    file.write_all(&preview)?;
+    for tiles in &encoded_frames {
+        for tile in tiles {
+            file.write_all(tile)?;
+        }
+    }
+    file.write_all(&ifd0)?;
     for ifd in &raw_ifds {
-        file.extend_from_slice(ifd);
+        file.write_all(ifd)?;
     }
     if let Some(ifd) = &exif_ifd {
-        file.extend_from_slice(ifd);
+        file.write_all(ifd)?;
     }
     if let Some(ifd) = &gps_ifd {
-        file.extend_from_slice(ifd);
+        file.write_all(ifd)?;
     }
-
-    std::fs::write(path.as_ref(), &file)?;
+    file.flush()?;
     let size = std::fs::metadata(path.as_ref())?.len();
     Ok(WriteInfo {
         path: path.as_ref().to_path_buf(),
@@ -1526,7 +1525,7 @@ fn raw_entries(
         entries.push(Entry::bytes(
             TAG_OPCODE_LIST3,
             TagType::Undefined,
-            vec![0, 0, 0, 0],
+            profile.opcode_list3.clone(),
         ));
     }
     if matches!(compression, Compression::AdobeDeflate) {

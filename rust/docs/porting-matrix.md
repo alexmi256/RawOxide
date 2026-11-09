@@ -17,7 +17,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/digests.py` | `core::digests` | ✅ | tile MD5 + RawDataUniqueID incl. GainMap fingerprints |
 | `stegodng/fidelity.py` | `core::fidelity` | ⬜ | serde config + validation |
 | `stegodng/makernote.py` | `core::profile` / `core::metadata` | ✅ | HDRP envelope parsed, seeded generation, writer tags |
-| `stegodng/opcodes.py` | `core::opcodes` | 🚧 | GainMap build/parse/fingerprint; other opcode ids unsupported |
+| `stegodng/opcodes.py` | `core::opcodes` | 🚧 | GainMap + profile OpcodeList3; other opcode ids unsupported |
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
 | `stegodng/split.py` | `core::split` | ✅ | field parsing, sizes, filename/metadata ordering, chunk bounds/naming, album layout |
 | `stegodng/stego.py` | `core::decode` / `core::writer` | 🚧 | decode orchestration, writer and split encode done; metadata/streaming planned |
@@ -38,7 +38,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `encode`: profiles/subprofiles/level-policy | ✅ |
 | `encode`: compression/split/album/metadata fields | ✅ (none/adobe_deflate, split/album/metadata) |
 | `encode`: BigTIFF | ✅ (`--bigtiff`, automatic above 3.5 GB) |
-| `encode`: image-time/GPS/debug sidecar/progress | 🚧 (debug sidecar done; progress pending) |
+| `encode`: image-time/GPS/debug sidecar/progress | 🚧 (debug sidecar and `--no-randomize` done; progress pending) |
 | `decode`: input set/key/planes/max-bytes/split fields | ✅ |
 | `decode`: progress | ⬜ |
 | `gen-tiff` | ✅ |

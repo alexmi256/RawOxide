@@ -809,3 +809,58 @@ fn bigtiff_uses_64bit_pointers_and_tile_tables() {
     assert_eq!(raw.tag(324).unwrap().tag_type, tiff_reader::TagType::Long8);
     assert_eq!(raw.tag(325).unwrap().tag_type, tiff_reader::TagType::Long8);
 }
+
+#[test]
+fn opcode_lists_follow_the_profile() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+
+    let linear = dir.path().join("linear.dng");
+    let profile = rawhide_core::profiles::get_profile("gfx_100").unwrap();
+    write_dng(
+        &linear,
+        &payload,
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&linear).unwrap();
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&linear))
+        .unwrap();
+    assert!(raw.tag(51_009).is_none());
+    match raw.tag(51_022).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Undefined(bytes)) => {
+            assert_eq!(bytes, &profile.opcode_list3);
+        }
+        other => panic!("unexpected OpcodeList3 {other:?}"),
+    }
+
+    let cfa = dir.path().join("cfa.dng");
+    let custom = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &cfa,
+        &payload,
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            profile: Some(custom),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&cfa).unwrap();
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&cfa))
+        .unwrap();
+    assert!(matches!(
+        raw.tag(51_009).map(|tag| &tag.value),
+        Some(tiff_reader::TagValue::Undefined(bytes)) if bytes.len() == 19_572
+    ));
+    assert!(raw.tag(51_022).is_none());
+}

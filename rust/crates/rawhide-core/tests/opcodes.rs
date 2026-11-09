@@ -80,7 +80,7 @@ fn unique_id_with_opcode_fingerprint_matches_python() {
         "Cam",
         [(2, 1), (2, 1)],
         [(0, 1), (0, 1)],
-        Some(&minimal_blob()),
+        [None, Some(&minimal_blob()), None],
     )
     .unwrap();
     assert_eq!(
@@ -121,7 +121,7 @@ fn fingerprint_rejects_non_float_tail() {
             "Cam",
             [(2, 1), (2, 1)],
             [(0, 1), (0, 1)],
-            Some(&blob),
+            [None, Some(&blob), None],
         )
         .is_err()
     );

@@ -228,6 +228,8 @@ Done:
 
 - MakerNote envelopes: `fidelity.makernote` parsing, seeded block generation,
   EXIF tag 37500 and `MakerNoteSafety`.
+- Profile `OpcodeList3` emission (tag 51022) alongside GainMap `OpcodeList2`
+  (tag 51009), with both included in `RawDataUniqueID` fingerprints.
 - GainMap `OpcodeList2`: profile grid parsing, four 30x40 phase maps, big-endian
   opcode encoding, SDK fingerprint stream and writer tag 51009; `RawDataUniqueID`
   includes the fingerprint.
