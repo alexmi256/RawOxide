@@ -80,8 +80,10 @@ semantic versioning.
   longer require a full raster.
 - Adobe profile blocks: forward matrices, name, calibration signature,
   copyright, embed policy, HueSat/LookTable dimensions and float data are parsed
-  from embedded profile assets and written to IFD0. Adobe tag convention also
-  omits X/YResolution/ResolutionUnit and adds YCbCr coefficient/positioning tags.
+  from embedded profile assets and written to IFD0. Adobe tag conventions omit
+  X/YResolution/ResolutionUnit, add YCbCr coefficient/positioning tags, normalize
+  preview RowsPerStrip, keep raw PlanarConfiguration, and retype classic SubIFDs
+  to LONG.
 - `--progress`/`--no-progress` CLI flags with TTY-aware spinner output.
 - Commons random thumbnails: fetch a random Wikimedia Commons image with
   retries/timeout, center-crop/Lanczos-resize, and offline noise fallback.

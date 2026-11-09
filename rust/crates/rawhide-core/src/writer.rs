@@ -1422,15 +1422,24 @@ fn preview_entries(
         if big {
             Entry::ifds8(TAG_SUB_IFDS, sub_ifd_offsets)
         } else {
-            Entry::ifds(
-                TAG_SUB_IFDS,
-                &sub_ifd_offsets
-                    .iter()
-                    .map(|offset| {
-                        u32::try_from(*offset).expect("classic offsets validated before IFD build")
-                    })
-                    .collect::<Vec<_>>(),
-            )
+            let offsets = sub_ifd_offsets
+                .iter()
+                .map(|offset| {
+                    u32::try_from(*offset).expect("classic offsets validated before IFD build")
+                })
+                .collect::<Vec<_>>();
+            let adobe = profile.is_some_and(|profile| {
+                profile
+                    .fidelity
+                    .as_ref()
+                    .and_then(|fidelity| fidelity.tag_conventions.as_deref())
+                    == Some("adobe")
+            });
+            if adobe {
+                Entry::longs(TAG_SUB_IFDS, &offsets)
+            } else {
+                Entry::ifds(TAG_SUB_IFDS, &offsets)
+            }
         },
         Entry::shorts(TAG_YCBCR_SUBSAMPLING, &[2, 2]),
         Entry::rationals(

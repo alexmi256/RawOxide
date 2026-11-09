@@ -117,7 +117,7 @@ rawhide-cli
         ├── sizing        auto-fit search (done)
         ├── split         chunk naming/sequencing (done)
         ├── digests       DNG SDK digests (done)
-        ├── opcodes       GainMap/OpcodeList (in progress)
+        ├── opcodes       GainMap/OpcodeList2; other ids unsupported
         ├── makernote     opaque HDRP envelopes (done)
         └── debug         JSON sidecar (planned)
 ```
@@ -194,8 +194,8 @@ Completed in this phase:
 
 Remaining full-writer work:
 
-- Full Adobe IFD entry rewrite/compaction.
-- Opcode ids other than GainMap.
+- Opcode ids other than GainMap (the Python reference also supports only GainMap
+  fingerprinting).
 
 **Acceptance:** Python decodes Rust output across the L1 matrix (including
 multi-frame and split sets); `rawpy` accepts it; `tiffdump` shows the expected

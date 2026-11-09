@@ -22,7 +22,7 @@ rawhide-core        library, no CLI/network policy
   sizing            auto-fit search (planned)
   split             chunk naming/sequence
   digests           DNG SDK tile MD5 digests (planned)
-  opcodes           GainMap/OpcodeList2 (planned)
+  opcodes           GainMap/OpcodeList2; other ids unsupported
   makernote         HDRP envelope (planned)
   debug             JSON sidecar (summary/options/profile/metadata/file inventory)
 
@@ -127,7 +127,7 @@ payload. Payload bytes are striped across frames in order, and split chunks use
 DCF-style names. Frames are generated, embedded, encoded and written one at a time, and all
 single frames are banded by tile row. The SDK image digest is computed
 incrementally with 256-row tile buffers, so neither all frames nor a full raster
-are retained. Remaining work is the full Adobe IFD entry rewrite/compaction. It was
+are retained. Remaining work is opcode ids other than GainMap. It was
 validated with Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy`, including
 multi-frame and split sets.
 

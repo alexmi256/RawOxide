@@ -1120,3 +1120,85 @@ fn writer_digest_matches_the_written_raw_frame() {
         Some(&tiff_reader::TagValue::Byte(unique.to_vec()))
     );
 }
+
+#[test]
+fn adobe_subifd_types_follow_layout_and_profile() {
+    let dir = tempfile::tempdir().unwrap();
+    let adobe = dir.path().join("adobe.dng");
+    let plain = dir.path().join("plain.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &adobe,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            frames: 2,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    write_dng(
+        &plain,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let adobe_file = tiff_reader::TiffFile::open(&adobe).unwrap();
+    let adobe_tag = adobe_file.ifd(0).unwrap().tag(330).unwrap();
+    assert_eq!(adobe_tag.tag_type, tiff_reader::TagType::Long);
+    let offsets = match &adobe_tag.value {
+        tiff_reader::TagValue::Long(values) => values.clone(),
+        other => panic!("unexpected classic SubIFDs {other:?}"),
+    };
+    assert_eq!(offsets.len(), 2);
+    for offset in offsets {
+        let raw = adobe_file.read_ifd_at_offset(u64::from(offset)).unwrap();
+        assert_eq!(raw.width(), 64);
+        assert_eq!(raw.height(), 48);
+    }
+    assert_eq!(
+        DngReader::open(&adobe).unwrap().raw_frames().unwrap().len(),
+        2
+    );
+    let plain_file = tiff_reader::TiffFile::open(&plain).unwrap();
+    let plain_tag = plain_file.ifd(0).unwrap().tag(330).unwrap();
+    assert_eq!(plain_tag.tag_type.to_code(), 13);
+    assert_eq!(
+        DngReader::open(&plain).unwrap().raw_frames().unwrap().len(),
+        1
+    );
+}
+
+#[test]
+fn adobe_bigtiff_keeps_ifd8_subifds() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe-big-subifd.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            force_bigtiff: true,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let tag = file.ifd(0).unwrap().tag(330).unwrap();
+    assert_eq!(tag.tag_type, tiff_reader::TagType::Ifd8);
+    assert_eq!(
+        DngReader::open(&path).unwrap().raw_frames().unwrap().len(),
+        1
+    );
+}
