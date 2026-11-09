@@ -886,3 +886,59 @@ fn successful_write_leaves_no_temporary_file() {
         .collect();
     assert!(leftovers.is_empty(), "temporary files left: {leftovers:?}");
 }
+
+#[test]
+fn adobe_profiles_drop_resolution_tags() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    assert_eq!(
+        profile
+            .fidelity
+            .as_ref()
+            .unwrap()
+            .tag_conventions
+            .as_deref(),
+        Some("adobe")
+    );
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [282_u16, 283, 296] {
+        assert!(
+            ifd0.tag(tag).is_none(),
+            "resolution tag {tag} should be absent"
+        );
+    }
+
+    let default_path = dir.path().join("default.dng");
+    write_dng(
+        &default_path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&default_path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [282_u16, 283, 296] {
+        assert!(
+            ifd0.tag(tag).is_some(),
+            "non-Adobe profile should keep resolution tag {tag}"
+        );
+    }
+}

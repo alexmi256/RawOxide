@@ -4,11 +4,14 @@
 //! delegates to `rawhide-core`. `capacity`, `encode` and `decode` are
 //! functional; `gen-tiff` is still scaffolded.
 
+use std::io::IsTerminal;
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::time::Duration;
 
 use anyhow::{Context, Result, bail};
 use clap::{Args, Parser, Subcommand, ValueEnum};
+use indicatif::{ProgressBar, ProgressDrawTarget, ProgressStyle};
 use rawhide_core::{
     CameraProfile, Compression, DecodeOptions, ImageTime, LevelPolicy, MetadataRandomizer,
     PreviewSource, RawMode, RecommendOptions, RecommendedConfig, SizingMode, SplitIdField,
@@ -140,6 +143,14 @@ struct EncodeArgs {
     #[arg(long)]
     no_randomize: bool,
 
+    /// Force progress output.
+    #[arg(long, conflicts_with = "no_progress")]
+    progress: bool,
+
+    /// Disable progress output.
+    #[arg(long)]
+    no_progress: bool,
+
     /// Capture time: random, now, input-created, input-modified,
     /// `YYYY:MM:DD HH:MM:SS`, or RFC 3339.
     #[arg(long)]
@@ -203,6 +214,14 @@ struct DecodeArgs {
     /// Metadata field holding the chunk sequence number.
     #[arg(long, value_enum, default_value = "ImageNumber")]
     split_file_metadata_seq: SplitSeqArg,
+
+    /// Force progress output.
+    #[arg(long, conflicts_with = "no_progress")]
+    progress: bool,
+
+    /// Disable progress output.
+    #[arg(long)]
+    no_progress: bool,
 }
 
 #[derive(Debug, Args)]
@@ -377,7 +396,39 @@ fn run(cli: &Cli) -> Result<()> {
     }
 }
 
+struct ProgressGuard(Option<ProgressBar>);
+
+impl Drop for ProgressGuard {
+    fn drop(&mut self) {
+        if let Some(bar) = self.0.take() {
+            bar.finish_and_clear();
+        }
+    }
+}
+
+fn progress_bar(force: bool, disabled: bool, message: &str) -> ProgressGuard {
+    if disabled || (!force && !std::io::stderr().is_terminal()) {
+        return ProgressGuard(None);
+    }
+    let bar = if force {
+        ProgressBar::with_draw_target(
+            None,
+            ProgressDrawTarget::term_like_with_hz(Box::new(console::Term::buffered_stderr()), 20),
+        )
+    } else {
+        ProgressBar::new_spinner()
+    };
+    bar.set_style(
+        ProgressStyle::with_template("{spinner} {msg}")
+            .unwrap_or_else(|_| ProgressStyle::default_spinner()),
+    );
+    bar.set_message(message.to_owned());
+    bar.enable_steady_tick(Duration::from_millis(100));
+    ProgressGuard(Some(bar))
+}
+
 fn encode(args: &EncodeArgs) -> Result<()> {
+    let _progress = progress_bar(args.progress, args.no_progress, "encoding DNG");
     let (profile, subprofile) = profiles::resolve(&args.camera_profile)?;
     let preview = preview_source(&args.thumbnail)?;
     if args.auto_size && (args.width.is_some() || args.height.is_some() || subprofile.is_some()) {
@@ -870,6 +921,7 @@ const fn split_id_name(value: SplitIdArg) -> &'static str {
 }
 
 fn decode(args: &DecodeArgs) -> Result<()> {
+    let _progress = progress_bar(args.progress, args.no_progress, "decoding DNG");
     let max_bytes = args.max_bytes.as_deref().map(parse_size).transpose()?;
     let key = args.key.as_deref().map(str::as_bytes);
     let options = DecodeOptions {

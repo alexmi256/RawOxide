@@ -13,7 +13,7 @@ format so either implementation can decode the other's files.
 > drives calibration, metadata pools, GPS (for profiles that emit it) and tag
 > values. Python and `tifffile` accept both classic and BigTIFF output;
 > `exiv2`/`rawpy` acceptance is classic-only (they do not parse BigTIFF).
-> Commons thumbnail fetching and Adobe tag conventions are the main remaining
+> Commons thumbnail fetching and Adobe profile blobs are the main remaining
 > feature work; see [docs/port-plan.md](docs/port-plan.md).
 
 ## Quick start

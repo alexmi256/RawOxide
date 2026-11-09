@@ -15,7 +15,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/container.py` | `core::dng` reader | ✅ | `tiff-reader` tags/IFDs + custom raw block reader; tile/strip, Deflate, packed, BigTIFF |
 | `stegodng/container.py` | `core::writer` | 🚧 | classic TIFF + BigTIFF, tiled raw, LinearRaw/CFA, 8/10/12/14/16-bit, JPEG preview, 1-8 frames, EXIF split markers; Python/tifffile classic+BigTIFF, exiv2/rawpy classic only |
 | `stegodng/digests.py` | `core::digests` | ✅ | tile MD5 + RawDataUniqueID incl. GainMap fingerprints |
-| `stegodng/fidelity.py` | `core::fidelity` | ⬜ | serde config + validation |
+| `stegodng/fidelity.py` | `core::profile` | 🚧 | metadata/raw fields done; Adobe profile blobs and full tag conventions pending |
 | `stegodng/makernote.py` | `core::profile` / `core::metadata` | ✅ | HDRP envelope parsed, seeded generation, writer tags |
 | `stegodng/opcodes.py` | `core::opcodes` | 🚧 | GainMap + profile OpcodeList3; other opcode ids unsupported |
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
@@ -25,7 +25,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/cli.py` | `cli` | 🚧 | `capacity`, `decode` and spike `encode` done; `gen-tiff` stub |
 | `stegodng/profiles/__init__.py` | `core::profiles` | ✅ | 307 JSON + 3 blobs embedded; lazy load, longest-slug resolve |
 | `stegodng/debugmeta.py` | `cli` | 🚧 | summary/options/profile/metadata sidecar; tag inventory/CRC pending |
-| `stegodng/progress.py` | `cli::progress` | ⬜ | indicatif tri-state |
+| `stegodng/progress.py` | `cli` | 🚧 | TTY-aware spinner for encode/decode; no per-tile bars |
 
 ## CLI flags checklist
 
@@ -38,9 +38,9 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `encode`: profiles/subprofiles/level-policy | ✅ |
 | `encode`: compression/split/album/metadata fields | ✅ (none/adobe_deflate, split/album/metadata) |
 | `encode`: BigTIFF | ✅ (`--bigtiff`, automatic above 3.5 GB) |
-| `encode`: image-time/GPS/debug sidecar/progress | 🚧 (debug sidecar and `--no-randomize` done; progress pending) |
+| `encode`: image-time/GPS/debug sidecar/progress | ✅ (sidecar, `--no-randomize`, progress flags) |
 | `decode`: input set/key/planes/max-bytes/split fields | ✅ |
-| `decode`: progress | ⬜ |
+| `decode`: progress | ✅ |
 | `gen-tiff` | ✅ |
 
 ## Required oracle fixtures

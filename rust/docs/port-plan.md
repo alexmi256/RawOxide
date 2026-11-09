@@ -237,7 +237,7 @@ Done:
 Remaining:
 
 - Other opcode ids, Adobe tag conventions; debug sidecar core fields are done.
-- Commons thumbnail fetching; file/synthetic/Lanczos previews are done.
+- Commons thumbnail fetching; Adobe profile blobs and full Adobe tag inventory remain.
 
 **Acceptance:** profile list/resolve matches Python; sidecar snapshots match the
 documented schema; digests reproduce the Python values for fixed raw/crop/opcode

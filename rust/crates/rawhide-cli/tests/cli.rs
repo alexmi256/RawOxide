@@ -1232,3 +1232,69 @@ fn no_randomize_split_sets_are_deterministic_per_chunk() {
     assert_eq!(metadata[0], metadata[1]);
     assert_ne!(metadata[0][0], metadata[0][1]);
 }
+
+#[test]
+fn progress_flags_are_accepted_and_mutually_exclusive() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("progress.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--progress",
+    ]);
+    let output = encode.output().unwrap();
+    assert!(output.status.success());
+    assert!(
+        !output.stderr.is_empty(),
+        "--progress must force stderr output"
+    );
+
+    let mut quiet = cargo_bin_cmd!("rawhide");
+    quiet.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        dir.path().join("quiet.dng").to_str().unwrap(),
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--no-progress",
+    ]);
+    let output = quiet.output().unwrap();
+    assert!(output.status.success());
+    assert!(output.stderr.is_empty(), "--no-progress must stay silent");
+
+    let mut conflict = cargo_bin_cmd!("rawhide");
+    conflict.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--progress",
+        "--no-progress",
+    ]);
+    conflict.assert().failure();
+
+    let mut decode = cargo_bin_cmd!("rawhide");
+    decode.args([
+        "decode",
+        "-i",
+        encoded.to_str().unwrap(),
+        "-o",
+        dir.path().join("out.bin").to_str().unwrap(),
+        "--no-progress",
+    ]);
+    decode.assert().success();
+}

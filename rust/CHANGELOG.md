@@ -77,6 +77,9 @@ semantic versioning.
   a time; non-digest single frames are further generated and encoded one tile
   row at a time. Only digest-enabled frames (single custom profiles) still need
   the full raster.
+- Adobe tag convention (partial): `tag_conventions = "adobe"` profiles omit
+  X/YResolution and ResolutionUnit from IFD0.
+- `--progress`/`--no-progress` CLI flags with TTY-aware spinner output.
 - `BigTIFF` output: 64-bit offsets/IFD8 values, automatic switch above 3.5 GB
   uncompressed raw + preview and `--bigtiff` override; pointers, tile tables and split/EXIF/GPS
   IFDs use 64-bit fields when active.

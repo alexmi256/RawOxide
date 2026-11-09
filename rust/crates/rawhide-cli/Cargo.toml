@@ -19,6 +19,8 @@ path = "src/main.rs"
 [dependencies]
 anyhow.workspace = true
 chrono.workspace = true
+console.workspace = true
+indicatif.workspace = true
 clap.workspace = true
 rawhide-core = { path = "../rawhide-core", version = "0.1.0" }
 tracing.workspace = true

@@ -1482,6 +1482,20 @@ fn preview_entries(
             &[(0, 1), (255, 1), (128, 1), (255, 1), (128, 1), (255, 1)],
         ),
     ];
+    if profile.is_some_and(|profile| {
+        profile
+            .fidelity
+            .as_ref()
+            .and_then(|fidelity| fidelity.tag_conventions.as_deref())
+            == Some("adobe")
+    }) {
+        entries.retain(|entry| {
+            !matches!(
+                entry.tag,
+                TAG_X_RESOLUTION | TAG_Y_RESOLUTION | TAG_RESOLUTION_UNIT
+            )
+        });
+    }
     if let Some(profile) = profile {
         entries.extend(profile_ifd0_entries(profile));
     }
