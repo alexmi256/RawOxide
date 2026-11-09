@@ -652,26 +652,66 @@ pub fn write_dng(
         let frame_seed = seed.wrapping_add(u64::try_from(frame_index).unwrap_or(u64::MAX));
         let mut tile_offsets = Vec::with_capacity(tile_count);
         let mut tile_byte_counts = Vec::with_capacity(tile_count);
-        if digest_enabled && frame_index == 0 {
-            let mut cover = synthetic_cover(
+        let mut digest_hasher = if digest_enabled && frame_index == 0 {
+            Some(crate::digests::RawImageDigest::new(
+                width, height, channels, bit_depth,
+            ))
+        } else {
+            None
+        };
+        for tile_y in 0..down {
+            let y_start = tile_y * tile_height;
+            let rows = (height - y_start).min(tile_height);
+            let mut band = synthetic_cover_band(
                 width,
                 height,
+                y_start,
+                rows,
                 mode,
                 bit_depth,
                 frame_seed,
                 cover_white,
                 headroom,
             );
-            embed_frame(
-                &mut cover,
-                &frame_bytes,
+            embed_band(
+                &mut band,
+                width,
+                height,
+                y_start,
+                rows,
+                channels,
                 lsb_planes,
+                &frame_bytes,
                 u64::try_from(frame_index).unwrap_or(u64::MAX),
             )?;
+            if let Some(hasher) = &mut digest_hasher {
+                hasher.update_band(y_start, rows, &band);
+            }
+            for tile_x in 0..across {
+                let tile = encode_tile_band(
+                    &band,
+                    width,
+                    rows,
+                    channels,
+                    bit_depth,
+                    tile_x,
+                    tile_width,
+                    tile_height,
+                    tile_row_bytes,
+                    compression,
+                )?;
+                tile_offsets.push(raw_cursor);
+                tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
+                file.write_all(&tile)?;
+                raw_cursor = raw_cursor
+                    .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
+                    .ok_or(WriteError::TooLarge)?;
+            }
+        }
+        if let Some(hasher) = digest_hasher {
             let profile = profile.expect("digest selection requires a profile");
             let (origin, size) = crop_rect(profile, mode, width, height);
-            let digest =
-                crate::digests::new_raw_image_digest(&cover, width, height, channels, bit_depth);
+            let digest = hasher.finish();
             let unique = crate::digests::raw_data_unique_id(
                 &digest,
                 &profile.unique_camera_model,
@@ -690,74 +730,6 @@ pub fn write_dng(
                 },
             )?;
             raw_digests = Some((digest, unique));
-            let tiles = encode_tiles(
-                &cover,
-                width,
-                height,
-                mode,
-                bit_depth,
-                tile_width,
-                tile_height,
-                across,
-                down,
-                tile_row_bytes,
-                compression,
-            )?;
-            for tile in tiles {
-                tile_offsets.push(raw_cursor);
-                tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
-                file.write_all(&tile)?;
-                raw_cursor = raw_cursor
-                    .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
-                    .ok_or(WriteError::TooLarge)?;
-            }
-        } else {
-            for tile_y in 0..down {
-                let y_start = tile_y * tile_height;
-                let rows = (height - y_start).min(tile_height);
-                let mut band = synthetic_cover_band(
-                    width,
-                    height,
-                    y_start,
-                    rows,
-                    mode,
-                    bit_depth,
-                    frame_seed,
-                    cover_white,
-                    headroom,
-                );
-                embed_band(
-                    &mut band,
-                    width,
-                    height,
-                    y_start,
-                    rows,
-                    channels,
-                    lsb_planes,
-                    &frame_bytes,
-                    u64::try_from(frame_index).unwrap_or(u64::MAX),
-                )?;
-                for tile_x in 0..across {
-                    let tile = encode_tile_band(
-                        &band,
-                        width,
-                        rows,
-                        channels,
-                        bit_depth,
-                        tile_x,
-                        tile_width,
-                        tile_height,
-                        tile_row_bytes,
-                        compression,
-                    )?;
-                    tile_offsets.push(raw_cursor);
-                    tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
-                    file.write_all(&tile)?;
-                    raw_cursor = raw_cursor
-                        .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
-                        .ok_or(WriteError::TooLarge)?;
-                }
-            }
         }
         frame_tiles.push((tile_offsets, tile_byte_counts));
     }
@@ -1111,35 +1083,6 @@ fn encode_tile_band(
     } else {
         Ok(tile_data)
     }
-}
-
-fn embed_frame(
-    cover: &mut [u16],
-    frame: &[u8],
-    lsb_planes: u8,
-    frame_index: u64,
-) -> Result<(), WriteError> {
-    let planes = usize::from(lsb_planes);
-    let slots = cover
-        .len()
-        .checked_mul(planes)
-        .ok_or(WriteError::TooLarge)?;
-    let total_bits = frame.len().checked_mul(8).ok_or(WriteError::TooLarge)?;
-    let start =
-        usize::try_from(frame_index.saturating_mul(u64::try_from(slots).unwrap_or(u64::MAX)))
-            .unwrap_or(usize::MAX);
-    if start >= total_bits {
-        return Ok(());
-    }
-    let take = (total_bits - start).min(slots);
-    for local in 0..take {
-        let index = start + local;
-        let bit = (frame[index / 8] >> (7 - (index % 8))) & 1;
-        let sample = local / planes;
-        let plane = u8::try_from(local % planes).unwrap_or(0);
-        cover[sample] = (cover[sample] & !(1_u16 << plane)) | (u16::from(bit) << plane);
-    }
-    Ok(())
 }
 
 fn split_entries(
@@ -1854,6 +1797,7 @@ fn tile_row_bytes(width: usize, channels: usize, bit_depth: u16) -> Result<usize
     }
 }
 
+#[cfg(test)]
 #[allow(clippy::too_many_arguments)]
 fn encode_tiles(
     cover: &[u16],
@@ -1946,6 +1890,7 @@ fn pack_bits(target: &mut [u8], bit_offset: usize, value: u16, bit_depth: u16) {
 }
 
 #[allow(clippy::cast_precision_loss, clippy::suboptimal_flops)]
+#[cfg(test)]
 fn synthetic_cover(
     width: usize,
     height: usize,

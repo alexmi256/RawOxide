@@ -1061,3 +1061,62 @@ fn adobe_profile_tags_work_in_bigtiff() {
         tiff_reader::TagType::SRational
     );
 }
+
+#[test]
+fn writer_digest_matches_the_written_raw_frame() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("digest-check.dng");
+    let profile = rawhide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let seed = 4;
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            seed,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+
+    let frame = DngReader::open(&path)
+        .unwrap()
+        .raw_frames()
+        .unwrap()
+        .remove(0);
+    let digest = rawhide_core::digests::new_raw_image_digest(
+        &frame.samples,
+        frame.width,
+        frame.height,
+        frame.samples_per_pixel,
+        frame.bits_per_sample,
+    );
+    let opcode2 = rawhide_core::opcodes::build_opcode_list2(
+        128,
+        96,
+        Some(seed),
+        profile.gainmap.as_ref().unwrap(),
+    );
+    let unique = rawhide_core::digests::raw_data_unique_id(
+        &digest,
+        &profile.unique_camera_model,
+        [(112, 1), (80, 1)],
+        [(8, 1), (8, 1)],
+        [None, Some(&opcode2), None],
+    )
+    .unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(51_111).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Byte(digest.to_vec()))
+    );
+    assert_eq!(
+        ifd0.tag(50_781).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Byte(unique.to_vec()))
+    );
+}

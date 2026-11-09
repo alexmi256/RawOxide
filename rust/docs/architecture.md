@@ -124,10 +124,10 @@ The writer lives in `rawhide-core::writer` and builds on `rawhide-core::tiff`
 8/10/12/14/16-bit, a JPEG preview, DNG calibration tags, 1-8 full-resolution raw
 frames, split markers in IFD0/EXIF, a profile/EXIF metadata block and the
 payload. Payload bytes are striped across frames in order, and split chunks use
-DCF-style names. Frames are generated, embedded, encoded and written one at a time, and
-non-digest single frames are banded by tile row, so neither all frames nor a
-full raster are retained. Digest-enabled frames still materialize the frame to
-compute the SDK digest. Remaining work is the full Adobe IFD entry rewrite/compaction. It was
+DCF-style names. Frames are generated, embedded, encoded and written one at a time, and all
+single frames are banded by tile row. The SDK image digest is computed
+incrementally with 256-row tile buffers, so neither all frames nor a full raster
+are retained. Remaining work is the full Adobe IFD entry rewrite/compaction. It was
 validated with Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy`, including
 multi-frame and split sets.
 

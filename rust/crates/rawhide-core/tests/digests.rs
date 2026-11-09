@@ -117,3 +117,48 @@ fn linear_multitile_planar_digest_matches_python() {
 fn short_sample_buffer_fails_closed() {
     let _ = new_raw_image_digest(&[1, 2, 3], 4, 4, 1, 16);
 }
+
+#[test]
+fn incremental_digest_matches_one_shot() {
+    for (channels, depth) in [(1, 10), (3, 16), (3, 8)] {
+        let width = 300;
+        for height in [96, 256, 257, 300] {
+            for band_rows in [96, 300] {
+                let samples: Vec<u16> = (0..width * height * channels)
+                    .map(|index| ((index * 7) % 1024) as u16)
+                    .collect();
+                let expected = new_raw_image_digest(&samples, width, height, channels, depth);
+                let mut digest =
+                    rawhide_core::digests::RawImageDigest::new(width, height, channels, depth);
+                for y in (0..height).step_by(band_rows) {
+                    let rows = (height - y).min(band_rows);
+                    let band = &samples[y * width * channels..(y + rows) * width * channels];
+                    digest.update_band(y, rows, band);
+                }
+                assert_eq!(digest.finish(), expected);
+            }
+        }
+    }
+}
+
+#[test]
+fn incremental_digest_matches_empty_image() {
+    let expected = new_raw_image_digest(&[], 64, 0, 1, 16);
+    let digest = rawhide_core::digests::RawImageDigest::new(64, 0, 1, 16).finish();
+    assert_eq!(digest, expected);
+}
+
+#[test]
+#[should_panic(expected = "do not cover")]
+fn incremental_digest_rejects_missing_rows() {
+    let _ = rawhide_core::digests::RawImageDigest::new(64, 48, 1, 16).finish();
+}
+
+#[test]
+#[should_panic(expected = "contiguous")]
+fn incremental_digest_rejects_gaps() {
+    let mut digest = rawhide_core::digests::RawImageDigest::new(4, 4, 1, 16);
+    let band = vec![0_u16; 8];
+    digest.update_band(0, 2, &band);
+    digest.update_band(3, 1, &band);
+}

@@ -20,7 +20,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/opcodes.py` | `core::opcodes` | 🚧 | GainMap + profile OpcodeList3; other opcode ids unsupported |
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
 | `stegodng/split.py` | `core::split` | ✅ | field parsing, sizes, filename/metadata ordering, chunk bounds/naming, album layout |
-| `stegodng/stego.py` | `core::decode` / `core::writer` | 🚧 | decode, writer, split encode, per-frame and banded streaming done |
+| `stegodng/stego.py` | `core::decode` / `core::writer` | 🚧 | decode, writer, split encode, banded streaming + incremental digests done |
 | `stegodng/thumbnails.py` | `core::thumbnail` | ✅ | Commons/synthetic/offline-noise/file + Lanczos |
 | `stegodng/cli.py` | `cli` | 🚧 | `capacity`, `decode` and spike `encode` done; `gen-tiff` stub |
 | `stegodng/profiles/__init__.py` | `core::profiles` | ✅ | 307 JSON + 3 blobs embedded; lazy load, longest-slug resolve |

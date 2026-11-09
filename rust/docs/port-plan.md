@@ -189,12 +189,13 @@ Completed in this phase:
   `ImageDescription` sequence markers, `PageNumber` totals.
 - EXIF IFD linking (`--split-file-metadata-id`/`-seq`) with the Python field
   names and fail-closed defaults.
+- Banded single-frame writes and incremental 256-row digest computation.
+- Adobe profile tags, Commons thumbnails and the debug sidecar inventory.
 
 Remaining full-writer work:
 
-- Digest-enabled frames still materialize one full frame; other single frames are banded.
-- Adobe tag conventions.
-- Commons thumbnail fetching; file/synthetic/offline-random previews are done.
+- Full Adobe IFD entry rewrite/compaction.
+- Opcode ids other than GainMap.
 
 **Acceptance:** Python decodes Rust output across the L1 matrix (including
 multi-frame and split sets); `rawpy` accepts it; `tiffdump` shows the expected
@@ -233,11 +234,6 @@ Done:
 - GainMap `OpcodeList2`: profile grid parsing, four 30x40 phase maps, big-endian
   opcode encoding, SDK fingerprint stream and writer tag 51009; `RawDataUniqueID`
   includes the fingerprint.
-
-Remaining:
-
-- Other opcode ids and full Adobe IFD entry rewrite/compaction (profile tag
-  blobs are implemented; debug sidecar fields/inventory are done).
 
 **Acceptance:** profile list/resolve matches Python; sidecar snapshots match the
 documented schema; digests reproduce the Python values for fixed raw/crop/opcode

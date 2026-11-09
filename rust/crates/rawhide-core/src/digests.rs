@@ -70,6 +70,121 @@ pub fn new_raw_image_digest(
     outer.finalize().into()
 }
 
+/// Incremental `NewRawImageDigest` builder.
+///
+/// Feed rows with [`Self::update_band`] in order, then call [`Self::finish`].
+/// The result matches [`new_raw_image_digest`].
+#[derive(Debug)]
+pub struct RawImageDigest {
+    width: usize,
+    height: usize,
+    channels: usize,
+    bit_depth: u16,
+    outer: Md5,
+    buffers: Vec<Vec<Vec<u8>>>,
+    block_start: usize,
+    next_row: usize,
+}
+
+impl RawImageDigest {
+    /// Create a digest builder for an interleaved image.
+    #[must_use]
+    pub fn new(width: usize, height: usize, channels: usize, bit_depth: u16) -> Self {
+        let tile_columns = width.div_ceil(DIGEST_TILE);
+        Self {
+            width,
+            height,
+            channels,
+            bit_depth,
+            outer: Md5::new(),
+            buffers: (0..tile_columns)
+                .map(|_| (0..channels).map(|_| Vec::new()).collect())
+                .collect(),
+            block_start: 0,
+            next_row: 0,
+        }
+    }
+
+    /// Hash a horizontal band starting at `y_start`.
+    ///
+    /// # Panics
+    ///
+    /// Panics when `band` is shorter than `width * rows * channels`.
+    #[allow(clippy::cast_possible_truncation)]
+    pub fn update_band(&mut self, y_start: usize, rows: usize, band: &[u16]) {
+        assert_eq!(y_start, self.next_row, "digest bands must be contiguous");
+        assert!(
+            y_start
+                .checked_add(rows)
+                .is_some_and(|end| end <= self.height),
+            "digest band extends past the image height"
+        );
+        let needed = self
+            .width
+            .checked_mul(rows)
+            .and_then(|samples| samples.checked_mul(self.channels))
+            .expect("digest band geometry overflows");
+        assert!(
+            band.len() >= needed,
+            "digest band is shorter than its geometry"
+        );
+        self.next_row += rows;
+        for local_y in 0..rows {
+            let y = y_start + local_y;
+            if y >= self.block_start + DIGEST_TILE {
+                self.finish_block();
+                self.block_start += DIGEST_TILE;
+            }
+            for tile_index in 0..self.buffers.len() {
+                let left = tile_index * DIGEST_TILE;
+                let right = (left + DIGEST_TILE).min(self.width);
+                for channel in 0..self.channels {
+                    let buffer = &mut self.buffers[tile_index][channel];
+                    for x in left..right {
+                        let value = band[(local_y * self.width + x) * self.channels + channel];
+                        if self.bit_depth <= 8 {
+                            buffer.push(value as u8);
+                        } else {
+                            buffer.extend_from_slice(&value.to_le_bytes());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn finish_block(&mut self) {
+        for tile in &mut self.buffers {
+            let mut context = Md5::new();
+            for buffer in tile.iter() {
+                context.update(buffer);
+            }
+            self.outer.update(context.finalize());
+            for buffer in tile.iter_mut() {
+                buffer.clear();
+            }
+        }
+    }
+
+    /// Finalize the digest.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the hashed rows do not cover the declared height.
+    #[must_use]
+    pub fn finish(mut self) -> [u8; 16] {
+        assert_eq!(
+            self.next_row, self.height,
+            "digest rows do not cover the image height"
+        );
+        if self.height == 0 {
+            return self.outer.finalize().into();
+        }
+        self.finish_block();
+        self.outer.finalize().into()
+    }
+}
+
 /// Compute `RawDataUniqueID`.
 ///
 /// Crop arguments are `(numerator, denominator)` in DNG tag order. Non-empty

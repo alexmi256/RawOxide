@@ -75,9 +75,9 @@ semantic versioning.
 - Profile `OpcodeList3` bytes are written instead of an empty placeholder, and
   are included in `RawDataUniqueID` fingerprints.
 - Raw frames are generated, payload-embedded, encoded and written one frame at
-  a time; non-digest single frames are further generated and encoded one tile
-  row at a time. Only digest-enabled frames (single custom profiles) still need
-  the full raster.
+  a time, and all single frames are banded by tile row. `NewRawImageDigest` is
+  computed incrementally from 256-row tile buffers, so digest-enabled frames no
+  longer require a full raster.
 - Adobe profile blocks: forward matrices, name, calibration signature,
   copyright, embed policy, HueSat/LookTable dimensions and float data are parsed
   from embedded profile assets and written to IFD0. Adobe tag convention also
