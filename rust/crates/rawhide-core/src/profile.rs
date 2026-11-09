@@ -73,6 +73,138 @@ pub struct Lens {
     pub make: Option<String>,
 }
 
+/// Per-profile `GainMap` base grid and jitter settings.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GainMapConfig {
+    /// Base grid rows.
+    pub rows: usize,
+    /// Base grid columns.
+    pub cols: usize,
+    /// Four `rows * cols` planes in CFA phase order (B, G, G, R).
+    pub planes: Vec<f64>,
+    /// Per-file jitter.
+    pub jitter: f64,
+    /// Gain clip range.
+    pub clip: (f64, f64),
+}
+
+impl GainMapConfig {
+    /// Parse the `gainmap` block.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ProfileError`] for malformed grids or values.
+    pub fn from_json(data: &Value) -> Result<Self, ProfileError> {
+        let object = strip_nulls(data.clone());
+        let object = object
+            .as_object()
+            .ok_or_else(|| ProfileError::Invalid("gainmap must be a dict".to_owned()))?;
+        let planes = object
+            .get("planes")
+            .and_then(Value::as_array)
+            .ok_or_else(|| ProfileError::Invalid("gainmap needs a planes grid".to_owned()))?;
+        if planes.len() != 4 {
+            return Err(ProfileError::Invalid(
+                "gainmap planes must hold four grids".to_owned(),
+            ));
+        }
+        let mut rows = None;
+        let mut cols = None;
+        let mut flat = Vec::new();
+        for plane in planes {
+            let rows_value = plane.as_array().ok_or_else(|| {
+                ProfileError::Invalid("gainmap planes must be nested lists".to_owned())
+            })?;
+            let plane_cols = rows_value
+                .first()
+                .and_then(Value::as_array)
+                .map_or(0, Vec::len);
+            if rows.is_some_and(|value| value != rows_value.len())
+                || cols.is_some_and(|value| value != plane_cols)
+                || rows_value.len() < 2
+                || plane_cols < 2
+            {
+                return Err(ProfileError::Invalid(
+                    "gainmap planes must be a rectangular 4 x V x H grid".to_owned(),
+                ));
+            }
+            rows = Some(rows_value.len());
+            cols = Some(plane_cols);
+            for row in rows_value {
+                let row = row
+                    .as_array()
+                    .filter(|row| row.len() == plane_cols)
+                    .ok_or_else(|| {
+                        ProfileError::Invalid("gainmap grid rows must match".to_owned())
+                    })?;
+                for value in row {
+                    let gain = value.as_f64().ok_or_else(|| {
+                        ProfileError::Invalid("gainmap values must be numbers".to_owned())
+                    })?;
+                    if !gain.is_finite() || gain <= 0.0 {
+                        return Err(ProfileError::Invalid(
+                            "gainmap base values must be finite and positive".to_owned(),
+                        ));
+                    }
+                    flat.push(gain);
+                }
+            }
+        }
+        if let Some(grid) = object.get("grid") {
+            let values = grid
+                .as_array()
+                .filter(|values| values.len() == 2)
+                .ok_or_else(|| {
+                    ProfileError::Invalid("gainmap grid must be [rows, cols]".to_owned())
+                })?;
+            let grid_rows = usize::try_from(as_u64(&values[0], "gainmap.grid")?).unwrap_or(0);
+            let grid_cols = usize::try_from(as_u64(&values[1], "gainmap.grid")?).unwrap_or(0);
+            if grid_rows < 2 || grid_cols < 2 {
+                return Err(ProfileError::Invalid(
+                    "gainmap grid must be [rows, cols] >= 2".to_owned(),
+                ));
+            }
+            if grid_rows != rows.unwrap_or(0) || grid_cols != cols.unwrap_or(0) {
+                return Err(ProfileError::Invalid(
+                    "gainmap planes shape does not match grid".to_owned(),
+                ));
+            }
+        }
+        let clip = object.get("clip").map_or(Ok((1.0, 4.2)), |clip| {
+            let values = clip
+                .as_array()
+                .filter(|values| values.len() == 2)
+                .ok_or_else(|| {
+                    ProfileError::Invalid("gainmap clip must be [low, high]".to_owned())
+                })?;
+            let low = values[0].as_f64().unwrap_or(0.0);
+            let high = values[1].as_f64().unwrap_or(0.0);
+            if !(low.is_finite() && high.is_finite() && 0.0 < low && low < high) {
+                return Err(ProfileError::Invalid(
+                    "gainmap clip must be two increasing positives".to_owned(),
+                ));
+            }
+            Ok((low, high))
+        })?;
+        let jitter = object
+            .get("jitter")
+            .and_then(Value::as_f64)
+            .unwrap_or(0.025);
+        if !jitter.is_finite() || jitter < 0.0 {
+            return Err(ProfileError::Invalid(
+                "gainmap jitter must be a non-negative number".to_owned(),
+            ));
+        }
+        Ok(Self {
+            rows: rows.unwrap_or(0),
+            cols: cols.unwrap_or(0),
+            planes: flat,
+            jitter,
+            clip,
+        })
+    }
+}
+
 /// Envelope of one camera's opaque `MakerNote` block.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MakernoteConfig {
@@ -575,6 +707,8 @@ pub struct CameraProfile {
     pub opcode_list3: Vec<u8>,
     /// Metadata fidelity overlay.
     pub fidelity: Option<FidelityConfig>,
+    /// Optional `GainMap` base grid.
+    pub gainmap: Option<GainMapConfig>,
     /// CLI slug.
     pub slug: String,
     /// Human-readable name.
@@ -649,6 +783,7 @@ impl Default for CameraProfile {
             black_level_ref: 256,
             opcode_list3: decode_hex(DEFAULT_OPCODE_LIST3_HEX).unwrap_or_default(),
             fidelity: None,
+            gainmap: None,
             slug: "gfx_100".to_owned(),
             display_name: "Fujifilm GFX 100".to_owned(),
             native_width: Some(GFX_NATIVE_W),
@@ -875,6 +1010,10 @@ impl CameraProfile {
             fidelity: object
                 .get("fidelity")
                 .map(FidelityConfig::from_json)
+                .transpose()?,
+            gainmap: object
+                .get("gainmap")
+                .map(GainMapConfig::from_json)
                 .transpose()?,
         };
         if let Some(adobe) = object.get("adobe") {

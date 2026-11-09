@@ -36,7 +36,9 @@ fn unique_id_matches_python() {
         "Custom Pixel XL",
         [(112, 1), (80, 1)],
         [(8, 1), (8, 1)],
-    );
+        None,
+    )
+    .unwrap();
     assert_eq!(
         uid,
         [

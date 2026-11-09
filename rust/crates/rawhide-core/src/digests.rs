@@ -72,16 +72,19 @@ pub fn new_raw_image_digest(
 
 /// Compute `RawDataUniqueID`.
 ///
-/// Crop arguments are `(numerator, denominator)` in DNG tag order. Opcode
-/// fingerprints are omitted: the Rust writer emits empty opcode lists, and
-/// this value describes the file as written.
-#[must_use]
+/// Crop arguments are `(numerator, denominator)` in DNG tag order. A non-empty
+/// `opcode_list2` contributes its DNG SDK fingerprint.
+///
+/// # Errors
+///
+/// Returns [`crate::opcodes::OpcodeError`] when the opcode list is malformed.
 pub fn raw_data_unique_id(
     digest: &[u8; 16],
     unique_camera_model: &str,
     crop_size: [(u32, u32); 2],
     crop_origin: [(u32, u32); 2],
-) -> [u8; 16] {
+    opcode_list2: Option<&[u8]>,
+) -> Result<[u8; 16], crate::opcodes::OpcodeError> {
     let mut printer = Md5::new();
     printer.update(digest);
     printer.update(unique_camera_model.as_bytes());
@@ -98,5 +101,8 @@ pub fn raw_data_unique_id(
         printer.update(numerator.to_le_bytes());
         printer.update(denominator.to_le_bytes());
     }
-    printer.finalize().into()
+    if let Some(blob) = opcode_list2 {
+        printer.update(crate::opcodes::opcode_list_fingerprint(blob)?);
+    }
+    Ok(printer.finalize().into())
 }

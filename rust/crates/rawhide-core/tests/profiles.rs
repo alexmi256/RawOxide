@@ -140,3 +140,33 @@ fn makernote_defaults_and_whitespace_match_python() {
     assert_eq!(config.prefix, vec![0x02, 0xef, 0x64]);
     assert_eq!(config.length, (2640, 2757));
 }
+
+#[test]
+fn gainmap_grid_validation_matches_python() {
+    let plane = serde_json::json!([[1.0, 1.0], [1.0, 1.0]]);
+    let valid = serde_json::json!({
+        "grid": [2, 2],
+        "planes": [plane.clone(), plane.clone(), plane.clone(), plane],
+    });
+    assert!(rawhide_core::profile::GainMapConfig::from_json(&valid).is_ok());
+
+    let mismatch = serde_json::json!({
+        "grid": [3, 2],
+        "planes": [plane.clone(), plane.clone(), plane.clone(), plane],
+    });
+    assert!(rawhide_core::profile::GainMapConfig::from_json(&mismatch).is_err());
+
+    let bad_clip = serde_json::json!({
+        "grid": [2, 2],
+        "clip": [4.0, 1.0],
+        "planes": [plane.clone(), plane.clone(), plane.clone(), plane],
+    });
+    assert!(rawhide_core::profile::GainMapConfig::from_json(&bad_clip).is_err());
+
+    let bad_jitter = serde_json::json!({
+        "grid": [2, 2],
+        "jitter": -1.0,
+        "planes": [plane.clone(), plane.clone(), plane.clone(), plane],
+    });
+    assert!(rawhide_core::profile::GainMapConfig::from_json(&bad_jitter).is_err());
+}

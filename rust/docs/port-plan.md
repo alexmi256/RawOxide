@@ -117,7 +117,7 @@ rawhide-cli
         ├── sizing        auto-fit search (done)
         ├── split         chunk naming/sequencing (done)
         ├── digests       DNG SDK digests (done)
-        ├── opcodes       GainMap/OpcodeList (planned)
+        ├── opcodes       GainMap/OpcodeList (in progress)
         ├── makernote     opaque HDRP envelopes (done)
         └── debug         JSON sidecar (planned)
 ```
@@ -228,11 +228,13 @@ Done:
 
 - MakerNote envelopes: `fidelity.makernote` parsing, seeded block generation,
   EXIF tag 37500 and `MakerNoteSafety`.
+- GainMap `OpcodeList2`: profile grid parsing, four 30x40 phase maps, big-endian
+  opcode encoding, SDK fingerprint stream and writer tag 51009; `RawDataUniqueID`
+  includes the fingerprint.
 
 Remaining:
 
-- Full `serde` model for `GainMapConfig`; opcode fingerprints, GainMap writer
-  support, Adobe tag conventions and the debug sidecar.
+- Other opcode ids, Adobe tag conventions and the debug sidecar.
 - Thumbnail sources (Commons/file/synthetic) and Lanczos/YCbCr previews.
 
 **Acceptance:** profile list/resolve matches Python; sidecar snapshots match the

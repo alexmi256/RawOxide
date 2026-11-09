@@ -57,6 +57,9 @@ semantic versioning.
 - `core::profile`/`core::metadata`/writer MakerNote support: parsed
   `fidelity.makernote` envelope (magic/prefix/length), seeded block generation,
   EXIF tag 37500 and `MakerNoteSafety` (50741).
+- `core::opcodes`: GainMap `OpcodeList2` generation/parsing for CFA profiles
+  (four 30x40 phase maps, big-endian opcode layout), SDK fingerprint stream,
+  and writer tag 51009. `RawDataUniqueID` now includes the opcode fingerprint.
 - Writer metadata: per-profile `Make`/`Model`/`Software`/calibration matrices,
   EXIF camera/lens/exposure block, `AsShotNeutral`, `BaselineExposure` and
   `NoiseProfile`. DNG colour/profile tags live in IFD0 (not the raw SubIFD),

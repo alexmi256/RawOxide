@@ -224,6 +224,10 @@ pub enum WriteError {
     /// TIFF serialization failed.
     #[error(transparent)]
     Tiff(#[from] crate::tiff::Error),
+
+    /// Opcode fingerprinting failed.
+    #[error(transparent)]
+    Opcode(#[from] crate::opcodes::OpcodeError),
 }
 
 /// Information about a written DNG.
@@ -354,6 +358,7 @@ const TAG_CALIBRATION_ILLUMINANT2: u16 = 50779;
 const TAG_BEST_QUALITY_SCALE: u16 = 50780;
 const TAG_RAW_DATA_UNIQUE_ID: u16 = 50781;
 const TAG_NEW_RAW_IMAGE_DIGEST: u16 = 51111;
+const TAG_OPCODE_LIST2: u16 = 51009;
 const TAG_OPCODE_LIST3: u16 = 51022;
 
 /// Python-compatible static XMP packet (12 KiB, space-padded).
@@ -546,6 +551,13 @@ pub fn write_dng(
     let (metadata_ifd0, metadata_exif) = metadata_entries(profile, metadata);
     ifd0_split.extend(metadata_ifd0);
     exif_entries.extend(metadata_exif);
+    let opcode2 = if mode == RawMode::Cfa {
+        profile
+            .and_then(|profile| profile.gainmap.as_ref())
+            .map(|gainmap| crate::opcodes::build_opcode_list2(width, height, Some(seed), gainmap))
+    } else {
+        None
+    };
     let raw_digests = if frames == 1
         && profile.is_some_and(|profile| {
             profile
@@ -568,7 +580,8 @@ pub fn write_dng(
                 (u32::try_from(origin.0).unwrap_or(u32::MAX), 1),
                 (u32::try_from(origin.1).unwrap_or(u32::MAX), 1),
             ],
-        );
+            opcode2.as_deref(),
+        )?;
         Some((digest, unique))
     } else {
         None
@@ -624,6 +637,7 @@ pub fn write_dng(
         profile,
         metadata,
         level_policy,
+        opcode2.as_deref(),
     );
     let raw_ifd_size = IfdBuilder::from_entries(raw_ifd_template).build(0)?.len();
 
@@ -726,6 +740,7 @@ pub fn write_dng(
             profile,
             metadata,
             level_policy,
+            opcode2.as_deref(),
         );
         raw_ifds.push(IfdBuilder::from_entries(entries).build(raw_ifd_offsets[frame_index])?);
     }
@@ -1255,6 +1270,7 @@ fn raw_entries(
     profile: Option<&CameraProfile>,
     metadata: Option<&Metadata>,
     level_policy: LevelPolicy,
+    opcode2: Option<&[u8]>,
 ) -> Vec<Entry> {
     let channels = mode.channels();
     let defaults = CameraProfile::default();
@@ -1313,8 +1329,20 @@ fn raw_entries(
         ),
         Entry::rationals(TAG_ANTI_ALIAS_STRENGTH, &[(100, 100)]),
         Entry::rationals(TAG_BEST_QUALITY_SCALE, &[best_quality]),
-        Entry::bytes(TAG_OPCODE_LIST3, TagType::Undefined, vec![0, 0, 0, 0]),
     ];
+    if let Some(opcode2) = opcode2 {
+        entries.push(Entry::bytes(
+            TAG_OPCODE_LIST2,
+            TagType::Undefined,
+            opcode2.to_vec(),
+        ));
+    } else {
+        entries.push(Entry::bytes(
+            TAG_OPCODE_LIST3,
+            TagType::Undefined,
+            vec![0, 0, 0, 0],
+        ));
+    }
     if black_values.len() == 4 {
         entries.push(Entry::shorts(TAG_BLACK_LEVEL_REPEAT_DIM, &[2, 2]));
     }

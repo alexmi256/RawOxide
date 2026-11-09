@@ -585,6 +585,13 @@ fn raw_digest_tags_are_written_for_fidelity_profiles() {
         let value = ifd0.tag(tag).unwrap();
         assert!(matches!(&value.value, tiff_reader::TagValue::Byte(bytes) if bytes.len() == 16));
     }
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    assert!(matches!(
+        raw.tag(51_009).map(|tag| &tag.value),
+        Some(tiff_reader::TagValue::Undefined(bytes)) if bytes.len() == 19_572
+    ));
 }
 
 #[test]
