@@ -192,7 +192,7 @@ Completed in this phase:
 
 Remaining full-writer work:
 
-- Single-frame banded generation; per-frame streaming is done.
+- Digest-enabled frames still materialize one full frame; other single frames are banded.
 - Adobe tag conventions.
 - Commons thumbnail fetching; file/synthetic/offline-random previews are done.
 

@@ -74,8 +74,9 @@ semantic versioning.
 - Profile `OpcodeList3` bytes are written instead of an empty placeholder, and
   are included in `RawDataUniqueID` fingerprints.
 - Raw frames are generated, payload-embedded, encoded and written one frame at
-  a time; encoded tiles and raw data are no longer retained for the whole file.
-  Single-frame rasters still require a full frame in memory.
+  a time; non-digest single frames are further generated and encoded one tile
+  row at a time. Only digest-enabled frames (single custom profiles) still need
+  the full raster.
 - `BigTIFF` output: 64-bit offsets/IFD8 values, automatic switch above 3.5 GB
   uncompressed raw + preview and `--bigtiff` override; pointers, tile tables and split/EXIF/GPS
   IFDs use 64-bit fields when active.

@@ -124,10 +124,11 @@ The writer lives in `rawhide-core::writer` and builds on `rawhide-core::tiff`
 8/10/12/14/16-bit, a JPEG preview, DNG calibration tags, 1-8 full-resolution raw
 frames, split markers in IFD0/EXIF, a profile/EXIF metadata block and the
 payload. Payload bytes are striped across frames in order, and split chunks use
-DCF-style names. Frames are generated, embedded, encoded and written one at a time, so
-multi-frame files no longer retain every frame and tile; a single frame is
-still materialized whole. Remaining work is banded single-frame generation,
-Commons thumbnails and Adobe tag conventions. It was
+DCF-style names. Frames are generated, embedded, encoded and written one at a time, and
+non-digest single frames are banded by tile row, so neither all frames nor a
+full raster are retained. Digest-enabled frames still materialize the frame to
+compute the SDK digest. Remaining work is Commons thumbnails and Adobe tag
+conventions. It was
 validated with Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy`, including
 multi-frame and split sets.
 

@@ -5,7 +5,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | Python module | Rust target | Status | Notes / acceptance |
 |---|---|---|---|
 | `stegodng/framing.py` | `core::framing` | ✅ | Python golden vectors pinned; keyed/unkeyed round-trip |
-| `stegodng/codec.py` | `core::codec` | 🚧 | `u8`/`u16` mapping and per-frame streaming done; single-frame banding planned |
+| `stegodng/codec.py` | `core::codec` | ✅ | `u8`/`u16` mapping, per-frame and banded writes |
 | `stegodng/codec.py` formatters | `core::codec::{format_kb*}` | ✅ | Python Ki KiB output pinned |
 | `stegodng/profile.py` | `core::profile` | ✅ | Constants, depth/black/white helpers, fidelity policies |
 | `stegodng/metadata.py` | `core::metadata` | ✅ | Seeded pools/fields, profile ranges, GPS sampling |
@@ -20,7 +20,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/opcodes.py` | `core::opcodes` | 🚧 | GainMap + profile OpcodeList3; other opcode ids unsupported |
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
 | `stegodng/split.py` | `core::split` | ✅ | field parsing, sizes, filename/metadata ordering, chunk bounds/naming, album layout |
-| `stegodng/stego.py` | `core::decode` / `core::writer` | 🚧 | decode, writer, split encode and per-frame streaming done; single-frame banding planned |
+| `stegodng/stego.py` | `core::decode` / `core::writer` | 🚧 | decode, writer, split encode, per-frame and banded streaming done |
 | `stegodng/thumbnails.py` | `core::thumbnail` | 🚧 | synthetic/random-noise/file + Lanczos; Commons fetch not implemented |
 | `stegodng/cli.py` | `cli` | 🚧 | `capacity`, `decode` and spike `encode` done; `gen-tiff` stub |
 | `stegodng/profiles/__init__.py` | `core::profiles` | ✅ | 307 JSON + 3 blobs embedded; lazy load, longest-slug resolve |

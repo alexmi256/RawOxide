@@ -636,22 +636,25 @@ pub fn write_dng(
     file.write_all(&preview)?;
 
     for frame_index in 0..usize::from(frames) {
-        let mut cover = synthetic_cover(
-            width,
-            height,
-            mode,
-            bit_depth,
-            seed.wrapping_add(u64::try_from(frame_index).unwrap_or(u64::MAX)),
-            cover_white,
-            headroom,
-        );
-        embed_frame(
-            &mut cover,
-            &frame_bytes,
-            lsb_planes,
-            u64::try_from(frame_index).unwrap_or(u64::MAX),
-        )?;
+        let frame_seed = seed.wrapping_add(u64::try_from(frame_index).unwrap_or(u64::MAX));
+        let mut tile_offsets = Vec::with_capacity(tile_count);
+        let mut tile_byte_counts = Vec::with_capacity(tile_count);
         if digest_enabled && frame_index == 0 {
+            let mut cover = synthetic_cover(
+                width,
+                height,
+                mode,
+                bit_depth,
+                frame_seed,
+                cover_white,
+                headroom,
+            );
+            embed_frame(
+                &mut cover,
+                &frame_bytes,
+                lsb_planes,
+                u64::try_from(frame_index).unwrap_or(u64::MAX),
+            )?;
             let profile = profile.expect("digest selection requires a profile");
             let (origin, size) = crop_rect(profile, mode, width, height);
             let digest =
@@ -674,29 +677,74 @@ pub fn write_dng(
                 },
             )?;
             raw_digests = Some((digest, unique));
-        }
-        let tiles = encode_tiles(
-            &cover,
-            width,
-            height,
-            mode,
-            bit_depth,
-            tile_width,
-            tile_height,
-            across,
-            down,
-            tile_row_bytes,
-            compression,
-        )?;
-        let mut tile_offsets = Vec::with_capacity(tile_count);
-        let mut tile_byte_counts = Vec::with_capacity(tile_count);
-        for tile in tiles {
-            tile_offsets.push(raw_cursor);
-            tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
-            file.write_all(&tile)?;
-            raw_cursor = raw_cursor
-                .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
-                .ok_or(WriteError::TooLarge)?;
+            let tiles = encode_tiles(
+                &cover,
+                width,
+                height,
+                mode,
+                bit_depth,
+                tile_width,
+                tile_height,
+                across,
+                down,
+                tile_row_bytes,
+                compression,
+            )?;
+            for tile in tiles {
+                tile_offsets.push(raw_cursor);
+                tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
+                file.write_all(&tile)?;
+                raw_cursor = raw_cursor
+                    .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
+                    .ok_or(WriteError::TooLarge)?;
+            }
+        } else {
+            for tile_y in 0..down {
+                let y_start = tile_y * tile_height;
+                let rows = (height - y_start).min(tile_height);
+                let mut band = synthetic_cover_band(
+                    width,
+                    height,
+                    y_start,
+                    rows,
+                    mode,
+                    bit_depth,
+                    frame_seed,
+                    cover_white,
+                    headroom,
+                );
+                embed_band(
+                    &mut band,
+                    width,
+                    height,
+                    y_start,
+                    rows,
+                    channels,
+                    lsb_planes,
+                    &frame_bytes,
+                    u64::try_from(frame_index).unwrap_or(u64::MAX),
+                )?;
+                for tile_x in 0..across {
+                    let tile = encode_tile_band(
+                        &band,
+                        width,
+                        rows,
+                        channels,
+                        bit_depth,
+                        tile_x,
+                        tile_width,
+                        tile_height,
+                        tile_row_bytes,
+                        compression,
+                    )?;
+                    tile_offsets.push(raw_cursor);
+                    tile_byte_counts.push(u64::try_from(tile.len()).unwrap_or(u64::MAX));
+                    file.write_all(&tile)?;
+                    raw_cursor = raw_cursor
+                        .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
+                        .ok_or(WriteError::TooLarge)?;
+                }
+            }
         }
         frame_tiles.push((tile_offsets, tile_byte_counts));
     }
@@ -946,6 +994,110 @@ pub fn write_spike_dng(
             ..WriterOptions::default()
         },
     )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn embed_band(
+    band: &mut [u16],
+    width: usize,
+    total_height: usize,
+    y_start: usize,
+    rows: usize,
+    channels: usize,
+    lsb_planes: u8,
+    frame: &[u8],
+    frame_index: u64,
+) -> Result<(), WriteError> {
+    let planes = usize::from(lsb_planes);
+    let slots_per_frame = width
+        .checked_mul(total_height)
+        .and_then(|samples| samples.checked_mul(channels))
+        .and_then(|samples| samples.checked_mul(planes))
+        .ok_or(WriteError::TooLarge)?;
+    let frame_offset =
+        frame_index.saturating_mul(u64::try_from(slots_per_frame).unwrap_or(u64::MAX));
+    let total_bits = frame.len().checked_mul(8).ok_or(WriteError::TooLarge)?;
+    for local_y in 0..rows {
+        let y = y_start + local_y;
+        for x in 0..width {
+            for channel in 0..channels {
+                let sample = ((y * width + x) * channels + channel) * planes;
+                let bit_index = usize::try_from(
+                    frame_offset.saturating_add(u64::try_from(sample).unwrap_or(u64::MAX)),
+                )
+                .unwrap_or(usize::MAX);
+                for plane in 0..planes {
+                    let index = bit_index.saturating_add(plane);
+                    if index >= total_bits {
+                        continue;
+                    }
+                    let bit = (frame[index / 8] >> (7 - (index % 8))) & 1;
+                    let slot = (local_y * width + x) * channels + channel;
+                    band[slot] = (band[slot] & !(1_u16 << plane)) | (u16::from(bit) << plane);
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn encode_tile_band(
+    band: &[u16],
+    width: usize,
+    rows: usize,
+    channels: usize,
+    bit_depth: u16,
+    tile_x: usize,
+    tile_width: usize,
+    tile_height: usize,
+    row_bytes: usize,
+    compression: Compression,
+) -> Result<Vec<u8>, WriteError> {
+    let mut tile_data = Vec::with_capacity(row_bytes * tile_height);
+    for row in 0..tile_height {
+        let mut row_data = vec![0_u8; row_bytes];
+        let mut bit_position = 0_usize;
+        if row < rows {
+            for local_x in 0..tile_width {
+                let global_x = tile_x * tile_width + local_x;
+                for channel in 0..channels {
+                    let value = if global_x < width {
+                        band[(row * width + global_x) * channels + channel]
+                    } else {
+                        0
+                    };
+                    match bit_depth {
+                        8 => {
+                            row_data[bit_position / 8] = value as u8;
+                            bit_position += 8;
+                        }
+                        16 => {
+                            let byte = bit_position / 8;
+                            row_data[byte..byte + 2].copy_from_slice(&value.to_le_bytes());
+                            bit_position += 16;
+                        }
+                        10 | 12 | 14 => {
+                            pack_bits(&mut row_data, bit_position, value, bit_depth);
+                            bit_position += usize::from(bit_depth);
+                        }
+                        _ => unreachable!("bit depth validated by caller"),
+                    }
+                }
+            }
+        }
+        if matches!(compression, Compression::AdobeDeflate) {
+            apply_predictor(&mut row_data, bit_depth, channels);
+        }
+        tile_data.extend_from_slice(&row_data);
+    }
+    if matches!(compression, Compression::AdobeDeflate) {
+        let mut encoder = ZlibEncoder::new(Vec::new(), flate2::Compression::default());
+        encoder.write_all(&tile_data)?;
+        Ok(encoder.finish()?)
+    } else {
+        Ok(tile_data)
+    }
 }
 
 fn embed_frame(
@@ -1715,6 +1867,35 @@ fn synthetic_cover(
     white_level: Option<u32>,
     headroom: u32,
 ) -> Vec<u16> {
+    synthetic_cover_band(
+        width,
+        height,
+        0,
+        height,
+        mode,
+        bit_depth,
+        seed,
+        white_level,
+        headroom,
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    clippy::cast_precision_loss,
+    clippy::suboptimal_flops
+)]
+fn synthetic_cover_band(
+    width: usize,
+    total_height: usize,
+    y_start: usize,
+    rows: usize,
+    mode: RawMode,
+    bit_depth: u16,
+    seed: u64,
+    white_level: Option<u32>,
+    headroom: u32,
+) -> Vec<u16> {
     let channels = mode.channels();
     let mask = (1_u32 << bit_depth) - 1;
     let limit = mask
@@ -1727,11 +1908,12 @@ fn synthetic_cover(
         limit as f32 / 65_535.0
     };
     let width_den = width.saturating_sub(1).max(1) as f32;
-    let height_den = height.saturating_sub(1).max(1) as f32;
+    let height_den = total_height.saturating_sub(1).max(1) as f32;
     let phase = (seed % 6_283) as f32 * 0.001;
     let gains = [1.0_f32, 0.94, 0.82];
-    let mut cover = vec![0_u16; width * height * channels];
-    for y in 0..height {
+    let mut cover = vec![0_u16; width * rows * channels];
+    for local_y in 0..rows {
+        let y = y_start + local_y;
         for x in 0..width {
             let base = 7000.0
                 + 2600.0 * (y as f32 / height_den)
@@ -1749,7 +1931,7 @@ fn synthetic_cover(
                     gains[channel]
                 };
                 let value = (base * gain * scale).clamp(0.0, limit as f32) as u16;
-                cover[(y * width + x) * channels + channel] = value;
+                cover[(local_y * width + x) * channels + channel] = value;
             }
         }
     }
@@ -1779,7 +1961,10 @@ fn encode_jpeg(rgb: &[u8], width: usize, height: usize) -> Result<Vec<u8>, Write
 
 #[cfg(test)]
 mod tests {
-    use super::{apply_predictor, select_bigtiff};
+    use super::{
+        Compression, RawMode, apply_predictor, encode_tile_band, encode_tiles, select_bigtiff,
+        synthetic_cover, synthetic_cover_band, tile_row_bytes,
+    };
 
     #[test]
     fn layout_selection_uses_raw_bytes_and_force() {
@@ -1787,6 +1972,82 @@ mod tests {
         assert!(select_bigtiff(3_500_000_001, 0, false));
         assert!(select_bigtiff(3_000_000_000, 500_000_001, false));
         assert!(select_bigtiff(1, 1, true));
+    }
+
+    #[test]
+    fn banded_cover_matches_full_cover() {
+        let full = synthetic_cover(300, 200, RawMode::Linear, 16, 7, None, 0);
+        let channels = 3;
+        let mut joined = Vec::new();
+        for y_start in (0..200).step_by(96) {
+            let rows = (200 - y_start).min(96);
+            joined.extend_from_slice(&synthetic_cover_band(
+                300,
+                200,
+                y_start,
+                rows,
+                RawMode::Linear,
+                16,
+                7,
+                None,
+                0,
+            ));
+        }
+        assert_eq!(full.len(), joined.len());
+        assert_eq!(full, joined);
+        assert_eq!(channels, 3);
+    }
+
+    #[test]
+    fn banded_tile_encoding_matches_full_encoding() {
+        let width: usize = 300;
+        let height: usize = 200;
+        let tile_width: usize = 128;
+        let tile_height: usize = 96;
+        let across = width.div_ceil(tile_width);
+        let down = height.div_ceil(tile_height);
+        let cover = synthetic_cover(width, height, RawMode::Linear, 16, 3, None, 0);
+        let row_bytes = tile_row_bytes(tile_width, 3, 16).unwrap();
+        for compression in [Compression::None, Compression::AdobeDeflate] {
+            let expected = encode_tiles(
+                &cover,
+                width,
+                height,
+                RawMode::Linear,
+                16,
+                tile_width,
+                tile_height,
+                across,
+                down,
+                row_bytes,
+                compression,
+            )
+            .unwrap();
+            let mut actual = Vec::new();
+            for tile_y in 0..down {
+                let y_start = tile_y * tile_height;
+                let rows = (height - y_start).min(tile_height);
+                let band = &cover[y_start * width * 3..(y_start + rows) * width * 3];
+                for tile_x in 0..across {
+                    actual.push(
+                        encode_tile_band(
+                            band,
+                            width,
+                            rows,
+                            3,
+                            16,
+                            tile_x,
+                            tile_width,
+                            tile_height,
+                            row_bytes,
+                            compression,
+                        )
+                        .unwrap(),
+                    );
+                }
+            }
+            assert_eq!(expected, actual);
+        }
     }
 
     #[test]
