@@ -17,7 +17,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/digests.py` | `core::digests` | ✅ | tile MD5 + RawDataUniqueID incl. GainMap fingerprints |
 | `stegodng/fidelity.py` | `core::profile` | ✅ | metadata/raw/Adobe profile fields, `raw.tile`, crop `ActiveArea`, Adobe tag conventions |
 | `stegodng/makernote.py` | `core::profile` / `core::metadata` | ✅ | HDRP envelope parsed, seeded generation, writer tags |
-| `stegodng/opcodes.py` | `core::opcodes` | 🚧 | GainMap + profile OpcodeList3; other opcode ids unsupported |
+| `stegodng/opcodes.py` | `core::opcodes` | ✅ | GainMap + profile OpcodeList3; other opcode ids are also unsupported in the Python reference |
 | `stegodng/sizing.py` | `core::sizing` | ✅ | Presets, auto-size, plane ceilings, KB errors, warnings |
 | `stegodng/split.py` | `core::split` | ✅ | field parsing, sizes, filename/metadata ordering, chunk bounds/naming, album layout, ASCII id and 9999-chunk validation |
 | `stegodng/stego.py` | `core::decode` / `core::writer` | ✅ | decode, writer, split encode, banded streaming, incremental digests, sidecar stats |
@@ -41,7 +41,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `encode`: image-time/GPS/debug sidecar/progress | ✅ (sidecar, `--no-randomize`, progress flags; spinner only) |
 | `decode`: input set/key/planes/max-bytes/split fields | ✅ |
 | `decode`: progress | ✅ |
-| `gen-tiff` | ✅ |
+| `gen-tiff` | ✅ (plain RGB TIFF; minimal writer, documented metadata/output differences) |
 
 ## Required oracle fixtures
 
@@ -51,7 +51,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 - ✅ `linear_128x96_16bit_4planes_keyed.dng`
 - ✅ `linear_128x96_16bit_3frames.dng`
 - ✅ `split0001.dng` / `split0002.dng`
-- ⬜ `gps_custom_pixel_xl.dng` (after fixing `date_bounds` or pinning image time)
+- ⬜ `gps_custom_pixel_xl.dng` (add a fixed-image-time oracle fixture; the per-run date anchor is implemented)
 - ✅ framing/codec/capacity JSON golden vectors
 
 Update this table as modules land. A module is only ✅ when its behaviour is
@@ -64,10 +64,16 @@ not required; implementation freedom is recorded in ADR 0001.
 - `--thumbnail` defaults to `synthetic` (offline-safe) instead of Python's
   `random`; pass `--thumbnail random` for the Commons behaviour.
 - Progress output is one spinner, not Python's per-file/embedding bars.
-- Opcode ids beyond GainMap remain unsupported (the Python reference also only
-  fingerprints GainMap).
 - `tiff-reader` reads the EXIF-IFD pointer as a 4-byte LONG, so split markers
   in a BigTIFF whose EXIF IFD lies past 4 GiB may be misread; raw payload decode
   is unaffected.
+- Decode accepts the uncompressed and Deflate raw layouts RawHide writes.
+  External DNGs using other compressions or sample layouts are outside the
+  current decode scope.
+- `gen-tiff` uses the custom writer and reports output size; Python uses
+  `tifffile` with the default profile's software string.
+- The decode no-totals advisory uses `warning:` where Python uses `note:`; the
+  sidecar `tool` block reports the Rust target rather than Python dependency
+  versions.
 - `just cross-decode` (also a CI job) runs encode/decode in both directions for
   linear, CFA, multi-frame and split output.

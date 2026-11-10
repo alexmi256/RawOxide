@@ -10,7 +10,7 @@ setup:
 
 # Install the developer tools used by CI (user-level; no sudo).
 tools:
-    cargo install --locked cargo-nextest cargo-llvm-cov cargo-deny cargo-audit cargo-insta cargo-mutants
+    cargo install --locked cargo-nextest cargo-llvm-cov cargo-deny cargo-audit cargo-mutants
 
 fmt:
     cargo fmt --all

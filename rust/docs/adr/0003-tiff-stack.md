@@ -1,6 +1,7 @@
-# ADR 0003 — TIFF/DNG stack: `tiff-writer` + `tiff-reader`, with patches
+# ADR 0003 — TIFF/DNG stack: `tiff-reader`, custom writer, with patches
 
-**Status:** accepted; Phase 1 amended (see below)
+**Status:** accepted; read stack as decided, writer decision superseded by the
+custom-writer amendments below
 **Date:** 2026-11-08
 
 ## Context
@@ -87,3 +88,14 @@ Python album layout. Python decodes Rust multi-frame and split outputs, and
 
 Remaining writer work is streaming/banded writes for multi-gigabyte covers,
 EXIF/GPS metadata, profiles, optional Deflate and BigTIFF.
+
+## Amendment 2026-11-10 — current status
+
+The items listed as remaining above are implemented: streaming/banded payload
+writes, EXIF/GPS metadata, all 307 profiles and fidelity overlays, optional
+Adobe Deflate, BigTIFF and debug-sidecar statistics. The writer is still the
+custom `core::writer` path; `tiff-writer` is not used. GainMap `OpcodeList2` and
+the profile `OpcodeList3` are complete; opcode ids beyond GainMap are also not
+fingerprinted by the Python reference, so they are outside both implementations'
+scope rather than remaining Rust work. See
+[porting-matrix.md](../porting-matrix.md) for the current difference list.

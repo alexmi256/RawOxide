@@ -21,8 +21,9 @@ Copy the registry into `rust/assets/profiles/` and compile it into
 - The generated table is committed; regenerating is a source change and is
   reviewed like any other.
 
-The three Adobe blobs are embedded but not yet consumed; the Adobe writer path
-lands with the fidelity/Adobe work.
+The three Adobe blobs are embedded and consumed by the fidelity/Adobe writer
+path (forward matrices, profile names, calibration signatures, copyright,
+embed policy, HueSat and LookTable data).
 
 ## Consequences
 

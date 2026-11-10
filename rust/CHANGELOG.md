@@ -137,6 +137,9 @@ semantic versioning.
 
 ### Changed
 
+- Documentation truth pass: refreshed the crate READMEs, ADR status/amendments,
+  port-plan decisions/risks/open questions, porting-matrix known differences
+  and testing notes to match the implemented state.
 - `--image-time input-created` now falls back to Unix `ctime` (as documented
   and as Python does) instead of `mtime` on filesystems without birth time.
 - Fidelity rolling date windows use one anchor per encode run, so split chunks

@@ -6,11 +6,11 @@
 |---|---|---|
 | unit | `cargo test` / nextest | framing, codec, tag encoding, sizing, split |
 | property | `proptest` | round-trips, capacity invariants, malformed input |
-| snapshot | `insta` | JSON sidecar, CLI output, error messages |
+| CLI/JSON assertions | `assert_cmd` + `serde_json` | CLI output, JSON sidecar shape and errors |
 | golden | committed fixtures | Python ↔ Rust cross-decode, tag inventory |
 | registry | embedded assets | all 307 profiles parse; pools/levels match Python |
-| consumer | external tools | `tiffdump`, `exiv2`, `rawpy` acceptance |
-| fuzz | `cargo-fuzz` | TIFF/IFD/framing parsers |
+| consumer | external tools (manual) | `tiffdump`, `exiv2`, `rawpy` acceptance |
+| fuzz | `cargo-fuzz` (planned) | TIFF/IFD/framing parsers |
 | performance | `criterion` | codec, cover, tile compression |
 | mutation | `cargo-mutants` | test quality in critical modules |
 
@@ -175,6 +175,9 @@ ordering is also tested in Rust by passing chunks in reverse order.
 
 ## Consumer checks
 
+These are manual; CI currently runs the Python cross-decode gate but not
+`rawpy`/`exiv2`/`tiffdump`.
+
 ```bash
 tiffdump out.dng | head -80
 exiv2 -pa out.dng | head -80
@@ -185,7 +188,9 @@ with rawpy.imread("out.dng") as raw:
 PY
 ```
 
-## Fuzzing (planned)
+## Fuzzing (not implemented)
+
+No fuzz targets or corpus are committed yet. When added, use:
 
 ```bash
 cargo install --locked cargo-fuzz
@@ -195,14 +200,15 @@ cargo fuzz add parse_ifd
 cargo fuzz run decode_frame -- -max_total_time=60
 ```
 
-Nightly CI runs a short budget; a corpus is kept under `fuzz/corpus/` once the
-parsers are stable.
+A short nightly budget and `fuzz/corpus/` should be added when the parsers are
+stable.
 
 ## Benchmarks
 
 `just bench` runs criterion with a 1 MiB payload over a 2048×1536×3 `u16`
-cover. Record results in `docs/benchmarks.md` when making performance claims.
-Use `hyperfine` for end-to-end CLI comparisons against Python.
+cover. No benchmark result file is committed yet; record results in
+`docs/benchmarks.md` when making performance claims. Use `hyperfine` for
+end-to-end CLI comparisons against Python.
 
 ## Hermeticity
 

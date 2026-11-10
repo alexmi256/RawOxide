@@ -17,13 +17,14 @@ commercial use.
 - The Rust port is **MIT**.
 - Default dependencies are MIT/Apache/BSD-compatible (enforced by
   `cargo-deny`).
-- `tiff-writer`/`tiff-reader` (MIT/Apache) are the chosen TIFF stack, so no
-  copyleft dependency is needed for the default build.
+- `tiff-reader` (MIT/Apache) is used for TIFF parsing; the custom writer is
+  this project's own MIT code. No copyleft dependency is needed for the default
+  build.
 - `rawler`/`dnglab`/`dng` are **reference implementations** only.
-- If the writer spike fails and `rawler` becomes necessary, open a new ADR and
-  relicense the whole port deliberately (AGPL-3.0 or LGPL-2.1/3.0), with legal
-  review and updated `LICENSE`/metadata/third-party notices. Relicensing is a
-  project-wide decision, not a local dependency change.
+- If a future writer/reader requirement makes `rawler` necessary, open a new
+  ADR and relicense the whole port deliberately (AGPL-3.0 or LGPL-2.1/3.0),
+  with legal review and updated `LICENSE`/metadata/third-party notices.
+  Relicensing is a project-wide decision, not a local dependency change.
 
 ## Consequences
 

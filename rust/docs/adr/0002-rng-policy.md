@@ -12,26 +12,29 @@ fragile side project (see ADR 0001) and is not needed for decode compatibility.
 
 ## Decision
 
-Use an explicit native RNG with named, independent streams:
+Use explicit native RNG instances with separate purposes:
 
-| stream | purpose |
+| seed / RNG | purpose |
 |---|---|
-| `cover` | synthetic raw samples (per band/frame) |
-| `metadata` | EXIF values and serials |
-| `thumbnail` | synthetic/noise fallback |
-| `location` | GPS city/land sampling |
-| `split` | split-set UUID/auxiliary draws |
+| `cover` seed | synthetic raw samples; also drives the synthetic/noise preview fallback |
+| `metadata` seed | EXIF values and serials; initializes separate `location` and `makernote` `Rng64` instances |
+| `location` seed | shared GPS sampling for split sets; a plain encode uses the metadata randomizer's own location instance |
+| split chunk seed | per-chunk cover + metadata seed; the chunk-set UUID uses `uuid` v4 unless overridden |
 
-Preferred implementation: `rand_chacha::ChaCha8Rng` or `rand_pcg::Pcg64`, seeded
-with a documented derivation (e.g. `seed ^ domain_constant`). Never share one
-stream between fields whose draw order could change.
+Implementation: local `SplitMix64` (`Rng64`) instances seeded with the caller
+seed or fresh entropy. For split sets the chunk seed drives both cover and
+metadata; unseeded split chunks draw a fresh seed each. The split UUID is not an
+RNG stream. Never share one RNG instance between fields whose draw order could
+change.
 
 Rules:
 
-- Per-band/per-tile seeds so parallel output is scheduling-independent.
+- Per-frame and per-chunk seeds keep runs reproducible when a seed is supplied.
+- Parallel tile generation is not implemented yet; when added, per-band/tile
+  seeds must keep output scheduling-independent.
 - No `HashMap` iteration in write paths; use `BTreeMap` or sorted keys.
-- Record the effective seed/stream in the debug sidecar so a native run is
-  reproducible.
+- Record the effective cover/metadata/location seeds in the debug sidecar so a
+  native run is reproducible.
 - Pin golden hashes for Rust output; use Python fixtures only for decode tests.
 
 ## Consequences

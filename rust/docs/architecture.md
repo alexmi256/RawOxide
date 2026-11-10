@@ -16,7 +16,7 @@ rawhide-core        library, no CLI/network policy
   sizing            auto-config / smallest fitting geometry
   split             chunk naming/sequence + id/count validation
   digests           DNG SDK raw image / unique-ID hashes
-  opcodes           GainMap/OpcodeList2; other ids unsupported
+  opcodes           GainMap/OpcodeList2; other ids out of scope (same as Python)
   makernote         opaque HDRP envelopes
   writer            tiled DNG writer, split markers, sidecar statistics
 
@@ -96,17 +96,18 @@ payload buffer.
 ## Dependency policy
 
 - Prefer pure-Rust, MIT/Apache dependencies; no C toolchain for a default build.
-- Pin exact versions for the TIFF stack (`=0.11.x`) until its API settles.
+- Pin `tiff-reader` exactly (`=0.11.x`) until its API settles.
 - `cargo-deny` enforces licenses/advisories/sources; `cargo-audit` runs in CI.
-- MSRV is 1.88 (edition 2024 + `tiff-writer` requirement). CI currently builds
-  on stable; an explicit MSRV job is tracked in the porting matrix.
+- MSRV is 1.88 (edition 2024). CI currently builds on stable; an explicit MSRV
+  job is still open.
 
 ## DNG reader and `tiff-reader`
 
 `tiff-reader` 0.11 parses IFDs/tags, EXIF pointers and tile/strip tables, but
 rejects `LinearRaw`/`CFA` in its color-model validation and lacks classic
 TIFF type 13 (`IFD`) for `SubIFDs`. `rawhide-core::dng` therefore uses the crate
-for structure and reads raw blocks itself (tiles/strips, Deflate, predictor 2,
+for structure, parses `SubIFDs` offsets itself (classic type 13 and BigTIFF
+type 18), and reads raw blocks itself (tiles/strips, Deflate, predictor 2,
 packed samples). This is isolated behind `DngReader`; replacing or patching the
 crate later does not affect the decode/CLI layers. See ADR 0003.
 
@@ -131,8 +132,9 @@ outputs carry `ActiveArea`/`DefaultUserCrop`. Payload bytes are striped across
 frames in order, and split chunks use DCF-style names. Frames are generated,
 embedded, encoded and written one at a time, and all single frames are banded by
 tile row. The SDK image digest and per-frame debug CRCs are computed
-incrementally, so neither all frames nor a full raster are retained. Remaining
-work is opcode ids other than GainMap. It was validated with Python, `tifffile`,
+incrementally, so neither all frames nor a full raster are retained. GainMap
+`OpcodeList2` and the profile `OpcodeList3` are complete; other opcode ids are
+outside both implementations' scope. It was validated with Python, `tifffile`,
 `exiv2`, `tiffdump` and `rawpy`, including multi-frame and split sets.
 
 ## Debug sidecar shape

@@ -13,8 +13,10 @@ format so either implementation can decode the other's files.
 > drives calibration, metadata pools, GPS (for profiles that emit it), profile
 > raw tile geometry and tag values. Python and `tifffile` accept both classic
 > and BigTIFF output; `exiv2`/`rawpy` acceptance is classic-only (they do not
-> parse BigTIFF). Only opcode ids beyond GainMap and a few documented tooling
-> differences remain; see [docs/porting-matrix.md](docs/porting-matrix.md).
+> parse BigTIFF). Feature parity is close; the main remaining differences are
+> progress presentation, the offline preview default and a BigTIFF
+> EXIF-pointer read limitation. See [Known differences](#known-differences) and
+> [docs/porting-matrix.md](docs/porting-matrix.md).
 
 ## Quick start
 
@@ -80,7 +82,7 @@ Required tools: Rust 1.88+ (the workspace uses edition 2024). `just` is
 optional but recommended. The CI-only tools are user-level installs:
 
 ```bash
-cargo install --locked cargo-nextest cargo-llvm-cov cargo-deny cargo-audit cargo-insta
+cargo install --locked cargo-nextest cargo-llvm-cov cargo-deny cargo-audit
 ```
 
 The repo is set up for `rustup`: `rust-toolchain.toml` selects stable with
@@ -99,6 +101,26 @@ RUSTC_WRAPPER=sccache cargo check --workspace --all-targets --all-features
 RUSTFLAGS='-C link-arg=-fuse-ld=mold' cargo build -p rawhide-cli
 /usr/bin/time -v cargo run -p rawhide-cli -- capacity --width 2048 --height 1536
 ```
+
+## Known differences
+
+- `--thumbnail` defaults to `synthetic` for offline-safe operation; Python
+  defaults to `random` (Wikimedia Commons). Pass `--thumbnail random` for the
+  Python behaviour.
+- Progress output is a single spinner for encode/decode; Python shows separate
+  per-file/chunk and embedding bars.
+- `tiff-reader` reads the EXIF-IFD pointer as a 4-byte `LONG`, so split markers
+  in a BigTIFF whose EXIF IFD lies past 4 GiB may be misread. Raw payload decode
+  is unaffected.
+- Decode currently accepts the uncompressed and Deflate raw layouts RawHide
+  writes. External DNGs using other compressions or sample layouts are outside
+  the current decode scope.
+- `gen-tiff` writes the same plain RGB TIFF capability with a minimal custom
+  writer and reports the output size; Python uses `tifffile` with the default
+  profile's software string.
+- The decode no-totals advisory is printed as `warning:`; Python prints `note:`.
+  The JSON sidecar's `tool` block reports the Rust target rather than Python
+  dependency versions.
 
 ## Compatibility policy
 
