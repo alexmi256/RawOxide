@@ -1168,6 +1168,62 @@ fn debug_sidecar_does_not_overwrite_json_output() {
 }
 
 #[test]
+fn bigtiff_split_markers_roundtrip() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("vol.dng");
+    let recovered = dir.path().join("recovered.bin");
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--split-file",
+        "3000",
+        "--split-file-metadata-seq",
+        "PageNumber",
+        "--bigtiff",
+        "--seed",
+        "3",
+    ]);
+    encode.assert().success();
+    for chunk in ["vol0001.dng", "vol0002.dng"] {
+        assert!(
+            std::fs::read(dir.path().join("payload_5000").join(chunk))
+                .unwrap()
+                .starts_with(b"II+\0"),
+            "{chunk} is not BigTIFF"
+        );
+    }
+
+    let album = dir.path().join("payload_5000");
+    let mut decode = cargo_bin_cmd!("rawhide");
+    decode.args([
+        "decode",
+        "-i",
+        album.join("vol0001.dng").to_str().unwrap(),
+        album.join("vol0002.dng").to_str().unwrap(),
+        "--split-file-metadata-seq",
+        "PageNumber",
+        "-o",
+        recovered.to_str().unwrap(),
+        "--no-progress",
+    ]);
+    decode.assert().success();
+    assert_eq!(
+        std::fs::read(&recovered).unwrap(),
+        std::fs::read(&payload_path).unwrap()
+    );
+}
+
+#[test]
 fn bigtiff_output_roundtrips() {
     let dir = tempfile::tempdir().unwrap();
     let encoded = dir.path().join("big.dng");
@@ -1310,6 +1366,8 @@ fn progress_flags_are_accepted_and_mutually_exclusive() {
         !output.stderr.is_empty(),
         "--progress must force stderr output"
     );
+    assert!(String::from_utf8_lossy(&output.stderr).contains("encoding DNG"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains('%'));
 
     let mut quiet = cargo_bin_cmd!("rawhide");
     quiet.args([
@@ -1350,6 +1408,20 @@ fn progress_flags_are_accepted_and_mutually_exclusive() {
         "--no-progress",
     ]);
     decode.assert().success();
+
+    let mut decode = cargo_bin_cmd!("rawhide");
+    decode.args([
+        "decode",
+        "-i",
+        encoded.to_str().unwrap(),
+        "-o",
+        dir.path().join("progress-out.bin").to_str().unwrap(),
+        "--progress",
+    ]);
+    let output = decode.output().unwrap();
+    assert!(output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("decoding DNG"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains('%'));
 }
 
 #[test]

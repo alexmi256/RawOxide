@@ -360,7 +360,7 @@ pub fn write_dng(
     options: &WriterOptions<'_>,
 ) -> Result<WriteInfo, WriteError> {
     let mut source = SliceSource { data: payload };
-    write_dng_with(path, &mut source, options)
+    write_dng_with(path, &mut source, options, None)
 }
 
 /// Write a DNG from a byte range of a payload file.
@@ -379,13 +379,42 @@ pub fn write_dng_from_file(
     options: &WriterOptions<'_>,
 ) -> Result<WriteInfo, WriteError> {
     let mut source = FileSource::open(payload_path, offset, len)?;
-    write_dng_with(path, &mut source, options)
+    write_dng_with(path, &mut source, options, None)
+}
+
+/// Write a DNG from a payload file while reporting progress.
+///
+/// `progress(done_rows, total_rows)` is called before the first row and after
+/// each tile row has been generated, embedded and written.
+///
+/// # Errors
+///
+/// See [`write_dng_from_file`].
+pub fn write_dng_from_file_with_progress<F>(
+    path: impl AsRef<Path>,
+    payload_path: impl AsRef<Path>,
+    offset: u64,
+    len: u64,
+    options: &WriterOptions<'_>,
+    mut progress: F,
+) -> Result<WriteInfo, WriteError>
+where
+    F: FnMut(u64, u64),
+{
+    let mut source = FileSource::open(payload_path, offset, len)?;
+    write_dng_with(
+        path,
+        &mut source,
+        options,
+        Some(&mut progress as &mut dyn FnMut(u64, u64)),
+    )
 }
 
 fn write_dng_with(
     path: impl AsRef<Path>,
     source: &mut dyn PayloadSource,
     options: &WriterOptions<'_>,
+    mut progress: Option<&mut dyn FnMut(u64, u64)>,
 ) -> Result<WriteInfo, WriteError> {
     let WriterOptions {
         width,
@@ -587,6 +616,12 @@ fn write_dng_with(
     }
     file.write_all(&preview)?;
 
+    let total_rows = u64::from(frames).saturating_mul(u64::try_from(height).unwrap_or(u64::MAX));
+    let mut rows_done = 0_u64;
+    if let Some(callback) = progress.as_deref_mut() {
+        callback(0, total_rows);
+    }
+
     for frame_index in 0..usize::from(frames) {
         let frame_seed = seed.wrapping_add(u64::try_from(frame_index).unwrap_or(u64::MAX));
         let mut tile_offsets = Vec::with_capacity(tile_count);
@@ -650,6 +685,10 @@ fn write_dng_with(
                 raw_cursor = raw_cursor
                     .checked_add(u64::try_from(tile.len()).unwrap_or(u64::MAX))
                     .ok_or(WriteError::TooLarge)?;
+            }
+            rows_done = rows_done.saturating_add(u64::try_from(rows).unwrap_or(u64::MAX));
+            if let Some(callback) = progress.as_deref_mut() {
+                callback(rows_done, total_rows);
             }
         }
         if let Some(hasher) = digest_hasher {

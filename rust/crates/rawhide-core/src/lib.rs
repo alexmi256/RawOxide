@@ -36,7 +36,7 @@ pub use codec::{
 pub use cover::{CoverError, write_cover_tiff};
 pub use decode::{
     DecodeError, DecodeOptions, DecodeOutcome, DecodeStreamOutcome, decode_files,
-    decode_files_to_writer,
+    decode_files_to_writer, decode_files_to_writer_with_progress,
 };
 pub use digests::{new_raw_image_digest, raw_data_unique_id};
 pub use dng::{DngError, DngReader, RawFrame};
@@ -61,5 +61,5 @@ pub use thumbnail::{
 };
 pub use writer::{
     Compression, RawMode, WriteError, WriteInfo, WriterOptions, write_dng, write_dng_from_file,
-    write_spike_dng,
+    write_dng_from_file_with_progress, write_spike_dng,
 };

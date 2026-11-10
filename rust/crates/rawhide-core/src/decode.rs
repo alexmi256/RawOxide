@@ -170,11 +170,51 @@ pub fn decode_files_to_writer<W: Write>(
     options: &DecodeOptions<'_>,
     writer: &mut W,
 ) -> Result<DecodeStreamOutcome, DecodeError> {
+    decode_files_to_writer_impl(paths, options, writer, None)
+}
+
+/// Decode one file or a chunk set directly into a writer, reporting progress.
+///
+/// `progress(file_index, file_count, bytes_written, file_payload_len)` is
+/// called with zero before each file and after each payload flush. File indices
+/// are zero-based.
+///
+/// # Errors
+///
+/// See [`decode_files_to_writer`].
+pub fn decode_files_to_writer_with_progress<W, F>(
+    paths: &[PathBuf],
+    options: &DecodeOptions<'_>,
+    writer: &mut W,
+    mut progress: F,
+) -> Result<DecodeStreamOutcome, DecodeError>
+where
+    W: Write,
+    F: FnMut(usize, usize, u64, u64),
+{
+    decode_files_to_writer_impl(
+        paths,
+        options,
+        writer,
+        Some(&mut progress as &mut dyn FnMut(usize, usize, u64, u64)),
+    )
+}
+
+fn decode_files_to_writer_impl<W: Write>(
+    paths: &[PathBuf],
+    options: &DecodeOptions<'_>,
+    writer: &mut W,
+    mut progress: Option<&mut dyn FnMut(usize, usize, u64, u64)>,
+) -> Result<DecodeStreamOutcome, DecodeError> {
     let plan = plan_files(paths, options)?;
     let multiple = plan.ordered.len() > 1;
+    let file_count = plan.ordered.len();
     let mut payload_len = 0_u64;
-    for path in &plan.ordered {
-        let len = decode_one_into(path, options, writer)
+    for (index, path) in plan.ordered.iter().enumerate() {
+        let progress_ref = progress
+            .as_deref_mut()
+            .map(|callback| callback as &mut dyn FnMut(usize, usize, u64, u64));
+        let len = decode_one_into(path, options, writer, index, file_count, progress_ref)
             .map_err(|error| per_file_error(path, error, multiple))?;
         payload_len = payload_len
             .checked_add(len)
@@ -269,7 +309,7 @@ fn per_file_error(path: &Path, error: DecodeError, multiple: bool) -> DecodeErro
 fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, DecodeError> {
     let mut payload = Vec::new();
     let mut target = VecTarget(&mut payload);
-    decode_one_target(path, options, &mut target)?;
+    decode_one_target(path, options, &mut target, 0, 1, None)?;
     Ok(payload)
 }
 
@@ -277,9 +317,12 @@ fn decode_one_into<W: Write>(
     path: &Path,
     options: &DecodeOptions<'_>,
     writer: &mut W,
+    file_index: usize,
+    file_count: usize,
+    progress: Option<&mut dyn FnMut(usize, usize, u64, u64)>,
 ) -> Result<u64, DecodeError> {
     let mut target = WriterTarget(writer);
-    decode_one_target(path, options, &mut target)
+    decode_one_target(path, options, &mut target, file_index, file_count, progress)
 }
 
 trait PayloadTarget {
@@ -312,19 +355,34 @@ impl<W: Write> PayloadTarget for WriterTarget<'_, W> {
 
 const SINK_BUFFER: usize = 64 * 1024;
 
-struct PayloadSink<'a, T: PayloadTarget> {
-    target: &'a mut T,
-    key: Option<&'a [u8]>,
+struct PayloadSink<'t, 'k, 'p, T: PayloadTarget> {
+    target: &'t mut T,
+    key: Option<&'k [u8]>,
     hasher: crc32fast::Hasher,
     buffer: Vec<u8>,
     written: u64,
     bit: u8,
     bits: u8,
+    file_index: usize,
+    file_count: usize,
+    expected_len: u64,
+    progress: Option<&'p mut dyn FnMut(usize, usize, u64, u64)>,
 }
 
-impl<'a, T: PayloadTarget> PayloadSink<'a, T> {
-    fn new(target: &'a mut T, key: Option<&'a [u8]>, payload_len: usize) -> Self {
+impl<'t, 'k, 'p, T: PayloadTarget> PayloadSink<'t, 'k, 'p, T> {
+    fn new(
+        target: &'t mut T,
+        key: Option<&'k [u8]>,
+        payload_len: usize,
+        file_index: usize,
+        file_count: usize,
+        mut progress: Option<&'p mut dyn FnMut(usize, usize, u64, u64)>,
+    ) -> Self {
         target.reserve(payload_len);
+        let expected_len = u64::try_from(payload_len).unwrap_or(u64::MAX);
+        if let Some(callback) = progress.as_deref_mut() {
+            callback(file_index, file_count, 0, expected_len);
+        }
         Self {
             target,
             key: key.filter(|key| !key.is_empty()),
@@ -333,6 +391,10 @@ impl<'a, T: PayloadTarget> PayloadSink<'a, T> {
             written: 0,
             bit: 0,
             bits: 0,
+            file_index,
+            file_count,
+            expected_len,
+            progress,
         }
     }
 
@@ -364,6 +426,14 @@ impl<'a, T: PayloadTarget> PayloadSink<'a, T> {
         self.target.write_bytes(&self.buffer)?;
         self.written += u64::try_from(self.buffer.len()).unwrap_or(u64::MAX);
         self.buffer.clear();
+        if let Some(callback) = self.progress.as_deref_mut() {
+            callback(
+                self.file_index,
+                self.file_count,
+                self.written,
+                self.expected_len,
+            );
+        }
         Ok(())
     }
 
@@ -393,6 +463,9 @@ fn decode_one_target<T: PayloadTarget>(
     path: &Path,
     options: &DecodeOptions<'_>,
     target: &mut T,
+    file_index: usize,
+    file_count: usize,
+    progress: Option<&mut dyn FnMut(usize, usize, u64, u64)>,
 ) -> Result<u64, DecodeError> {
     if let Some(planes) = options.lsb_planes
         && !(1..=16).contains(&planes)
@@ -493,7 +566,14 @@ fn decode_one_target<T: PayloadTarget>(
         return Err(DecodeError::CapacityExceeded);
     }
 
-    let mut sink = PayloadSink::new(target, options.key, payload_len);
+    let mut sink = PayloadSink::new(
+        target,
+        options.key,
+        payload_len,
+        file_index,
+        file_count,
+        progress,
+    );
     let mut framed_bit = 0_u64;
 
     fill_payload_sink(&mut sink, &prefix, planes, &mut framed_bit, total_bits)?;
@@ -560,7 +640,7 @@ fn extract_prefix_bytes(samples: &[u16], planes: u8, n_bytes: usize) -> Option<V
 }
 
 fn fill_payload_sink<T: PayloadTarget>(
-    sink: &mut PayloadSink<'_, T>,
+    sink: &mut PayloadSink<'_, '_, '_, T>,
     samples: &[u16],
     planes: u8,
     framed_bit: &mut u64,
@@ -690,7 +770,7 @@ mod tests {
                 let mut payload = Vec::new();
                 {
                     let mut target = VecTarget(&mut payload);
-                    let mut sink = PayloadSink::new(&mut target, key, body.len());
+                    let mut sink = PayloadSink::new(&mut target, key, body.len(), 0, 1, None);
                     let mut framed_bit = 0_u64;
                     fill_payload_sink(
                         &mut sink,

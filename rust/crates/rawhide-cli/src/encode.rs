@@ -2,16 +2,17 @@
 
 use super::{
     CameraProfile, Compression, CompressionArg, Context, EncodeArgs, ImageTime, LevelPolicy,
-    MetadataRandomizer, PathBuf, PreviewSource, RawMode, RecommendOptions, RecommendedConfig,
-    Result, Rng64, SizingMode, SplitIdArg, SplitSeqArg, WriterOptions, bail, chunk_bounds,
-    chunk_path, format_kb, parse_size, profiles, progress_bar, recommend, risk_warnings,
-    split_album_dir, validate_split_id, write_dng_from_file,
+    MetadataRandomizer, PathBuf, PreviewSource, ProgressGuard, RawMode, RecommendOptions,
+    RecommendedConfig, Result, Rng64, SizingMode, SplitIdArg, SplitSeqArg, WriterOptions, bail,
+    chunk_bounds, chunk_path, format_kb, parse_size, profiles, progress_bar, recommend,
+    risk_warnings, split_album_dir, validate_split_id, write_dng_from_file,
+    write_dng_from_file_with_progress,
 };
 use crate::commands::{debug_file_inventory, print_write};
 use std::time::SystemTime;
 
 pub fn encode(args: &EncodeArgs) -> Result<()> {
-    let _progress = progress_bar(args.progress, args.no_progress, "encoding DNG");
+    let progress = progress_bar(args.progress, args.no_progress, "encoding DNG", 0);
     let (profile, subprofile) = profiles::resolve(&args.camera_profile)?;
     let preview = preview_source(&args.thumbnail)?;
     if args.auto_size && (args.width.is_some() || args.height.is_some() || subprofile.is_some()) {
@@ -42,6 +43,7 @@ pub fn encode(args: &EncodeArgs) -> Result<()> {
             profile,
             image_time.as_ref(),
             date_anchor,
+            &progress,
             preview,
             split_size,
         );
@@ -57,6 +59,7 @@ pub fn encode(args: &EncodeArgs) -> Result<()> {
         profile,
         image_time.as_ref(),
         date_anchor,
+        &progress,
         preview,
         None,
         None,
@@ -298,6 +301,7 @@ fn write_one(
     profile: &CameraProfile,
     image_time: Option<&ImageTime>,
     date_anchor: chrono::NaiveDateTime,
+    progress: &ProgressGuard,
     preview: PreviewSource<'_>,
     chunk_seed: Option<u64>,
     split_id: Option<&str>,
@@ -348,7 +352,25 @@ fn write_one(
         tile_height,
         debug_stats: args.debug_metadata_output,
     };
-    let info = write_dng_from_file(output, payload_path, payload_offset, payload_len, &options)?;
+    let message = split_seq.map_or_else(
+        || "encoding DNG".to_owned(),
+        |seq| format!("encoding chunk {seq}/{}", split_total.unwrap_or(0)),
+    );
+    let total_rows =
+        u64::from(config.frames).saturating_mul(u64::try_from(config.height).unwrap_or(u64::MAX));
+    let info = if progress.is_enabled() {
+        progress.set(0, total_rows, &message);
+        write_dng_from_file_with_progress(
+            output,
+            payload_path,
+            payload_offset,
+            payload_len,
+            &options,
+            |done, total| progress.set(done, total, &message),
+        )?
+    } else {
+        write_dng_from_file(output, payload_path, payload_offset, payload_len, &options)?
+    };
     if args.debug_metadata_output {
         write_debug_sidecar(
             args,
@@ -596,6 +618,7 @@ fn fill_ratio(payload: usize, capacity: u64) -> f64 {
     round6(payload as f64 / capacity as f64)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn encode_split(
     args: &EncodeArgs,
     payload_path: &std::path::Path,
@@ -605,6 +628,7 @@ fn encode_split(
     profile: &CameraProfile,
     image_time: Option<&ImageTime>,
     date_anchor: chrono::NaiveDateTime,
+    progress: &ProgressGuard,
     preview: PreviewSource<'_>,
     split_size: u64,
 ) -> Result<()> {
@@ -653,6 +677,7 @@ fn encode_split(
             profile,
             image_time,
             date_anchor,
+            progress,
             preview,
             None,
             None,
@@ -714,6 +739,7 @@ fn encode_split(
             profile,
             image_time,
             date_anchor,
+            progress,
             preview,
             chunk_seed,
             Some(&split_id),

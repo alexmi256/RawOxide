@@ -5,7 +5,8 @@ use std::path::Path;
 
 use super::{
     CapacityArgs, Context, DecodeArgs, DecodeOptions, GenTiffArgs, Result, capacity_bytes,
-    decode_files_to_writer, format_kb, parse_size, progress_bar, write_cover_tiff,
+    decode_files_to_writer, decode_files_to_writer_with_progress, format_kb, parse_size,
+    progress_bar, write_cover_tiff,
 };
 
 pub fn gen_tiff(args: &GenTiffArgs) -> Result<()> {
@@ -37,7 +38,7 @@ pub fn debug_file_inventory(path: &std::path::Path) -> Result<serde_json::Value>
 }
 
 pub fn decode(args: &DecodeArgs) -> Result<()> {
-    let _progress = progress_bar(args.progress, args.no_progress, "decoding DNG");
+    let progress = progress_bar(args.progress, args.no_progress, "decoding DNG", 0);
     let max_bytes = args.max_bytes.as_deref().map(parse_size).transpose()?;
     let key = args.key.as_deref().map(str::as_bytes);
     let options = DecodeOptions {
@@ -63,7 +64,23 @@ pub fn decode(args: &DecodeArgs) -> Result<()> {
     let file = std::fs::File::create(&temp_path)
         .with_context(|| format!("cannot create {}", temp_path.display()))?;
     let mut writer = std::io::BufWriter::new(file);
-    let outcome = decode_files_to_writer(&args.input, &options, &mut writer)?;
+    let outcome = if progress.is_enabled() {
+        decode_files_to_writer_with_progress(
+            &args.input,
+            &options,
+            &mut writer,
+            |index, count, done, total| {
+                let message = if count > 1 {
+                    format!("decoding chunk {}/{}", index + 1, count)
+                } else {
+                    "decoding DNG".to_owned()
+                };
+                progress.set(done, total, &message);
+            },
+        )?
+    } else {
+        decode_files_to_writer(&args.input, &options, &mut writer)?
+    };
     writer
         .flush()
         .with_context(|| format!("cannot write {}", temp_path.display()))?;

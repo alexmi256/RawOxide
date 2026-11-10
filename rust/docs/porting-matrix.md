@@ -25,7 +25,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/cli.py` | `cli` | ✅ | all commands/flags, album layout, thumbnail/profile/meta/debug output, BigTIFF warnings |
 | `stegodng/profiles/__init__.py` | `core::profiles` | ✅ | 307 JSON + 3 blobs embedded; lazy load, longest-slug resolve |
 | `stegodng/debugmeta.py` | `cli::sidecar` | ✅ | Python-shaped summary/options/payload/cover/thumbnail/profile/metadata + named IFD/preview inventory |
-| `stegodng/progress.py` | `cli` | 🚧 | TTY-aware spinner for encode/decode; no per-file/embedding bars |
+| `stegodng/progress.py` | `cli` | ✅ | TTY-aware progress bars for encode/decode, split chunk messages and row/byte percentages |
 
 ## CLI flags checklist
 
@@ -63,10 +63,11 @@ not required; implementation freedom is recorded in ADR 0001.
 
 - `--thumbnail` defaults to `synthetic` (offline-safe) instead of Python's
   `random`; pass `--thumbnail random` for the Commons behaviour.
-- Progress output is one spinner, not Python's per-file/embedding bars.
-- `tiff-reader` reads the EXIF-IFD pointer as a 4-byte LONG, so split markers
-  in a BigTIFF whose EXIF IFD lies past 4 GiB may be misread; raw payload decode
-  is unaffected.
+- Progress uses one bar with row/byte percentages and a chunk message; Python
+  uses nested per-file/embedding bars.
+- The Rust writer uses 8-byte `LONG8` EXIF/GPS pointers in BigTIFF and the Rust
+  reader handles them. Python's BigTIFF writer stores an 8-byte offset in a
+  4-byte `LONG` field; such files past 4 GiB are outside the Rust decode scope.
 - Decode accepts the uncompressed and Deflate raw layouts RawHide writes.
   External DNGs using other compressions or sample layouts are outside the
   current decode scope.

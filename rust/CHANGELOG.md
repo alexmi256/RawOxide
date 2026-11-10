@@ -17,6 +17,10 @@ semantic versioning.
   `--no-split-file-album`).
 - Profile fidelity `raw.tile` now sets the writer tile geometry, and cropped
   CFA profiles emit `ActiveArea` (50829) and `DefaultUserCrop` (51125).
+- `rawhide encode`/`decode` now show a percentage progress bar with row/byte
+  positions, including chunk messages for split sets.
+- Split-marker decode is covered by a forced-BigTIFF round-trip test; the Rust
+  writer/reader use `LONG8`/`IFD8` EXIF/GPS pointers.
 - Debug sidecar now follows the Python `stegodng.debugmeta` shape: summary,
   invocation, encode options/payload/output/capacity/split, cover and thumbnail
   records, full profile snapshot, resolved thumbnail label + CRC, per-frame

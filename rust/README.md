@@ -14,8 +14,8 @@ format so either implementation can decode the other's files.
 > raw tile geometry and tag values. Python and `tifffile` accept both classic
 > and BigTIFF output; `exiv2`/`rawpy` acceptance is classic-only (they do not
 > parse BigTIFF). Feature parity is close; the main remaining differences are
-> progress presentation, the offline preview default and a BigTIFF
-> EXIF-pointer read limitation. See [Known differences](#known-differences) and
+> the offline preview default and the external-DNG decode scope. See
+> [Known differences](#known-differences) and
 > [docs/porting-matrix.md](docs/porting-matrix.md).
 
 ## Quick start
@@ -107,11 +107,11 @@ RUSTFLAGS='-C link-arg=-fuse-ld=mold' cargo build -p rawhide-cli
 - `--thumbnail` defaults to `synthetic` for offline-safe operation; Python
   defaults to `random` (Wikimedia Commons). Pass `--thumbnail random` for the
   Python behaviour.
-- Progress output is a single spinner for encode/decode; Python shows separate
-  per-file/chunk and embedding bars.
-- `tiff-reader` reads the EXIF-IFD pointer as a 4-byte `LONG`, so split markers
-  in a BigTIFF whose EXIF IFD lies past 4 GiB may be misread. Raw payload decode
-  is unaffected.
+- Progress uses one bar with row/byte percentages and a chunk message; Python
+  uses nested per-file/embedding bars.
+- The Rust writer uses 8-byte `LONG8` EXIF/GPS pointers in BigTIFF and the Rust
+  reader handles them. Python's BigTIFF writer stores an 8-byte offset in a
+  4-byte `LONG` field; such files past 4 GiB are outside the Rust decode scope.
 - Decode currently accepts the uncompressed and Deflate raw layouts RawHide
   writes. External DNGs using other compressions or sample layouts are outside
   the current decode scope.

@@ -110,8 +110,9 @@ Implemented:
   cargo-audit, `just`, GitHub Actions, coverage config, fuzzing/mutation plans.
 
 Remaining compatibility/tooling gaps are tracked in
-[porting-matrix.md](porting-matrix.md); the main known reader limitation is the
-BigTIFF EXIF-pointer width described below.
+[porting-matrix.md](porting-matrix.md); Rust-produced BigTIFF pointers are
+covered by the sidecar inventory test, and forced-BigTIFF split decoding is
+covered separately.
 
 ---
 
@@ -174,10 +175,13 @@ Workspace, license, tooling, framing, LSB codec, capacity, tests, CI.
 reversed chunk order). Malformed files and wrong keys return errors, never
 panic. Coverage is ~88% lines overall.
 
-Known Phase 1 limitation: `tiff-reader` parses an EXIF IFD pointer (tag 34665)
-as a 4-byte LONG, while the Python writer stores an 8-byte offset field in
-BigTIFF. Split markers in a BigTIFF whose EXIF IFD sits past 4 GiB may therefore
-be misread. Raw decode is unaffected; this is tracked in the porting matrix.
+Known scope boundary: `tiff-reader` parses an EXIF IFD pointer (tag 34665) as a
+4-byte LONG, while Python's BigTIFF writer stores an 8-byte offset field in a
+LONG entry. The Rust writer uses `LONG8`/`IFD8` pointers, which the Rust reader
+handles; EXIF/GPS pointer inventory is covered by the sidecar BigTIFF test, and
+split-marker decode by a forced-BigTIFF round trip. Python BigTIFF files
+whose EXIF IFD lies past 4 GiB are outside the current decode scope; raw payload
+decode is unaffected.
 
 ### Phase 2 — Write DNG (core writer done; streaming/compression done)
 
@@ -285,8 +289,8 @@ principal location; pinned times produce matching EXIF/GPS values.
   including `thumbnail:`, `debug:`, `profile:` and `meta:` output.
 
 Remaining differences: the Rust CLI defaults `--thumbnail` to `synthetic`
-(Python defaults to `random`), and progress is a single spinner rather than
-per-file/embedding bars.
+(Python defaults to `random`). Progress bars are implemented but use a simpler
+single-bar presentation than Python's nested tqdm bars.
 
 ### Phase 6 — Hardening, performance, release (partly done)
 
@@ -387,7 +391,7 @@ See [testing.md](testing.md). The short version:
 
 | risk | impact | mitigation |
 |---|---|---|
-| `tiff-reader` misreads 8-byte BigTIFF EXIF pointers | split markers in files >4 GiB | isolate behind `DngReader`; custom pointer parser or upstream fix |
+| Python BigTIFF EXIF pointer layout is unsupported | split markers in Python files >4 GiB | Rust writer uses LONG8 and is tested; Python files are out of scope |
 | External DNG compression/layout support is narrower than Python | cannot decode some third-party DNGs | keep decode scope documented; extend `dng.rs` only if required |
 | JPEG preview differences | visual/fingerprint parity | preserve YCbCr 4:2:0 + tags; don't compare JPEG bytes; solid-red regression test |
 | Python oracle nondeterminism (`date_bounds` + `now`) | flaky metadata fixtures | Rust uses a per-run anchor; pin image time in fixtures |
@@ -405,14 +409,14 @@ Resolved:
 2. CI covers Linux, Windows and macOS; release packaging is still open.
 3. No PyO3 shim; the Python CLI remains the specification/oracle.
 4. Preview fetching is Commons-only, matching Python.
-5. `--progress` follows the tri-state TTY/force/disable behaviour; the spinner
-   is implemented, per-file bars are not.
+5. `--progress` follows the tri-state TTY/force/disable behaviour and reports
+   row/byte percentages; a single bar is used per encode/decode file rather than
+   Python's nested tqdm bars.
 
 Still open:
 
 1. Release artifacts and a distribution pipeline.
-2. Full progress-bar parity with Python.
-3. Whether decoding arbitrary third-party DNGs (broader compression/layout
+2. Whether decoding arbitrary third-party DNGs (broader compression/layout
    support) belongs in v1 or a later reader track.
 
 ---

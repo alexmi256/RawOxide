@@ -16,8 +16,9 @@ use rawhide_core::{
     CameraProfile, Compression, DecodeOptions, ImageTime, LevelPolicy, MetadataRandomizer,
     PreviewSource, RawMode, RecommendOptions, RecommendedConfig, Rng64, SizingMode, SplitIdField,
     SplitSeqField, WriterOptions, capacity_bytes, chunk_bounds, chunk_path, decode_files_to_writer,
-    format_kb, parse_size, profiles, recommend, risk_warnings, split_album_dir, validate_split_id,
-    write_cover_tiff, write_dng_from_file,
+    decode_files_to_writer_with_progress, format_kb, parse_size, profiles, recommend,
+    risk_warnings, split_album_dir, validate_split_id, write_cover_tiff, write_dng_from_file,
+    write_dng_from_file_with_progress,
 };
 use tracing_subscriber::EnvFilter;
 
@@ -403,6 +404,25 @@ fn run(cli: &Cli) -> Result<()> {
 
 struct ProgressGuard(Option<ProgressBar>);
 
+impl ProgressGuard {
+    const fn is_enabled(&self) -> bool {
+        self.0.is_some()
+    }
+
+    fn set(&self, position: u64, length: u64, message: &str) {
+        if let Some(bar) = &self.0 {
+            if bar.length() != Some(length) {
+                // Reset before changing the length so a shorter next chunk
+                // never renders at a position beyond its own total.
+                bar.set_position(0);
+                bar.set_length(length);
+            }
+            bar.set_position(position);
+            bar.set_message(message.to_owned());
+        }
+    }
+}
+
 impl Drop for ProgressGuard {
     fn drop(&mut self) {
         if let Some(bar) = self.0.take() {
@@ -411,21 +431,20 @@ impl Drop for ProgressGuard {
     }
 }
 
-fn progress_bar(force: bool, disabled: bool, message: &str) -> ProgressGuard {
+#[allow(clippy::literal_string_with_formatting_args)]
+fn progress_bar(force: bool, disabled: bool, message: &str, length: u64) -> ProgressGuard {
     if disabled || (!force && !std::io::stderr().is_terminal()) {
         return ProgressGuard(None);
     }
-    let bar = if force {
-        ProgressBar::with_draw_target(
-            None,
-            ProgressDrawTarget::term_like_with_hz(Box::new(console::Term::buffered_stderr()), 20),
-        )
+    let draw_target = if force {
+        ProgressDrawTarget::term_like_with_hz(Box::new(console::Term::buffered_stderr()), 20)
     } else {
-        ProgressBar::new_spinner()
+        ProgressDrawTarget::stderr()
     };
+    let bar = ProgressBar::with_draw_target(Some(length.max(1)), draw_target);
     bar.set_style(
-        ProgressStyle::with_template("{spinner} {msg}")
-            .unwrap_or_else(|_| ProgressStyle::default_spinner()),
+        ProgressStyle::with_template("{spinner} {msg} [{bar:28}] {percent:>3}% ({pos}/{len})")
+            .unwrap_or_else(|_| ProgressStyle::default_bar()),
     );
     bar.set_message(message.to_owned());
     bar.enable_steady_tick(Duration::from_millis(100));
