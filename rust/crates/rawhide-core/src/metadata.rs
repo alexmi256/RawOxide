@@ -177,6 +177,7 @@ pub struct Metadata {
     /// Lens make.
     pub lens_make: String,
     /// Lens specification quad.
+    #[serde(serialize_with = "serialize_lens_spec")]
     pub lens_spec: [(u32, u32); 4],
     /// Camera serial.
     pub camera_serial: String,
@@ -202,6 +203,20 @@ pub struct Metadata {
     pub subsec: String,
     /// Offset time string.
     pub offset: String,
+}
+
+/// Serialize the lens spec as Python's flat 8-integer list.
+fn serialize_lens_spec<S>(value: &[(u32, u32); 4], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    use serde::ser::SerializeSeq as _;
+    let mut sequence = serializer.serialize_seq(Some(8))?;
+    for (numerator, denominator) in value {
+        sequence.serialize_element(numerator)?;
+        sequence.serialize_element(denominator)?;
+    }
+    sequence.end()
 }
 
 /// `SplitMix64` with rejection-free bounded draws.
@@ -291,6 +306,20 @@ impl<'a> MetadataRandomizer<'a> {
             date_bounds,
             gps_radius_km: crate::geo::MAX_RADIUS_KM,
         }
+    }
+
+    /// Recompute rolling fidelity date bounds against one per-run anchor.
+    ///
+    /// The CLI captures the anchor once and passes it to every chunk, so a
+    /// split set shares one window without freezing the window for the
+    /// lifetime of an embedded process.
+    #[must_use]
+    pub fn with_date_anchor(mut self, anchor: NaiveDateTime) -> Self {
+        self.date_bounds = self
+            .profile
+            .and_then(|profile| profile.fidelity.as_ref())
+            .and_then(|fidelity| fidelity.date_bounds_at(anchor));
+        self
     }
 
     /// Override the GPS sampling radius.

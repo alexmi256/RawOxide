@@ -106,19 +106,47 @@ fn pinned_image_time_sets_datetime_and_offset() {
 #[test]
 fn date_range_profile_keeps_timestamps_inside_the_range() {
     let profile = profiles::get_profile("custom_pixel_xl").unwrap();
-    // The custom profile uses `date_window_days` ending now; timestamps must be
-    // between the two bounds observed at construction time.
+    // `date_window_days` defaults to an anchor at randomizer construction,
+    // which is at or before this `date_bounds()` call; allow a margin.
     let bounds = profile.fidelity.as_ref().unwrap().date_bounds().unwrap();
+    let earliest = bounds.0 - chrono::Duration::hours(1);
     let mut randomizer = MetadataRandomizer::new(Some(9), Some(profile));
     for _ in 0..10 {
         let metadata = randomizer.randomize(None);
         let stamp =
             chrono::NaiveDateTime::parse_from_str(&metadata.datetime, "%Y:%m:%d %H:%M:%S").unwrap();
         assert!(
-            stamp >= bounds.0 && stamp <= bounds.1,
-            "{stamp} not in {bounds:?}"
+            stamp >= earliest && stamp <= bounds.1,
+            "{stamp} not in {earliest:?}..={:?}",
+            bounds.1
         );
     }
+}
+
+#[test]
+fn explicit_date_anchor_bounds_metadata() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let anchor =
+        chrono::NaiveDateTime::parse_from_str("2020:06:01 12:00:00", "%Y:%m:%d %H:%M:%S").unwrap();
+    let mut randomizer = MetadataRandomizer::new(Some(9), Some(profile)).with_date_anchor(anchor);
+    let earliest = anchor - chrono::Duration::days(365);
+    for _ in 0..10 {
+        let metadata = randomizer.randomize(None);
+        let stamp =
+            chrono::NaiveDateTime::parse_from_str(&metadata.datetime, "%Y:%m:%d %H:%M:%S").unwrap();
+        assert!(
+            stamp >= earliest && stamp <= anchor,
+            "{stamp} not in {earliest:?}..={anchor:?}"
+        );
+    }
+}
+
+#[test]
+fn metadata_serializes_lens_spec_as_flat_eight_integers() {
+    let profile = profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = MetadataRandomizer::new(Some(3), Some(profile)).randomize(None);
+    let value = serde_json::to_value(&metadata).unwrap();
+    assert_eq!(value["lens_spec"].as_array().unwrap().len(), 8);
 }
 
 #[test]

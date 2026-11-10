@@ -447,6 +447,18 @@ impl DngReader {
         self.ifd(0)
     }
 
+    /// Raw `SubIFD` offsets from IFD0, in file order.
+    ///
+    /// Unlike `tiff-reader`'s tag decoding, this understands classic TIFF
+    /// type 13 (`IFD`) and `BigTIFF` type 18 (`IFD8`).
+    ///
+    /// # Errors
+    ///
+    /// Returns a TIFF/layout error for malformed files.
+    pub fn sub_ifd_offsets(&self) -> Result<Vec<u64>, DngError> {
+        self.read_sub_ifd_offsets()
+    }
+
     /// Raw `SubIFD` directories in file order.
     ///
     /// # Errors

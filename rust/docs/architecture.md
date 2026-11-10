@@ -5,28 +5,23 @@
 ```text
 rawhide-core        library, no CLI/network policy
   framing           DNGS frame + SHA-256 keystream
-  profile/profiles  camera registry, depth/level helpers
-  metadata          seeded per-file EXIF/DNG fields
-  geo               embedded tz-city/land table + GPS sampling
-  sizing            auto-config / smallest fitting geometry
-  digests           DNG SDK raw image / unique-ID hashes
   codec             LSB mapping, capacity, KiB formatting
   tiff              typed tag values + classic TIFF IFD builder
   dng               read-only DNG/raw block reader
-  writer            DNG writer (tiles, LinearRaw/CFA, JPEG preview)
-  profile           embedded profiles + level math (planned)
-  metadata          seeded EXIF randomization (planned)
-  geo               tz city + land sampler (planned)
-  cover             synthetic raw covers (planned)
-  thumbnail         synthetic/Commons/offline-noise/file preview + resize
-  sizing            auto-fit search (planned)
-  split             chunk naming/sequence
-  digests           DNG SDK tile MD5 digests (planned)
+  profile/profiles  embedded camera registry, depth/level/fidelity math
+  metadata          seeded EXIF/DNG fields + per-run date anchor
+  geo               embedded tz-city/land table + GPS sampling
+  cover             synthetic raw covers
+  thumbnail         synthetic/Commons/offline-noise/file preview + labels
+  sizing            auto-config / smallest fitting geometry
+  split             chunk naming/sequence + id/count validation
+  digests           DNG SDK raw image / unique-ID hashes
   opcodes           GainMap/OpcodeList2; other ids unsupported
-  makernote         HDRP envelope (planned)
-  debug             JSON sidecar (summary/options/profile/metadata/file inventory)
+  makernote         opaque HDRP envelopes
+  writer            tiled DNG writer, split markers, sidecar statistics
 
 rawhide-cli         clap CLI, progress, errors, exit codes
+  sidecar           Python-shaped JSON debug document + tag inventory
 ```
 
 Dependencies point one way: `rawhide-cli → rawhide-core`. Core never reads
@@ -103,8 +98,8 @@ payload buffer.
 - Prefer pure-Rust, MIT/Apache dependencies; no C toolchain for a default build.
 - Pin exact versions for the TIFF stack (`=0.11.x`) until its API settles.
 - `cargo-deny` enforces licenses/advisories/sources; `cargo-audit` runs in CI.
-- MSRV is 1.88 (edition 2024 + `tiff-writer` requirement). CI checks it when the
-  dependency graph allows.
+- MSRV is 1.88 (edition 2024 + `tiff-writer` requirement). CI currently builds
+  on stable; an explicit MSRV job is tracked in the porting matrix.
 
 ## DNG reader and `tiff-reader`
 
@@ -119,34 +114,43 @@ crate later does not affect the decode/CLI layers. See ADR 0003.
 embeds the 307-file registry at compile time and loads it lazily. `core::sizing`
 implements the Python `AutoSizer` contract. `core::metadata` draws reproducible
 per-file fields from a local SplitMix64 stream, honouring profile pools and
-fidelity ranges; `--image-time` pins the capture timestamp. `core::geo` loads
-the embedded `zones.bin` table once (`scripts/embed_geo.py` refreshes it), samples land-only points with a separate
-RNG stream and resolves zone offsets through `chrono-tz`; GPS tags are written
-to a dedicated GPS IFD. `core::digests` reproduces the DNG SDK fast image
-digest (tiled MD5) and `RawDataUniqueID`, written for single-frame profiles
-that request raw digests.
+fidelity ranges; rolling date windows use one anchor per encode run and
+`--image-time` pins the capture timestamp. `core::geo` loads the embedded
+`zones.bin` table once (`scripts/embed_geo.py` refreshes it), samples land-only
+points with a separate RNG stream and resolves zone offsets through `chrono-tz`;
+GPS tags are written to a dedicated GPS IFD. `core::digests` reproduces the DNG
+SDK fast image digest (tiled MD5) and `RawDataUniqueID`, written for single-frame
+profiles that request raw digests.
 
 The writer lives in `rawhide-core::writer` and builds on `rawhide-core::tiff`
 (typed tag values + classic IFD builder): tiled `LinearRaw`/`CFA` raw pages at
 8/10/12/14/16-bit, a JPEG preview, DNG calibration tags, 1-8 full-resolution raw
 frames, split markers in IFD0/EXIF, a profile/EXIF metadata block and the
-payload. Payload bytes are striped across frames in order, and split chunks use
-DCF-style names. Frames are generated, embedded, encoded and written one at a time, and all
-single frames are banded by tile row. The SDK image digest is computed
-incrementally with 256-row tile buffers, so neither all frames nor a full raster
-are retained. Remaining work is opcode ids other than GainMap. It was
-validated with Python, `tifffile`, `exiv2`, `tiffdump` and `rawpy`, including
-multi-frame and split sets.
+payload. Profile `fidelity.raw.tile` drives the tile geometry, and cropped CFA
+outputs carry `ActiveArea`/`DefaultUserCrop`. Payload bytes are striped across
+frames in order, and split chunks use DCF-style names. Frames are generated,
+embedded, encoded and written one at a time, and all single frames are banded by
+tile row. The SDK image digest and per-frame debug CRCs are computed
+incrementally, so neither all frames nor a full raster are retained. Remaining
+work is opcode ids other than GainMap. It was validated with Python, `tifffile`,
+`exiv2`, `tiffdump` and `rawpy`, including multi-frame and split sets.
 
 ## Debug sidecar shape
 
-`--debug-metadata-output` writes `<output>.json` with `schema`,
-`schema_version`, `summary`, `encode`, `profile`, `metadata` and `file`.
-`file` contains `bytes` and `ifds`; each IFD has `name`, `tag_count` and
-`tags`. Each tag has `tag` (numeric code), `type`, `count` and `value`.
-Values with more than 64 elements are represented as
-`{"bytes": <encoded length>, "crc32": "<8 hex digits>"}` instead of inline
-data, keeping XMP, opcode lists and offset tables out of the sidecar.
+`--debug-metadata-output` writes `<output>.json` with the Python
+`stegodng.debugmeta` shape: `schema`, `schema_version`, `generated_at`, `tool`,
+`invocation`, `summary`, `encode` (options, payload, output, capacity, split),
+`profile` (full static snapshot, binary blobs hashed), `cover`, `thumbnail`,
+`metadata` and `file`.
+
+`file` contains `ifd0`, `subifds`, optional `exif`/`gps` arrays and a
+`preview_jpeg` record (`bytes`, `crc32`, `strips`). Each tag has `tag` (numeric
+code), `name`, `type`, `count` and `value`. Values longer than 256 encoded
+bytes are represented as `{"bytes": <length>, "crc32": "<8 hex digits>"}`
+instead of inline data, keeping XMP, opcode lists and offset tables out of the
+sidecar. The document also records the drawn metadata/cover seeds, per-frame
+embedded-raw CRCs, the framed payload CRC, and the resolved thumbnail label and
+RGB CRC so a run can be audited or reproduced.
 
 ## File-format contract
 

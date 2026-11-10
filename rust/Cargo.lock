@@ -1441,6 +1441,7 @@ dependencies = [
  "insta",
  "predicates",
  "rawhide-core",
+ "serde",
  "serde_json",
  "tempfile",
  "tiff-reader",

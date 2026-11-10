@@ -1,6 +1,6 @@
 # Rust port plan
 
-**Status:** active; Phase 0 (foundations) and Phase 1 (DNG read/decode) complete
+**Status:** active; Phases 0–5 are implemented, with Phase 6 hardening partly done
 **Audience:** implementers and reviewers
 **Reference:** [feasibility study](../../RawHide/native-port-feasibility.md),
 Python [README](../../RawHide/README.md) and [AGENTS.md](../../RawHide/AGENTS.md)
@@ -71,7 +71,7 @@ Acceptance gate for L1 (run in CI once the TIFF layer lands):
 
 ---
 
-## 3. Current state (Phase 0 + Phase 1)
+## 3. Current state (Phases 0–5)
 
 Implemented:
 
@@ -88,15 +88,30 @@ Implemented:
 - `decode_files` + `rawhide decode`: auto-detect 1-16 planes, strict explicit
   planes, `--key`, `--max-bytes`, split metadata/filename ordering, partial
   chunk warnings. All Python fixtures decode byte-identically.
+- Writer (`core::writer`, `rawhide encode`): classic TIFF and BigTIFF, tiled
+  `LinearRaw`/`CFA` at 8/10/12/14/16-bit, JPEG preview, 1-8 raw frames,
+  profile tile geometry, crop `ActiveArea`/`DefaultUserCrop`, split markers,
+  embedded streaming payload and seeded EXIF/DNG metadata.
+- All 307 Python camera profiles plus Adobe assets embedded; metadata pools,
+  GPS, raw digests, MakerNote, GainMap `OpcodeList2`, profile `OpcodeList3` and
+  Adobe tag conventions are emitted.
+- Split encoding: album layout for multi- and single-chunk sets, DCF names,
+  shared UUID, `ImageNumber`/`PageNumber`/`ImageDescription` sequencing,
+  fresh per-chunk seeds for unseeded runs, ASCII split-id validation and a
+  9999-chunk guard.
+- Debug sidecar (`--debug-metadata-output`): Python-shaped summary, encode
+  options, payload/cover/thumbnail records, full profile snapshot, randomized
+  metadata, resolved thumbnail label/CRC, per-frame CRCs, preview JPEG hash and
+  named IFD tag inventory.
 - Tests: unit, property (`proptest`), CLI (`assert_cmd`), fixture integration,
-  criterion benchmark.
+  criterion benchmark, and an automated Python ↔ Rust cross-decode script
+  (`just cross-decode`).
 - Tooling: rustfmt, clippy (`-D warnings`), nextest, llvm-cov, insta, cargo-deny,
   cargo-audit, `just`, GitHub Actions, coverage config, fuzzing/mutation plans.
-- Gitignore from the GitHub Rust template plus coverage/editor entries.
 
-Not implemented yet: DNG writing, profiles, metadata randomization, cover,
-thumbnails, split encoding, sidecar, and the `encode`/`gen-tiff` CLI paths. Those
-return a clear "not implemented" error.
+Remaining compatibility/tooling gaps are tracked in
+[porting-matrix.md](porting-matrix.md); the main known reader limitation is the
+BigTIFF EXIF-pointer width described below.
 
 ---
 
@@ -105,21 +120,22 @@ return a clear "not implemented" error.
 ```text
 rawhide-cli
   ├── clap parsing, progress, user-facing messages, exit codes
+  ├── sidecar       Python-shaped JSON debug document + tag inventory
   └── rawhide-core
         ├── framing       DNGS header + keystream
         ├── codec         LSB mapping, capacity, KiB helpers
-        ├── tiff/         reader + writer + tag/IFD builders (done)
-        ├── profile       embedded camera profiles + level math (done)
-        ├── metadata      seeded EXIF randomization (done)
-        ├── geo           tz city/land sampler (done)
-        ├── cover         synthetic raw covers (in progress)
-        ├── thumbnail     synthetic/Commons/offline-noise/file preview
-        ├── sizing        auto-fit search (done)
-        ├── split         chunk naming/sequencing (done)
-        ├── digests       DNG SDK digests (done)
+        ├── tiff/         reader + writer + tag/IFD builders
+        ├── profile       embedded camera profiles + level math
+        ├── metadata      seeded EXIF randomization, per-run date anchor
+        ├── geo           tz city/land sampler
+        ├── cover         synthetic raw covers
+        ├── thumbnail     synthetic/Commons/offline-noise/file preview + label
+        ├── sizing        auto-fit search
+        ├── split         chunk naming/sequencing + id/chunk-count validation
+        ├── digests       DNG SDK digests
         ├── opcodes       GainMap/OpcodeList2; other ids unsupported
-        ├── makernote     opaque HDRP envelopes (done)
-        └── debug         JSON sidecar (planned)
+        ├── makernote     opaque HDRP envelopes
+        └── writer        tiled DNG output, split markers, sidecar statistics
 ```
 
 `rawhide-core` has no CLI, network by default, or global state. The CLI owns
@@ -156,13 +172,12 @@ Workspace, license, tooling, framing, LSB codec, capacity, tests, CI.
 **Acceptance met:** all committed Python fixtures decode byte-identically
 (linear/cfa, 8/10/14/16-bit, keyed, three frames, Deflate, split sets,
 reversed chunk order). Malformed files and wrong keys return errors, never
-panic. Coverage is ~81% lines overall.
+panic. Coverage is ~88% lines overall.
 
 Known Phase 1 limitation: `tiff-reader` parses an EXIF IFD pointer (tag 34665)
 as a 4-byte LONG, while the Python writer stores an 8-byte offset field in
 BigTIFF. Split markers in a BigTIFF whose EXIF IFD sits past 4 GiB may therefore
-be misread. Raw decode is unaffected; revisit when adding full metadata support
-in Phase 3.
+be misread. Raw decode is unaffected; this is tracked in the porting matrix.
 
 ### Phase 2 — Write DNG (core writer done; streaming/compression done)
 
@@ -204,7 +219,7 @@ Remaining full-writer work:
 multi-frame and split sets); `rawpy` accepts it; `tiffdump` shows the expected
 skeleton; peak RSS < 64 MiB for the 256×192/2048×1536 cases.
 
-### Phase 3 — Profiles and metadata (in progress)
+### Phase 3 — Profiles and metadata (done)
 
 Done:
 
@@ -242,39 +257,43 @@ Done:
 documented schema; digests reproduce the Python values for fixed raw/crop/opcode
 inputs; GainMap round-trips through Python.
 
-### Phase 4 — Metadata, GPS and time (2–2.5 weeks)
+### Phase 4 — Metadata, GPS and time (done)
 
 - Deterministic native RNG (explicitly seeded per stream/band).
 - Lens/ISO/exposure/serial pools, fidelity ranges, software/orientation pools.
 - `zones.bin` parsing, land sampling, elevation, offsets; tzdata via
-  `chrono-tz` (pin the embedded version).
-- `--image-time`: random, input birth time (`statx`/`created()` + ctime
-  fallback), input mtime, now; UTC/offset consistency.
-- Fix the Python `date_bounds()`/`now()` reproducibility bug in the oracle
-  before pinning metadata fixtures.
+  `chrono-tz`.
+- `--image-time`: random, input birth time (`created()` + Unix `ctime`
+  fallback), input mtime, now, plus explicit wall-clock/RFC 3339 values; UTC/
+  offset consistency.
+- Fidelity rolling date windows use one anchor per encode run so split chunks
+  share one window and wall-clock movement cannot shift seeded metadata.
 
-**Acceptance:** seeded metadata is stable; GPS fixes are on land near a tz
+**Acceptance met:** seeded metadata is stable; GPS fixes are on land near a tz
 principal location; pinned times produce matching EXIF/GPS values.
 
-### Phase 5 — CLI parity and thumbnails (2–3 weeks)
+### Phase 5 — CLI parity and thumbnails (done)
 
-- All encode/decode/capacity/gen-tiff flags, split album layout, metadata field
-  selection, `--auto-size`, `--level-policy`, `--debug-metadata-output`,
-  `--progress/--no-progress`, `--gps-radius`.
+- All encode/decode/capacity/gen-tiff flags, split album layout (including the
+  positive `--split-file-album` form), metadata field selection, `--auto-size`,
+  `--level-policy`, `--debug-metadata-output`, `--progress/--no-progress`,
+  `--gps-radius`.
 - Thumbnail sources: synthetic, user file, Wikimedia Commons with bounded
-  retries and offline fallback; image decode, center crop, Lanczos3, RGB→YCbCr.
-- Exact KiB formatting and `auto-config`/`warning:`/`note:`/`error:` lines.
+  retries and offline fallback; image decode, center crop, Lanczos3, RGB→YCbCr,
+  resolved source labels.
+- KiB formatting plus the `auto-config`/`warning:`/`note:`/`error:` lines,
+  including `thumbnail:`, `debug:`, `profile:` and `meta:` output.
 
-**Acceptance:** CLI snapshot tests match documented output; no network in tests
-(inject an opener); all Python error messages have a Rust equivalent.
+Remaining differences: the Rust CLI defaults `--thumbnail` to `synthetic`
+(Python defaults to `random`), and progress is a single spinner rather than
+per-file/embedding bars.
 
-### Phase 6 — Hardening, performance, release (2–3 weeks)
+### Phase 6 — Hardening, performance, release (partly done)
 
-- Streaming decode (only the tiles covering the needed prefix); parallel tile
-  compression/generation with deterministic per-band seeds.
-- Fuzzing (`cargo-fuzz`: framing, IFD parser, decode); Miri for core;
-  mutation testing on critical modules.
-- Benchmarks vs Python; memory ceilings; `cargo-dist` release artifacts; docs.
+- Streaming encode/decode, banded tiles and incremental digests are done.
+- Automated Python ↔ Rust cross-decode runs in CI (`scripts/cross_decode.sh`).
+- Still open: parallel tile generation, `cargo-fuzz` targets/Miri, a clean
+  MSRV CI job, benchmark comparison against Python and release artifacts.
 
 **Acceptance:** fuzz targets run clean for a nightly budget; benchmarks meet
 the §0 targets; Linux/macOS/Windows artifacts build in CI.

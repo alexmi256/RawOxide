@@ -14,10 +14,10 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use indicatif::{ProgressBar, ProgressDrawTarget, ProgressStyle};
 use rawhide_core::{
     CameraProfile, Compression, DecodeOptions, ImageTime, LevelPolicy, MetadataRandomizer,
-    PreviewSource, RawMode, RecommendOptions, RecommendedConfig, SizingMode, SplitIdField,
+    PreviewSource, RawMode, RecommendOptions, RecommendedConfig, Rng64, SizingMode, SplitIdField,
     SplitSeqField, WriterOptions, capacity_bytes, chunk_bounds, chunk_path, decode_files_to_writer,
-    format_kb, parse_size, profiles, recommend, risk_warnings, split_album_dir, write_cover_tiff,
-    write_dng_from_file,
+    format_kb, parse_size, profiles, recommend, risk_warnings, split_album_dir, validate_split_id,
+    write_cover_tiff, write_dng_from_file,
 };
 use tracing_subscriber::EnvFilter;
 
@@ -180,6 +180,10 @@ struct EncodeArgs {
     /// Override the generated chunk-set UUID.
     #[arg(long)]
     split_file_id: Option<String>,
+
+    /// Group split chunks in an input-stem album directory (default).
+    #[arg(long, conflicts_with = "no_split_file_album")]
+    split_file_album: bool,
 
     /// Write chunks beside the output instead of an input-stem album directory.
     #[arg(long)]
@@ -430,6 +434,7 @@ fn progress_bar(force: bool, disabled: bool, message: &str) -> ProgressGuard {
 
 mod commands;
 mod encode;
+mod sidecar;
 
 use commands::{capacity, decode, gen_tiff};
 use encode::encode;

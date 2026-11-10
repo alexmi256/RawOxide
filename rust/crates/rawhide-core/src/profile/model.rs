@@ -492,7 +492,7 @@ pub struct FidelityConfig {
     pub makernote: Option<MakernoteConfig>,
     /// Sub-second fraction digits.
     pub subsec_digits: u8,
-    /// Raw tile geometry.
+    /// Raw tile geometry as `(tile_length, tile_width)` (tifffile order).
     pub tile: Option<(usize, usize)>,
     /// Per-channel black levels.
     pub black_levels: Option<Vec<(u32, u32)>>,
@@ -815,16 +815,28 @@ impl FidelityConfig {
     /// Capture date bounds; `date_window_days` ends now.
     #[must_use]
     pub fn date_bounds(&self) -> Option<(chrono::NaiveDateTime, chrono::NaiveDateTime)> {
-        use chrono::{Duration, Local};
+        self.date_bounds_at(chrono::Local::now().naive_local())
+    }
+
+    /// Capture date bounds with an explicit end for the rolling window.
+    ///
+    /// Encoding passes one anchor per run so every chunk of a split set
+    /// shares one window and the seeded metadata does not shift when a run
+    /// crosses a second boundary.
+    #[must_use]
+    pub fn date_bounds_at(
+        &self,
+        end: chrono::NaiveDateTime,
+    ) -> Option<(chrono::NaiveDateTime, chrono::NaiveDateTime)> {
+        use chrono::Duration;
         if let Some(days) = self.date_window_days {
-            let end = Local::now().naive_local();
             return Some((end - Duration::days(i64::from(days)), end));
         }
-        let (start, end) = self.date_range.as_ref()?;
+        let (start, end_date) = self.date_range.as_ref()?;
         let start = chrono::NaiveDate::parse_from_str(start, "%Y-%m-%d").ok()?;
-        let end = chrono::NaiveDate::parse_from_str(end, "%Y-%m-%d").ok()?;
+        let end_date = chrono::NaiveDate::parse_from_str(end_date, "%Y-%m-%d").ok()?;
         let start = start.and_hms_opt(0, 0, 0)?;
-        let end = (end + Duration::days(1)).and_hms_opt(0, 0, 0)? - Duration::seconds(1);
+        let end = (end_date + Duration::days(1)).and_hms_opt(0, 0, 0)? - Duration::seconds(1);
         Some((start, end))
     }
 }
@@ -1035,6 +1047,18 @@ impl CameraProfile {
             .min(Self::white_level(bit_depth));
         let safe = white.saturating_add(1).ilog2().max(1);
         u8::try_from(safe).unwrap_or(MAX_LSB_PLANES).min(top)
+    }
+
+    /// Raw tile `(width, height)` requested by the profile fidelity block.
+    ///
+    /// The profile JSON stores tifffile's `(tile_length, tile_width)` order;
+    /// this helper swaps it into the writer's width/height order.
+    #[must_use]
+    pub fn raw_tile_wh(&self) -> Option<(usize, usize)> {
+        self.fidelity
+            .as_ref()
+            .and_then(|fidelity| fidelity.tile)
+            .map(|(tile_length, tile_width)| (tile_width, tile_length))
     }
 
     /// Per-channel black levels scaled to the effective white.

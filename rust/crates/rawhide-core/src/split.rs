@@ -11,6 +11,9 @@ use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Largest chunk sequence representable by a DCF-style four-digit name.
+pub const MAX_CHUNKS: u64 = 9_999;
+
 /// Metadata field carrying the shared chunk-set UUID.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SplitIdField {
@@ -246,6 +249,39 @@ pub enum SplitError {
         /// Missing numbers.
         missing: String,
     },
+
+    /// The shared chunk-set UUID cannot be stored in an ASCII metadata field.
+    #[error("split id must be a non-empty ASCII string (got {detail})")]
+    InvalidId {
+        /// Human-readable description of the offending value.
+        detail: String,
+    },
+
+    /// More chunks than the DCF-style four-digit filename convention supports.
+    #[error("split produces {total} chunks; four-digit chunk names support at most 9999 chunks")]
+    TooManyChunks {
+        /// Number of chunks the payload would produce.
+        total: u64,
+    },
+}
+
+/// Validate a shared chunk-set UUID for ASCII metadata storage.
+///
+/// The value is written into either EXIF `ImageUniqueID` or IFD0
+/// `ImageDescription`; both are ASCII tags. Empty and non-ASCII values are
+/// rejected before any output file is created.
+pub fn validate_split_id(id: &str) -> Result<(), SplitError> {
+    if id.is_empty() {
+        return Err(SplitError::InvalidId {
+            detail: "empty string".to_owned(),
+        });
+    }
+    if !id.is_ascii() {
+        return Err(SplitError::InvalidId {
+            detail: format!("{id:?} contains non-ASCII characters"),
+        });
+    }
+    Ok(())
 }
 
 /// Validate a split-field pair; the same field cannot store both values.
@@ -322,9 +358,11 @@ pub fn chunk_bounds(
     } else {
         payload_len_u64.div_ceil(split_size)
     };
-    let total = u32::try_from(total_u64).map_err(|_| SplitError::InvalidSize {
-        text: format!("{total_u64} chunks exceed the 4-digit sequence limit"),
-    })?;
+    if total_u64 > MAX_CHUNKS {
+        return Err(SplitError::TooManyChunks { total: total_u64 });
+    }
+    let total =
+        u32::try_from(total_u64).map_err(|_| SplitError::TooManyChunks { total: total_u64 })?;
     let chunk = usize::try_from(split_size).unwrap_or(usize::MAX);
     let mut bounds = Vec::with_capacity(usize::try_from(total).unwrap_or(0));
     for seq in 1..=total {
@@ -582,6 +620,30 @@ mod tests {
             Some(("vol".to_owned(), 12, ".DNG".to_owned()))
         );
         assert!(parse_chunk_name(Path::new("out.dng")).is_none());
+    }
+
+    #[test]
+    fn validates_split_ids_for_ascii_fields() {
+        assert!(validate_split_id("0123456789abcdef0123456789abcdef").is_ok());
+        assert!(matches!(
+            validate_split_id(""),
+            Err(SplitError::InvalidId { .. })
+        ));
+        assert!(matches!(
+            validate_split_id("é"),
+            Err(SplitError::InvalidId { .. })
+        ));
+    }
+
+    #[test]
+    fn rejects_chunk_counts_beyond_four_digit_names() {
+        // 10_000 chunks at one byte each cannot round-trip through
+        // `stem0001`-style names (the parser reads exactly four digits).
+        assert!(matches!(
+            chunk_bounds(10_000, 1),
+            Err(SplitError::TooManyChunks { total: 10_000 })
+        ));
+        assert_eq!(chunk_bounds(9_999, 1).unwrap().len(), 9_999);
     }
 
     #[test]

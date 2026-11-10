@@ -3,11 +3,12 @@
 use super::{
     CameraProfile, Compression, CompressionArg, Context, EncodeArgs, ImageTime, LevelPolicy,
     MetadataRandomizer, PathBuf, PreviewSource, RawMode, RecommendOptions, RecommendedConfig,
-    Result, SizingMode, SplitIdArg, WriterOptions, bail, chunk_bounds, chunk_path, format_kb,
-    parse_size, profiles, progress_bar, recommend, risk_warnings, split_album_dir,
-    write_dng_from_file,
+    Result, Rng64, SizingMode, SplitIdArg, SplitSeqArg, WriterOptions, bail, chunk_bounds,
+    chunk_path, format_kb, parse_size, profiles, progress_bar, recommend, risk_warnings,
+    split_album_dir, validate_split_id, write_dng_from_file,
 };
 use crate::commands::{debug_file_inventory, print_write};
+use std::time::SystemTime;
 
 pub fn encode(args: &EncodeArgs) -> Result<()> {
     let _progress = progress_bar(args.progress, args.no_progress, "encoding DNG");
@@ -29,6 +30,7 @@ pub fn encode(args: &EncodeArgs) -> Result<()> {
     let payload_len = split_size.unwrap_or(input_len);
     let config = resolve_config(args, profile, subprofile, payload_len)?;
     print_auto_config(args, &config, payload_len, input_len);
+    let date_anchor = chrono::Local::now().naive_local();
 
     if let Some(split_size) = split_size {
         return encode_split(
@@ -39,12 +41,13 @@ pub fn encode(args: &EncodeArgs) -> Result<()> {
             &config,
             profile,
             image_time.as_ref(),
+            date_anchor,
             preview,
             split_size,
         );
     }
 
-    let info = write_one(
+    let outcome = write_one(
         args,
         &args.input,
         0,
@@ -53,14 +56,19 @@ pub fn encode(args: &EncodeArgs) -> Result<()> {
         &config,
         profile,
         image_time.as_ref(),
+        date_anchor,
         preview,
-        0,
         None,
         None,
+        None,
+        None,
+        input_len,
         None,
         None,
     )?;
-    print_write(&info);
+    print_write(&outcome.info);
+    print_file_lines(args, &outcome.info);
+    print_profile_meta(args, profile, &outcome.metadata);
     Ok(())
 }
 
@@ -78,7 +86,7 @@ fn resolve_image_time(source: Option<&str>, input: &std::path::Path) -> Result<O
         "input-created" => {
             let metadata = std::fs::metadata(input)
                 .with_context(|| format!("cannot read metadata for {}", input.display()))?;
-            let created = metadata.created().or_else(|_| metadata.modified())?;
+            let created = file_created_timestamp(&metadata);
             Ok(Some(image_time_from_system(created)))
         }
         text => {
@@ -99,7 +107,39 @@ fn resolve_image_time(source: Option<&str>, input: &std::path::Path) -> Result<O
     }
 }
 
-fn image_time_from_system(value: std::time::SystemTime) -> ImageTime {
+fn file_created_timestamp(metadata: &std::fs::Metadata) -> SystemTime {
+    if let Ok(created) = metadata.created() {
+        return created;
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt as _;
+        use std::time::{Duration, UNIX_EPOCH};
+        let seconds = metadata.ctime();
+        let nanos = u32::try_from(metadata.ctime_nsec()).unwrap_or(0);
+        let total = i128::from(seconds) * 1_000_000_000 + i128::from(nanos);
+        let magnitude = u64::try_from(total.unsigned_abs()).unwrap_or(u64::MAX);
+        if total >= 0 {
+            UNIX_EPOCH
+                .checked_add(Duration::from_nanos(magnitude))
+                .unwrap_or(UNIX_EPOCH)
+        } else {
+            UNIX_EPOCH
+                .checked_sub(Duration::from_nanos(magnitude))
+                .unwrap_or(UNIX_EPOCH)
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        metadata.modified().unwrap_or(std::time::UNIX_EPOCH)
+    }
+}
+
+fn random_seed() -> u64 {
+    Rng64::new(None).next_u64()
+}
+
+fn image_time_from_system(value: SystemTime) -> ImageTime {
     let local = chrono::DateTime::<chrono::Local>::from(value);
     ImageTime {
         datetime: local.naive_local(),
@@ -257,26 +297,30 @@ fn write_one(
     config: &RecommendedConfig,
     profile: &CameraProfile,
     image_time: Option<&ImageTime>,
+    date_anchor: chrono::NaiveDateTime,
     preview: PreviewSource<'_>,
-    seed_offset: u64,
+    chunk_seed: Option<u64>,
     split_id: Option<&str>,
     split_seq: Option<u32>,
     split_total: Option<u32>,
+    total_payload_bytes: u64,
+    location_seed: Option<u64>,
     shared_location: Option<&rawhide_core::Location>,
-) -> Result<rawhide_core::WriteInfo> {
-    let seed = args.seed.map(|seed| seed.wrapping_add(seed_offset));
+) -> Result<WriteOutcome> {
+    // Split chunks receive an explicit per-chunk seed. A plain encode keeps
+    // Python's behaviour: cover seed 0 unless --seed was given, while the
+    // metadata stream draws its own seed when --seed is absent.
+    let cover_seed = chunk_seed.unwrap_or_else(|| args.seed.unwrap_or(0));
     let metadata_seed = if args.no_randomize {
-        if split_seq.is_some() {
-            seed.or(Some(seed_offset))
-        } else {
-            Some(0)
-        }
+        Some(chunk_seed.unwrap_or(0))
     } else {
-        seed
+        Some(chunk_seed.unwrap_or_else(|| args.seed.unwrap_or_else(random_seed)))
     };
     let metadata = MetadataRandomizer::new(metadata_seed, Some(profile))
         .with_gps_radius(args.gps_radius)?
+        .with_date_anchor(date_anchor)
         .randomize_with_location(image_time, shared_location);
+    let (tile_width, tile_height) = profile.raw_tile_wh().unwrap_or((128, 96));
     let options = WriterOptions {
         width: config.width,
         height: config.height,
@@ -294,14 +338,15 @@ fn write_one(
         preview,
         force_bigtiff: args.bigtiff,
         frames: config.frames,
-        seed: seed.unwrap_or(seed_offset),
+        seed: cover_seed,
         split_id,
         split_seq,
         split_total,
         split_id_field: args.split_file_metadata_id.into(),
         split_seq_field: args.split_file_metadata_seq.into(),
-        tile_width: 128,
-        tile_height: 96,
+        tile_width,
+        tile_height,
+        debug_stats: args.debug_metadata_output,
     };
     let info = write_dng_from_file(output, payload_path, payload_offset, payload_len, &options)?;
     if args.debug_metadata_output {
@@ -311,11 +356,35 @@ fn write_one(
             config,
             profile,
             &metadata,
-            split_seq,
-            split_total,
+            &SidecarContext {
+                metadata_seed: metadata_seed.unwrap_or(0),
+                cover_seed,
+                total_payload_bytes,
+                location_seed,
+                image_time,
+                split_id,
+                split_seq,
+                split_total,
+            },
         )?;
     }
-    Ok(info)
+    Ok(WriteOutcome { info, metadata })
+}
+
+struct SidecarContext<'a> {
+    metadata_seed: u64,
+    cover_seed: u64,
+    total_payload_bytes: u64,
+    location_seed: Option<u64>,
+    image_time: Option<&'a ImageTime>,
+    split_id: Option<&'a str>,
+    split_seq: Option<u32>,
+    split_total: Option<u32>,
+}
+
+struct WriteOutcome {
+    info: rawhide_core::WriteInfo,
+    metadata: rawhide_core::Metadata,
 }
 
 fn write_debug_sidecar(
@@ -324,15 +393,104 @@ fn write_debug_sidecar(
     config: &RecommendedConfig,
     profile: &CameraProfile,
     metadata: &rawhide_core::Metadata,
-    split_seq: Option<u32>,
-    split_total: Option<u32>,
+    context: &SidecarContext<'_>,
 ) -> Result<()> {
     let file_inventory = debug_file_inventory(&info.path)?;
-    let document = serde_json::json!({
+    let id_field: rawhide_core::SplitIdField = args.split_file_metadata_id.into();
+    let seq_field: rawhide_core::SplitSeqField = args.split_file_metadata_seq.into();
+    let container = if info.bit_depth <= 8 {
+        "uint8"
+    } else {
+        "uint16"
+    };
+    let channels = match info.mode {
+        RawMode::Linear => 3_u64,
+        RawMode::Cfa => 1_u64,
+    };
+    let samples_per_frame = u64::try_from(info.width)
+        .unwrap_or(u64::MAX)
+        .saturating_mul(u64::try_from(info.height).unwrap_or(u64::MAX))
+        .saturating_mul(channels);
+    let fill_ratio = if info.capacity == 0 {
+        serde_json::Value::Null
+    } else {
+        serde_json::json!(fill_ratio(info.payload_len, info.capacity))
+    };
+    let frame_shape = if info.mode == RawMode::Linear {
+        serde_json::json!([info.height, info.width, 3])
+    } else {
+        serde_json::json!([info.height, info.width])
+    };
+    let frame_records = (0..usize::from(info.frames))
+        .map(|index| {
+            serde_json::json!({
+                "index": index,
+                "seed": context.cover_seed.wrapping_add(u64::try_from(index).unwrap_or(u64::MAX)),
+                "shape": frame_shape,
+                "dtype": container,
+                "crc32": info
+                    .frame_crc32s
+                    .get(index)
+                    .map_or_else(String::new, |crc| format!("{crc:08x}")),
+            })
+        })
+        .collect::<Vec<_>>();
+    let split = context.split_seq.map(|seq| {
+        serde_json::json!({
+            "chunk_seq": seq,
+            "chunk_total": context.split_total,
+            "split_id": context.split_id.unwrap_or(""),
+            "split_id_field": id_field.as_str(),
+            "split_seq_field": seq_field.as_str(),
+        })
+    });
+    let image_time = context
+        .image_time
+        .map(|time| time.datetime.format("%Y-%m-%dT%H:%M:%S").to_string());
+    let mut metadata_json = serde_json::to_value(metadata)?;
+    if let Some(fidelity) = profile.fidelity.as_ref() {
+        metadata_json["fidelity_layout"] = serde_json::json!(false);
+        let mut allow = fidelity.exif_allow.clone();
+        if info.mode != RawMode::Cfa
+            && let Some(tags) = allow.as_mut()
+        {
+            tags.retain(|tag| *tag != 41_730);
+        }
+        metadata_json["exif_allow"] = serde_json::json!(allow);
+        metadata_json["emit_serials"] = serde_json::json!(fidelity.emit_serials);
+        metadata_json["emit_lens"] = serde_json::json!(fidelity.emit_lens);
+        if info.mode == RawMode::Cfa
+            && profile
+                .cfa_pattern
+                .as_deref()
+                .is_some_and(|pattern| pattern.eq_ignore_ascii_case("BGGR"))
+        {
+            metadata_json["photo_cfa_pattern"] =
+                crate::sidecar::bytes_json(b"\x02\x00\x02\x00\x02\x01\x01\x00");
+        }
+        if let Some(makernote) = &metadata.makernote {
+            metadata_json["makernote"] = crate::sidecar::bytes_json(makernote);
+        }
+    }
+    let mut document = serde_json::json!({
         "schema": "stegodng-debug-metadata",
         "schema_version": 1,
-        "generated_at": chrono::Utc::now().to_rfc3339(),
-        "tool": {"name": "rawhide", "version": env!("CARGO_PKG_VERSION")},
+        "generated_at": chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        "tool": {
+            "name": "rawhide",
+            "version": env!("CARGO_PKG_VERSION"),
+            "target_os": std::env::consts::OS,
+            "target_arch": std::env::consts::ARCH,
+        },
+        "invocation": {
+            "input": args.input.display().to_string(),
+            "camera_profile_requested": &args.camera_profile,
+            "image_time_source": args.image_time.as_deref().unwrap_or("random"),
+            "auto_config": {
+                "preset": config.preset,
+                "auto": &config.auto,
+            },
+        },
         "summary": {
             "output": info.path.display().to_string(),
             "output_bytes": info.size,
@@ -343,10 +501,9 @@ fn write_debug_sidecar(
             "lsb_planes": info.lsb_planes,
             "frames": info.frames,
             "compression": args.compression_name(),
-            "thumbnail_source": args.thumbnail,
+            "bigtiff": info.bigtiff,
+            "thumbnail_source": &info.thumbnail_label,
             "payload_bytes": info.payload_len,
-            "chunk_seq": split_seq,
-            "chunk_total": split_total,
         },
         "encode": {
             "options": {
@@ -357,31 +514,86 @@ fn write_debug_sidecar(
                 "lsb_planes": config.lsb_planes,
                 "frames": config.frames,
                 "compression": args.compression_name(),
-                "thumbnail": args.thumbnail,
+                "thumbnail": &args.thumbnail,
                 "seed": args.seed,
                 "keyed": args.key.is_some(),
                 "no_randomize": args.no_randomize,
+                "image_time": image_time,
+                "gps_radius_km": args.gps_radius,
+                "location_seed": context.location_seed,
+                "camera_profile": &profile.slug,
+                "camera_profile_name": &profile.display_name,
+                "level_policy": LevelPolicy::from(args.level_policy).as_str(),
             },
-            "capacity": {"bytes": info.capacity},
+            "payload": {
+                "bytes": info.payload_len,
+                "total_bytes": context.total_payload_bytes,
+                "frame_bytes": info.payload_len.saturating_add(rawhide_core::PayloadFrame::HEADER_LEN),
+                "frame_crc32": info.payload_frame_crc32.map_or_else(String::new, |crc| format!("{crc:08x}")),
+            },
+            "output": {
+                "path": info.path.display().to_string(),
+                "bytes": info.size,
+                "bigtiff": info.bigtiff,
+                "container": container,
+            },
+            "capacity": {
+                "bytes": info.capacity,
+                "samples_per_frame": samples_per_frame,
+                "frames": info.frames,
+                "fill_ratio": fill_ratio,
+            },
+            "split": split,
         },
-        "profile": {
-            "slug": profile.slug,
-            "display_name": profile.display_name,
-            "make": profile.make,
-            "model": profile.model,
-            "unique_camera_model": profile.unique_camera_model,
-            "software": profile.software,
+        "profile": crate::sidecar::profile_json(profile),
+        "cover": {
+            "generator": "synthetic gradient + noise",
+            "seed": context.cover_seed,
+            "metadata_seed": context.metadata_seed,
+            "white_level": info.white_level,
+            "white_level_mode": if info.white_level.is_some() {
+                "profile-effective"
+            } else {
+                "full-container"
+            },
+            "headroom": info.headroom,
+            "frame_crc32_scope": "embedded-raw",
+            "frames": frame_records,
         },
-        "metadata": metadata,
+        "thumbnail": {
+            "requested": &args.thumbnail,
+            "source": &info.thumbnail_label,
+            "shape": [info.thumbnail_height, info.thumbnail_width, 3],
+            "dtype": "uint8",
+            "crc32": format!("{:08x}", info.thumbnail_crc32),
+        },
+        "metadata": metadata_json,
         "file": file_inventory,
     });
+    if let Some(seq) = context.split_seq {
+        document["summary"]["chunk_seq"] = serde_json::json!(seq);
+        document["summary"]["chunk_total"] = serde_json::json!(context.split_total);
+    }
     let mut path = info.path.with_extension("json");
     if path == info.path {
         path = info.path.with_extension("dng.json");
     }
-    std::fs::write(&path, serde_json::to_vec_pretty(&document)?)
-        .with_context(|| format!("cannot write {}", path.display()))?;
+    let mut bytes = serde_json::to_vec_pretty(&document)?;
+    bytes.push(b'\n');
+    if let Err(error) = std::fs::write(&path, &bytes) {
+        let _ = std::fs::remove_file(&path);
+        return Err(error).with_context(|| format!("cannot write {}", path.display()));
+    }
     Ok(())
+}
+
+fn round6(value: f64) -> f64 {
+    (value * 1_000_000.0).round() / 1_000_000.0
+}
+
+#[allow(clippy::cast_precision_loss)]
+fn fill_ratio(payload: usize, capacity: u64) -> f64 {
+    round6(payload as f64 / capacity as f64)
 }
 
 fn encode_split(
@@ -392,6 +604,7 @@ fn encode_split(
     config: &RecommendedConfig,
     profile: &CameraProfile,
     image_time: Option<&ImageTime>,
+    date_anchor: chrono::NaiveDateTime,
     preview: PreviewSource<'_>,
     split_size: u64,
 ) -> Result<()> {
@@ -399,34 +612,74 @@ fn encode_split(
         usize::try_from(payload_len).map_err(|_| anyhow::anyhow!("payload is too large"))?,
         split_size,
     )?;
+    let split_id = args
+        .split_file_id
+        .clone()
+        .unwrap_or_else(|| uuid::Uuid::new_v4().simple().to_string());
+    validate_split_id(&split_id)?;
+
+    // Python relocates the output into the album directory even when the
+    // payload fits a single chunk. Build the album before the one-chunk
+    // early return, and remove it again if encoding fails before writing.
+    let use_album = args.split_file_album || !args.no_split_file_album;
+    let (base, mut album_guard) = if use_album {
+        let album = split_album_dir(output, &args.input);
+        let created = !album.exists();
+        std::fs::create_dir_all(&album)
+            .with_context(|| format!("cannot create {}", album.display()))?;
+        let guard = if created {
+            AlbumGuard {
+                path: Some(album.clone()),
+            }
+        } else {
+            AlbumGuard::default()
+        };
+        let base = output
+            .file_name()
+            .map_or_else(|| album.clone(), |name| album.join(name));
+        (base, guard)
+    } else {
+        (output.to_path_buf(), AlbumGuard::default())
+    };
+
     if bounds.len() == 1 {
-        let info = write_one(
+        let outcome = write_one(
             args,
             payload_path,
             0,
             payload_len,
-            output,
+            &base,
             config,
             profile,
             image_time,
+            date_anchor,
             preview,
-            0,
             None,
             None,
+            None,
+            None,
+            payload_len,
             None,
             None,
         )?;
-        print_write(&info);
+        print_write(&outcome.info);
+        print_file_lines(args, &outcome.info);
+        print_profile_meta(args, profile, &outcome.metadata);
+        album_guard.disarm();
         return Ok(());
     }
 
-    let shared_location = if profile
+    let emit_gps = profile
         .fidelity
         .as_ref()
-        .is_some_and(|fidelity| fidelity.emit_gps)
-    {
-        let mut rng =
-            rawhide_core::Rng64::new(args.seed.or_else(|| args.no_randomize.then_some(0)));
+        .is_some_and(|fidelity| fidelity.emit_gps);
+    let location_seed = emit_gps.then(|| {
+        args.seed
+            .or_else(|| args.no_randomize.then_some(0))
+            .unwrap_or_else(random_seed)
+    });
+    let shared_location = if let Some(location_seed) = location_seed {
+        let mut rng = Rng64::new(Some(location_seed));
         Some(rawhide_core::geo::sample_location(
             &mut rng,
             args.gps_radius,
@@ -437,24 +690,21 @@ fn encode_split(
     } else {
         None
     };
-    let split_id = args
-        .split_file_id
-        .clone()
-        .unwrap_or_else(|| uuid::Uuid::new_v4().simple().to_string());
-    let base = if args.no_split_file_album {
-        output.to_path_buf()
-    } else {
-        let album = split_album_dir(output, &args.input);
-        std::fs::create_dir_all(&album)
-            .with_context(|| format!("cannot create {}", album.display()))?;
-        output
-            .file_name()
-            .map_or_else(|| album.clone(), |name| album.join(name))
-    };
 
+    let mut outcomes = Vec::with_capacity(bounds.len());
     for (seq, total, start, end) in bounds {
         let path = chunk_path(&base, seq);
-        let info = write_one(
+        // An unseeded split set draws a fresh chunk seed like Python, so
+        // unrelated sets (and chunks) never share cover pixels. Seeded and
+        // --no-randomize runs stay reproducible.
+        let chunk_seed = if let Some(seed) = args.seed {
+            Some(seed.wrapping_add(u64::from(seq - 1)))
+        } else if args.no_randomize {
+            Some(u64::from(seq - 1))
+        } else {
+            Some(random_seed())
+        };
+        let outcome = write_one(
             args,
             payload_path,
             u64::try_from(start).unwrap_or(u64::MAX),
@@ -463,32 +713,120 @@ fn encode_split(
             config,
             profile,
             image_time,
+            date_anchor,
             preview,
-            u64::from(seq - 1),
+            chunk_seed,
             Some(&split_id),
             Some(seq),
             Some(total),
+            payload_len,
+            location_seed,
             shared_location.as_ref(),
         )?;
+        outcomes.push((seq, total, outcome));
+    }
+    album_guard.disarm();
+    if outcomes.iter().any(|(_, _, outcome)| outcome.info.bigtiff) {
+        println!(
+            "warning: raw data exceeds classic TIFF limits; written as 64-bit BigTIFF \
+             (DNG 1.6). tifffile reads it, but some tools (e.g. exiv2) cannot parse BigTIFF."
+        );
+    }
+    for (seq, total, outcome) in &outcomes {
         println!(
             "wrote {} (chunk {seq}/{total}, {} of {})",
-            info.path.display(),
-            format_kb(info.payload_len as u64),
+            outcome.info.path.display(),
+            format_kb(outcome.info.payload_len as u64),
             format_kb(payload_len)
         );
     }
-    if args.split_file_metadata_id == SplitIdArg::None {
+    let id_none = args.split_file_metadata_id == SplitIdArg::None;
+    let seq_none = args.split_file_metadata_seq == SplitSeqArg::None;
+    if id_none && seq_none {
         println!(
-            "note: no shared chunk-set UUID written (--split-file-metadata-id none); \
-             keep the 0001-style filenames so decode can order the chunks."
+            "note: no split markers written to metadata; keep the 0001-style \
+             filenames so decode can order the chunks."
         );
     } else {
-        println!(
-            "note: chunks share {}={split_id} (set --split-file-metadata-id none to avoid it)",
-            split_id_name(args.split_file_metadata_id)
-        );
+        if id_none {
+            println!("note: no shared chunk-set UUID written (--split-file-metadata-id none)");
+        } else {
+            println!(
+                "note: chunks share {}={split_id} (links the set; use \
+                 --split-file-metadata-id none to avoid it)",
+                split_id_name(args.split_file_metadata_id)
+            );
+        }
+        if seq_none {
+            println!("note: no sequence numbers in metadata; decode orders by filename.");
+        }
+    }
+    for (_, _, outcome) in &outcomes {
+        print_file_lines(args, &outcome.info);
+    }
+    if let Some((_, _, first)) = outcomes.first() {
+        print_profile_meta(args, profile, &first.metadata);
     }
     Ok(())
+}
+
+fn print_file_lines(args: &EncodeArgs, info: &rawhide_core::WriteInfo) {
+    println!(
+        "thumbnail: {}: {}",
+        info.path.display(),
+        info.thumbnail_label
+    );
+    if args.debug_metadata_output {
+        println!("debug: {}", sidecar_path(&info.path).display());
+    }
+}
+
+fn print_profile_meta(
+    args: &EncodeArgs,
+    profile: &CameraProfile,
+    metadata: &rawhide_core::Metadata,
+) {
+    let display = if profile.display_name.is_empty() {
+        profile.model.as_str()
+    } else {
+        profile.display_name.as_str()
+    };
+    println!("profile: {} ({display})", args.camera_profile);
+    println!(
+        "meta: {} ISO{} {} S/N {}",
+        metadata.datetime, metadata.iso, metadata.lens, metadata.camera_serial
+    );
+}
+
+fn sidecar_path(path: &std::path::Path) -> PathBuf {
+    let mut sidecar = path.with_extension("json");
+    if sidecar == path {
+        sidecar = path.with_extension("dng.json");
+    }
+    sidecar
+}
+
+/// Removes an album directory created by a failed split encode.
+///
+/// Only empty directories are removed, so a partial chunk set is never
+/// deleted behind the user's back.
+#[derive(Debug, Default)]
+struct AlbumGuard {
+    path: Option<PathBuf>,
+}
+
+impl AlbumGuard {
+    fn disarm(&mut self) {
+        self.path = None;
+    }
+}
+
+impl Drop for AlbumGuard {
+    fn drop(&mut self) {
+        if let Some(path) = self.path.take() {
+            let _ = std::fs::remove_dir(path);
+        }
+    }
 }
 
 impl EncodeArgs {

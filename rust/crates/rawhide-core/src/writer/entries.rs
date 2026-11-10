@@ -108,6 +108,8 @@ pub(super) const TAG_WHITE_LEVEL: u16 = 50717;
 pub(super) const TAG_DEFAULT_SCALE: u16 = 50718;
 pub(super) const TAG_DEFAULT_CROP_ORIGIN: u16 = 50719;
 pub(super) const TAG_DEFAULT_CROP_SIZE: u16 = 50720;
+pub(super) const TAG_ACTIVE_AREA: u16 = 50829;
+pub(super) const TAG_DEFAULT_USER_CROP: u16 = 51125;
 pub(super) const TAG_COLOR_MATRIX1: u16 = 50721;
 pub(super) const TAG_COLOR_MATRIX2: u16 = 50722;
 pub(super) const TAG_BASELINE_NOISE: u16 = 50731;
@@ -779,6 +781,21 @@ pub(super) fn raw_entries(
         Entry::rationals(TAG_ANTI_ALIAS_STRENGTH, &[(100, 100)]),
         Entry::rationals(TAG_BEST_QUALITY_SCALE, &[best_quality]),
     ];
+    if mode == RawMode::Cfa && (crop_size.0 != width || crop_size.1 != height) {
+        entries.push(Entry::longs(
+            TAG_ACTIVE_AREA,
+            &[
+                0,
+                0,
+                u32::try_from(height).unwrap_or(u32::MAX),
+                u32::try_from(width).unwrap_or(u32::MAX),
+            ],
+        ));
+        entries.push(Entry::rationals(
+            TAG_DEFAULT_USER_CROP,
+            &[(0, 1), (0, 1), (1, 1), (1, 1)],
+        ));
+    }
     if let Some(opcode2) = opcode2 {
         entries.push(Entry::bytes(
             TAG_OPCODE_LIST2,

@@ -19,6 +19,7 @@
 ```bash
 just test          # cargo nextest run --workspace --all-features
 just test-doc      # cargo test --workspace --doc --all-features
+just cross-decode  # Python ↔ Rust encode/decode matrix (needs the oracle deps)
 just lint          # clippy -D warnings
 just coverage      # cargo llvm-cov nextest --lcov --output-path lcov.info
 just coverage-html # target/llvm-cov/html/index.html
@@ -106,6 +107,10 @@ match the embedded `assets/profiles/<slug>/profile.json`; `--image-time` must
 appear verbatim in `DateTimeOriginal` and `DateTime`.
 
 ## Cross-decode matrix
+
+`just cross-decode` (also the `cross-decode` CI job) automates the core
+both-directions checks for linear, CFA, multi-frame and split output. Run the
+full matrix below when touching the writer or reader:
 
 Run for every depth (8/10/12/14/16), mode (`linear`/`cfa`), planes (1, 2, 4, 8,
 16), frames (1, 2, 8), compression (`none`, `adobe_deflate` where legal), key

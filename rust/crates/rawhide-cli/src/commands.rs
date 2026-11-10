@@ -19,7 +19,10 @@ pub fn gen_tiff(args: &GenTiffArgs) -> Result<()> {
 
 pub fn print_write(info: &rawhide_core::WriteInfo) {
     if info.bigtiff {
-        println!("warning: wrote BigTIFF (64-bit offsets); some tools cannot parse it.");
+        println!(
+            "warning: raw data exceeds classic TIFF limits; written as 64-bit BigTIFF \
+             (DNG 1.6). tifffile reads it, but some tools (e.g. exiv2) cannot parse BigTIFF."
+        );
     }
     println!("wrote {} ({})", info.path.display(), format_kb(info.size));
     println!(
@@ -30,60 +33,7 @@ pub fn print_write(info: &rawhide_core::WriteInfo) {
 }
 
 pub fn debug_file_inventory(path: &std::path::Path) -> Result<serde_json::Value> {
-    let reader = rawhide_core::DngReader::open(path)?;
-    let mut ifds = vec![ifd_inventory("ifd0", reader.ifd0()?)];
-    for (index, ifd) in reader.raw_ifds()?.iter().enumerate() {
-        ifds.push(ifd_inventory(&format!("raw{index}"), ifd));
-    }
-    if let Some(exif) = reader.exif_ifd()? {
-        ifds.push(ifd_inventory("exif", &exif));
-    }
-    if let Some(gps) = reader.gps_ifd()? {
-        ifds.push(ifd_inventory("gps", &gps));
-    }
-    Ok(serde_json::json!({
-        "bytes": std::fs::metadata(path)?.len(),
-        "ifds": ifds,
-    }))
-}
-
-fn ifd_inventory(name: &str, ifd: &tiff_reader::Ifd) -> serde_json::Value {
-    let tags: Vec<_> = ifd.tags().iter().map(tag_inventory).collect();
-    serde_json::json!({"name": name, "tag_count": tags.len(), "tags": tags})
-}
-
-fn tag_inventory(tag: &tiff_reader::Tag) -> serde_json::Value {
-    let value = if tag.count as usize <= 64 {
-        match &tag.value {
-            tiff_reader::TagValue::Ascii(text) => serde_json::Value::String(text.clone()),
-            tiff_reader::TagValue::Byte(values) | tiff_reader::TagValue::Undefined(values) => {
-                serde_json::json!(values)
-            }
-            tiff_reader::TagValue::Short(values) => serde_json::json!(values),
-            tiff_reader::TagValue::Long(values) => serde_json::json!(values),
-            tiff_reader::TagValue::Rational(values) => serde_json::json!(values),
-            tiff_reader::TagValue::SByte(values) => serde_json::json!(values),
-            tiff_reader::TagValue::SShort(values) => serde_json::json!(values),
-            tiff_reader::TagValue::SLong(values) => serde_json::json!(values),
-            tiff_reader::TagValue::SRational(values) => serde_json::json!(values),
-            tiff_reader::TagValue::Float(values) => serde_json::json!(values),
-            tiff_reader::TagValue::Double(values) => serde_json::json!(values),
-            tiff_reader::TagValue::Long8(values) => serde_json::json!(values),
-            tiff_reader::TagValue::SLong8(values) => serde_json::json!(values),
-        }
-    } else {
-        let encoded = tag.value.encode(tiff_reader::ByteOrder::LittleEndian);
-        serde_json::json!({
-            "bytes": tag.value.encoded_len(),
-            "crc32": format!("{:08x}", crc32fast::hash(&encoded)),
-        })
-    };
-    serde_json::json!({
-        "tag": tag.code,
-        "type": format!("{:?}", tag.tag_type),
-        "count": tag.count,
-        "value": value,
-    })
+    crate::sidecar::file_inventory(path)
 }
 
 pub fn decode(args: &DecodeArgs) -> Result<()> {

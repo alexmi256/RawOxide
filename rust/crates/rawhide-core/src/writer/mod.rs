@@ -13,8 +13,8 @@ use crate::codec::{capacity_bytes_total, format_kb_hi, format_kb_lo};
 use crate::error::CodecError;
 use crate::metadata::Metadata;
 use crate::profile::{CameraProfile, LevelPolicy};
-use crate::split::{SplitIdField, SplitSeqField, validate_fields};
-use crate::thumbnail::{PreviewSource, ThumbnailError, rgb as thumbnail_rgb};
+use crate::split::{SplitIdField, SplitSeqField, validate_fields, validate_split_id};
+use crate::thumbnail::{PreviewSource, ThumbnailError, rgb_with_label as thumbnail_rgb_with_label};
 use crate::tiff::{Entry, IfdBuilder, TagType};
 
 mod cover;
@@ -23,7 +23,7 @@ mod entries;
 mod payload;
 
 use self::cover::CoverGenerator;
-use self::encode::{embed_band, encode_tile_band, tile_row_bytes};
+use self::encode::{embed_band, encode_tile_band, tile_row_bytes, update_frame_crc};
 use self::entries::{
     TAG_NEW_RAW_IMAGE_DIGEST, TAG_RAW_DATA_UNIQUE_ID, build_ifd, crop_rect, gps_entries,
     metadata_entries, preview_entries, raw_entries, select_bigtiff, split_entries,
@@ -114,6 +114,8 @@ pub struct WriterOptions<'a> {
     pub tile_width: usize,
     /// Tile height for the raw page.
     pub tile_height: usize,
+    /// Collect sidecar statistics (per-frame and framed-payload CRCs).
+    pub debug_stats: bool,
 }
 
 impl Default for WriterOptions<'_> {
@@ -140,6 +142,7 @@ impl Default for WriterOptions<'_> {
             split_seq_field: SplitSeqField::default(),
             tile_width: 128,
             tile_height: 96,
+            debug_stats: false,
         }
     }
 }
@@ -289,6 +292,25 @@ pub struct WriteInfo {
     pub frames: u8,
     /// Whether the output is `BigTIFF`.
     pub bigtiff: bool,
+    /// Resolved preview source label.
+    pub thumbnail_label: String,
+    /// Preview width in pixels.
+    pub thumbnail_width: usize,
+    /// Preview height in pixels.
+    pub thumbnail_height: usize,
+    /// CRC32 of the prepared RGB8 preview pixels.
+    pub thumbnail_crc32: u32,
+    /// CRC32 of each embedded raw frame (after LSB embedding), when debug
+    /// statistics were requested.
+    pub frame_crc32s: Vec<u32>,
+    /// CRC32 of the framed payload (header + body, masked when keyed), when
+    /// debug statistics were requested.
+    pub payload_frame_crc32: Option<u32>,
+    /// Effective white level used for the cover, when a fidelity profile
+    /// declares one.
+    pub white_level: Option<u32>,
+    /// Cover headroom reserved above the payload bits.
+    pub headroom: u32,
 }
 
 /// Raw tile compression.
@@ -387,6 +409,7 @@ fn write_dng_with(
         split_seq_field,
         tile_width,
         tile_height,
+        debug_stats,
     } = *options;
 
     if width == 0 || height == 0 {
@@ -427,6 +450,9 @@ fn write_dng_with(
     }
 
     let has_split = split_id.is_some() || split_seq.is_some();
+    if let Some(id) = split_id {
+        validate_split_id(id)?;
+    }
     if has_split {
         validate_fields(split_id_field, split_seq_field)?;
         if split_id_field.is_active() && split_id.is_none() {
@@ -491,12 +517,14 @@ fn write_dng_with(
         }
     });
     let (preview_width, preview_height) = preview_size(profile, width, height);
-    let preview_rgb = thumbnail_rgb(
+    let thumbnail = thumbnail_rgb_with_label(
         preview,
         u32::try_from(preview_width).unwrap_or(u32::MAX),
         u32::try_from(preview_height).unwrap_or(u32::MAX),
         Some(seed),
     )?;
+    let thumbnail_crc32 = crc32fast::hash(&thumbnail.pixels);
+    let preview_rgb = thumbnail.pixels;
     let preview = encode_jpeg(&preview_rgb, preview_width, preview_height)?;
     let bytes_per_sample = if bit_depth <= 8 { 1_u64 } else { 2 };
     let uncompressed_bytes = u64::try_from(sample_count)
@@ -513,7 +541,7 @@ fn write_dng_with(
         .checked_add(u64::try_from(preview.len()).map_err(|_| WriteError::TooLarge)?)
         .ok_or(WriteError::TooLarge)?;
 
-    let mut frame = PayloadBitReader::new(source, key)?;
+    let mut frame = PayloadBitReader::new(source, key, debug_stats)?;
     let tile_row_bytes = tile_row_bytes(tile_width, channels, bit_depth)?;
     let across = width.div_ceil(tile_width);
     let down = height.div_ceil(tile_height);
@@ -534,6 +562,7 @@ fn write_dng_with(
         });
     let mut raw_digests = None;
     let mut frame_tiles: Vec<(Vec<u64>, Vec<u64>)> = Vec::with_capacity(usize::from(frames));
+    let mut frame_crc32s = Vec::with_capacity(usize::from(frames));
 
     let output_path = path.as_ref();
     let file_name = output_path
@@ -579,6 +608,7 @@ fn write_dng_with(
             headroom,
         );
         let mut band = Vec::new();
+        let mut frame_crc = debug_stats.then(crc32fast::Hasher::new);
         for tile_y in 0..down {
             let y_start = tile_y * tile_height;
             let rows = (height - y_start).min(tile_height);
@@ -595,6 +625,9 @@ fn write_dng_with(
                 &mut frame,
                 u64::try_from(frame_index).unwrap_or(u64::MAX),
             )?;
+            if let Some(hasher) = &mut frame_crc {
+                update_frame_crc(hasher, &band, bit_depth);
+            }
             if let Some(hasher) = &mut digest_hasher {
                 hasher.update_band(y_start, rows, &band);
             }
@@ -643,7 +676,11 @@ fn write_dng_with(
             raw_digests = Some((digest, unique));
         }
         frame_tiles.push((tile_offsets, tile_byte_counts));
+        if let Some(hasher) = frame_crc {
+            frame_crc32s.push(hasher.finalize());
+        }
     }
+    let payload_frame_crc32 = frame.frame_crc32();
     frame.finish()?;
     let ifd0_offset = raw_cursor;
 
@@ -864,6 +901,14 @@ fn write_dng_with(
         lsb_planes,
         frames,
         bigtiff: big,
+        thumbnail_label: thumbnail.label,
+        thumbnail_width: preview_width,
+        thumbnail_height: preview_height,
+        thumbnail_crc32,
+        frame_crc32s,
+        payload_frame_crc32,
+        white_level: cover_white,
+        headroom,
     })
 }
 

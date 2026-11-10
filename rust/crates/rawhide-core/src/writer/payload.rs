@@ -125,12 +125,14 @@ pub(super) struct PayloadBitReader<'a> {
     next_index: u64,
     expected_crc: u32,
     hasher: Option<crc32fast::Hasher>,
+    frame_hasher: Option<crc32fast::Hasher>,
 }
 
 impl<'a> PayloadBitReader<'a> {
     pub(super) fn new(
         source: &'a mut dyn PayloadSource,
         key: Option<&'a [u8]>,
+        collect_frame_crc: bool,
     ) -> Result<Self, WriteError> {
         let payload_len = source.len();
         let verify = !source.is_stable();
@@ -151,6 +153,7 @@ impl<'a> PayloadBitReader<'a> {
             next_index: 0,
             expected_crc: crc,
             hasher: verify.then(crc32fast::Hasher::new),
+            frame_hasher: collect_frame_crc.then(crc32fast::Hasher::new),
         })
     }
 
@@ -175,6 +178,14 @@ impl<'a> PayloadBitReader<'a> {
         }
         let byte = self.buffer[usize::try_from(byte_index - self.buffer_start).unwrap_or(0)];
         Ok(Some((byte >> (7 - (index & 7))) & 1))
+    }
+
+    /// CRC32 of the framed bytes read so far (header + masked body), when
+    /// collection was requested.
+    pub(super) fn frame_crc32(&self) -> Option<u32> {
+        self.frame_hasher
+            .as_ref()
+            .map(|hasher| hasher.clone().finalize())
     }
 
     /// Verify that a changing file still matches the CRC embedded in the header.
@@ -228,6 +239,9 @@ impl<'a> PayloadBitReader<'a> {
                 }
             }
         }
+        if let Some(hasher) = &mut self.frame_hasher {
+            hasher.update(&self.buffer[..len]);
+        }
         self.buffer_start = start;
         Ok(())
     }
@@ -252,7 +266,7 @@ mod tests {
         for key in [None, Some(&b"stream-key"[..])] {
             let packed = PayloadFrame::pack(&payload, key);
             let mut source = SliceSource { data: &payload };
-            let mut reader = PayloadBitReader::new(&mut source, key).unwrap();
+            let mut reader = PayloadBitReader::new(&mut source, key, false).unwrap();
             assert_eq!(reader.total_bits, u64::try_from(packed.len() * 8).unwrap());
             for index in 0..packed.len() * 8 {
                 let byte = packed[index / 8];
@@ -292,7 +306,7 @@ mod tests {
         for key in [None, Some(&b"file-stream-key"[..])] {
             let packed = PayloadFrame::pack(&payload, key);
             let mut source = FileSource::open(&path, 0, payload.len() as u64).unwrap();
-            let mut reader = PayloadBitReader::new(&mut source, key).unwrap();
+            let mut reader = PayloadBitReader::new(&mut source, key, false).unwrap();
             for index in 0..packed.len() * 8 {
                 let byte = packed[index / 8];
                 let expected = (byte >> (7 - (index % 8))) & 1;
@@ -309,7 +323,7 @@ mod tests {
         let path = dir.path().join("payload.bin");
         std::fs::write(&path, b"stable payload bytes").unwrap();
         let mut source = FileSource::open(&path, 0, 20).unwrap();
-        let mut reader = PayloadBitReader::new(&mut source, None).unwrap();
+        let mut reader = PayloadBitReader::new(&mut source, None, false).unwrap();
 
         std::fs::write(&path, b"changed payload byte").unwrap();
         while reader.next_bit().unwrap().is_some() {}

@@ -1069,20 +1069,31 @@ fn encode_writes_debug_metadata_sidecar() {
     assert_eq!(value["summary"]["height"], 48);
     assert!(value["metadata"]["datetime"].as_str().is_some());
     assert!(value["profile"]["slug"].as_str().is_some());
-    let ifds = value["file"]["ifds"].as_array().unwrap();
-    assert_ne!(ifds.len(), 0);
-    assert_eq!(ifds[0]["name"], "ifd0");
-    assert!(
-        ifds[0]["tags"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .any(|tag| tag["tag"] == 256)
+    let ifd0 = value["file"]["ifd0"].as_array().unwrap();
+    assert!(ifd0.iter().any(|tag| tag["tag"] == 256));
+    assert_eq!(when_name(ifd0, 254).as_deref(), Some("NewSubfileType"));
+    let sub_ifds = ifd0.iter().find(|tag| tag["tag"] == 330).expect("SubIFDs");
+    assert_eq!(sub_ifds["type"], "IFD");
+    assert!(sub_ifds["value"].is_u64());
+    assert!(value["file"]["subifds"].as_array().is_some());
+    assert_eq!(
+        value["cover"]["frames"][0]["shape"],
+        serde_json::json!([48, 64, 3])
     );
-    assert!(
-        ifds.iter()
-            .any(|ifd| ifd["name"].as_str().unwrap_or("").starts_with("raw"))
-    );
+    assert_eq!(value["metadata"]["lens_spec"].as_array().unwrap().len(), 8);
+    assert!(value["profile"]["iso_choices"].is_null());
+    assert!(value["profile"]["lenses"].is_null());
+    assert!(value["profile"]["dng_version"]["crc32"].as_str().is_some());
+    assert_eq!(value["profile"]["dng_version"]["bytes"], 4);
+    assert!(value["cover"]["frames"][0]["crc32"].as_str().is_some());
+    assert!(value["encode"]["payload"]["frame_crc32"].as_str().is_some());
+    assert!(value["thumbnail"]["crc32"].as_str().is_some());
+}
+
+fn when_name(tags: &[serde_json::Value], code: u16) -> Option<String> {
+    tags.iter()
+        .find(|tag| tag["tag"] == code)
+        .and_then(|tag| tag["name"].as_str().map(str::to_owned))
 }
 
 #[test]
@@ -1108,7 +1119,12 @@ fn split_set_writes_one_debug_sidecar_per_chunk() {
         "--seed",
         "3",
     ]);
-    encode.assert().success();
+    encode.assert().success().stdout(
+        predicate::str::contains("thumbnail: ")
+            .and(predicate::str::contains("debug: "))
+            .and(predicate::str::contains("profile: gfx_100"))
+            .and(predicate::str::contains("meta: ")),
+    );
 
     let album = dir.path().join("payload_5000");
     let mut seqs = Vec::new();
@@ -1369,19 +1385,59 @@ fn debug_sidecar_inventory_covers_gps_exif_and_large_blobs() {
         let sidecar: serde_json::Value =
             serde_json::from_slice(&std::fs::read(encoded.with_extension("json")).unwrap())
                 .unwrap();
-        let names: Vec<_> = sidecar["file"]["ifds"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|ifd| ifd["name"].as_str().unwrap().to_owned())
-            .collect();
-        assert!(names.contains(&"ifd0".to_owned()), "{names:?}");
-        assert!(
-            names.iter().any(|name| name.starts_with("raw")),
-            "{names:?}"
+        assert_ne!(sidecar["file"]["ifd0"].as_array().unwrap().len(), 0);
+        assert_ne!(sidecar["file"]["subifds"].as_array().unwrap().len(), 0);
+        assert!(sidecar["file"]["exif"].as_array().is_some());
+        assert!(sidecar["file"]["gps"].as_array().is_some());
+        assert!(sidecar["file"]["preview_jpeg"]["crc32"].as_str().is_some());
+
+        let ifd0 = sidecar["file"]["ifd0"].as_array().unwrap();
+        let sub_ifds = ifd0.iter().find(|tag| tag["tag"] == 330).expect("SubIFDs");
+        assert_eq!(sub_ifds["type"], if bigtiff { "IFD8" } else { "LONG" });
+        assert!(sub_ifds["value"].is_u64());
+
+        let raw_tags = sidecar["file"]["subifds"][0].as_array().unwrap();
+        assert_eq!(
+            raw_tags
+                .iter()
+                .find(|tag| tag["tag"] == 322)
+                .expect("TileWidth")["value"],
+            256
         );
-        assert!(names.contains(&"exif".to_owned()), "{names:?}");
-        assert!(names.contains(&"gps".to_owned()), "{names:?}");
+        assert_eq!(
+            raw_tags
+                .iter()
+                .find(|tag| tag["tag"] == 323)
+                .expect("TileLength")["value"],
+            256
+        );
+        assert!(raw_tags.iter().any(|tag| tag["tag"] == 50829));
+        assert!(raw_tags.iter().any(|tag| tag["tag"] == 51125));
+        assert!(
+            raw_tags
+                .iter()
+                .any(|tag| tag["tag"] == 50780 && tag["name"] == "BestQualityScale")
+        );
+        let digest = ifd0
+            .iter()
+            .find(|tag| tag["tag"] == 51111)
+            .expect("NewRawImageDigest");
+        assert_eq!(digest["value"].as_str().unwrap().len(), 32);
+
+        assert_eq!(
+            sidecar["cover"]["frames"][0]["shape"],
+            serde_json::json!([96, 128])
+        );
+        assert_eq!(sidecar["metadata"]["fidelity_layout"], false);
+        assert_eq!(sidecar["metadata"]["emit_lens"], false);
+        assert_eq!(sidecar["metadata"]["emit_serials"], false);
+        assert!(sidecar["metadata"]["exif_allow"].is_array());
+        assert_eq!(sidecar["metadata"]["photo_cfa_pattern"]["bytes"], 8);
+        assert!(sidecar["metadata"]["makernote"]["bytes"].as_u64().is_some());
+        assert_eq!(
+            sidecar["metadata"]["lens_spec"].as_array().unwrap().len(),
+            8
+        );
     }
 
     let encoded = dir.path().join("xmp.dng");
@@ -1401,8 +1457,213 @@ fn debug_sidecar_inventory_covers_gps_exif_and_large_blobs() {
     encode.assert().success();
     let sidecar: serde_json::Value =
         serde_json::from_slice(&std::fs::read(encoded.with_extension("json")).unwrap()).unwrap();
-    let tags = sidecar["file"]["ifds"][0]["tags"].as_array().unwrap();
+    let tags = sidecar["file"]["ifd0"].as_array().unwrap();
     let xmp = tags.iter().find(|tag| tag["tag"] == 700).expect("XMP tag");
     assert_eq!(xmp["value"]["bytes"], 12_288);
     assert!(xmp["value"]["crc32"].as_str().is_some());
+}
+
+#[test]
+fn encode_reports_thumbnail_profile_and_meta_lines() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("lines.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--seed",
+        "3",
+        "--thumbnail",
+        "synthetic",
+        "--debug-metadata-output",
+    ]);
+    encode.assert().success().stdout(
+        predicate::str::contains("thumbnail: ")
+            .and(predicate::str::contains(": synthetic-gradient"))
+            .and(predicate::str::contains(
+                "profile: gfx_100 (Fujifilm GFX 100)",
+            ))
+            .and(predicate::str::contains("meta: "))
+            .and(predicate::str::contains("debug: ")),
+    );
+}
+
+#[test]
+fn split_album_accepts_positive_flag_and_single_chunk() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("single.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--seed",
+        "5",
+        "--thumbnail",
+        "synthetic",
+        "--split-file",
+        "20k",
+        "--split-file-album",
+    ]);
+    encode.assert().success().stdout(
+        predicate::str::contains("thumbnail: ")
+            .and(predicate::str::contains("profile: gfx_100"))
+            .and(predicate::str::contains("meta: ")),
+    );
+    assert!(dir.path().join("payload_1000").join("single.dng").is_file());
+    assert!(!encoded.exists());
+}
+
+#[test]
+fn split_rejects_non_ascii_id_without_leaving_album() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("vol.dng");
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--seed",
+        "5",
+        "--thumbnail",
+        "synthetic",
+        "--split-file",
+        "3000",
+        "--split-file-id",
+        "é",
+    ]);
+    encode
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("non-empty ASCII"));
+    assert!(!dir.path().join("payload_5000").exists());
+}
+
+#[test]
+fn split_failure_removes_created_album() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("out.dng");
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "128",
+        "--height",
+        "96",
+        "--seed",
+        "5",
+        // A real file that is not an image: the config succeeds, the album
+        // is created, and the failure happens inside the first write.
+        "--thumbnail",
+        payload_path.to_str().unwrap(),
+        "--split-file",
+        "3000",
+    ]);
+    encode
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("cannot decode thumbnail"));
+    assert!(!dir.path().join("payload_5000").exists());
+}
+
+#[test]
+fn debug_sidecar_records_drawn_metadata_seed() {
+    let dir = tempfile::tempdir().unwrap();
+    let encoded = dir.path().join("unseeded.dng");
+    let payload_path = fixtures().join("payloads").join("payload_1000.bin");
+
+    let mut encode = cargo_bin_cmd!("rawhide");
+    encode.args([
+        "encode",
+        "-i",
+        payload_path.to_str().unwrap(),
+        "-o",
+        encoded.to_str().unwrap(),
+        "--width",
+        "64",
+        "--height",
+        "48",
+        "--thumbnail",
+        "synthetic",
+        "--debug-metadata-output",
+    ]);
+    encode.assert().success();
+    let sidecar: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(encoded.with_extension("json")).unwrap()).unwrap();
+    assert!(sidecar["encode"]["options"]["seed"].is_null());
+    assert_eq!(sidecar["cover"]["seed"], 0);
+    assert!(sidecar["cover"]["metadata_seed"].as_u64().is_some());
+}
+
+#[test]
+fn unseeded_split_chunks_draw_fresh_seeds() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload_path = fixtures().join("payloads").join("payload_5000.bin");
+    let mut seeds = Vec::new();
+
+    for name in ["a", "b"] {
+        let encoded = dir.path().join(name).join("vol.dng");
+        std::fs::create_dir_all(encoded.parent().unwrap()).unwrap();
+        let mut encode = cargo_bin_cmd!("rawhide");
+        encode.args([
+            "encode",
+            "-i",
+            payload_path.to_str().unwrap(),
+            "-o",
+            encoded.to_str().unwrap(),
+            "--width",
+            "128",
+            "--height",
+            "96",
+            "--thumbnail",
+            "synthetic",
+            "--split-file",
+            "3000",
+            "--debug-metadata-output",
+        ]);
+        encode.assert().success();
+        let chunk = encoded
+            .parent()
+            .unwrap()
+            .join("payload_5000")
+            .join("vol0001.dng");
+        let sidecar: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(chunk.with_extension("json")).unwrap()).unwrap();
+        seeds.push((
+            sidecar["cover"]["seed"].as_u64().unwrap(),
+            sidecar["cover"]["metadata_seed"].as_u64().unwrap(),
+        ));
+    }
+    assert_ne!(seeds[0], seeds[1]);
 }

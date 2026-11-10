@@ -81,6 +81,11 @@ fixtures:
 oracle:
     ../RawHide/.venv/bin/python -m pytest ../RawHide/tests -q
 
+# Encode with one implementation and decode with the other.
+cross-decode:
+    cargo build -p rawhide-cli
+    ./scripts/cross_decode.sh
+
 run:
     cargo run -p rawhide-cli --
 

@@ -78,6 +78,9 @@ fn fidelity_overlay_is_parsed() {
     assert_eq!(fidelity.max_planes, Some(16));
     assert_eq!(fidelity.level_policy, "capacity");
     assert_eq!(fidelity.tile, Some((256, 256)));
+    let mut swapped = profile.clone();
+    swapped.fidelity.as_mut().unwrap().tile = Some((96, 128));
+    assert_eq!(swapped.raw_tile_wh(), Some((128, 96)));
     assert_eq!(fidelity.black_levels.as_ref().unwrap().len(), 4);
     assert_eq!(profile.effective_max_planes(16, "profile"), 16);
     assert_eq!(profile.effective_white(16, "profile"), 65_535);

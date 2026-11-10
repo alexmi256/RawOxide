@@ -8,6 +8,25 @@ semantic versioning.
 
 ### Added
 
+- Split-set fixes: single-chunk `--split-file` runs now honour the album
+  layout, unseeded split chunks draw fresh per-chunk cover/metadata seeds, the
+  shared UUID is validated as non-empty ASCII, chunk counts above the DCF
+  4-digit limit (9999) are rejected, and a failed encode removes an album
+  directory it created when it is still empty.
+- `--split-file-album` positive flag (in addition to
+  `--no-split-file-album`).
+- Profile fidelity `raw.tile` now sets the writer tile geometry, and cropped
+  CFA profiles emit `ActiveArea` (50829) and `DefaultUserCrop` (51125).
+- Debug sidecar now follows the Python `stegodng.debugmeta` shape: summary,
+  invocation, encode options/payload/output/capacity/split, cover and thumbnail
+  records, full profile snapshot, resolved thumbnail label + CRC, per-frame
+  embedded-raw CRCs, framed-payload CRC and a named IFD/preview-JPEG inventory.
+  The drawn metadata/cover seeds are recorded even when `--seed` is omitted.
+- `rawhide encode` now prints the Python-style `thumbnail:`, `debug:`,
+  `profile:` and `meta:` lines, the split no-marker/sequence notes, and BigTIFF
+  warnings for split sets.
+- `just cross-decode` and a CI job that encode with one implementation and
+  decode with the other for linear, CFA, multi-frame and split output.
 - Cargo workspace with `rawhide-core` and `rawhide-cli`.
 - Payload framing (`DNGS` magic, version/flags, u64 length, CRC32, optional
   SHA-256 counter keystream) with golden vectors from the Python implementation.
@@ -118,6 +137,14 @@ semantic versioning.
 
 ### Changed
 
+- `--image-time input-created` now falls back to Unix `ctime` (as documented
+  and as Python does) instead of `mtime` on filesystems without birth time.
+- Fidelity rolling date windows use one anchor per encode run, so split chunks
+  share a window and seeded metadata no longer shifts across a second boundary.
+- `WriteInfo` now reports the resolved thumbnail label/shape/CRC, per-frame
+  embedded-raw CRCs, the framed-payload CRC, and the effective cover white
+  level/headroom for sidecar consumers. The CRC collection is gated by
+  `WriterOptions::debug_stats` so normal encodes do not pay for it.
 - Internal structure: `writer`, `profile` and the CLI are split into focused
   modules (cover/encode/entries, model/parse, args/commands). The writer reuses
   one band buffer across tiles and precomputes synthetic-cover column terms, and

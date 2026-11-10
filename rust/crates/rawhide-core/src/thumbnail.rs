@@ -71,6 +71,15 @@ pub enum ThumbnailError {
     TooLarge,
 }
 
+/// Prepared preview pixels plus the human-readable source label.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ThumbnailImage {
+    /// Interleaved RGB8 pixels, `width * height * 3` bytes.
+    pub pixels: Vec<u8>,
+    /// Resolved source label (`synthetic-gradient`, `commons:<file>`, ...).
+    pub label: String,
+}
+
 /// Prepare RGB8 pixels for the preview.
 ///
 /// # Errors
@@ -84,21 +93,41 @@ pub fn rgb(
     height: u32,
     seed: Option<u64>,
 ) -> Result<Vec<u8>, ThumbnailError> {
+    rgb_with_label(source, width, height, seed).map(|image| image.pixels)
+}
+
+/// Prepare preview pixels and report the resolved source label.
+///
+/// # Errors
+///
+/// See [`rgb`].
+pub fn rgb_with_label(
+    source: PreviewSource<'_>,
+    width: u32,
+    height: u32,
+    seed: Option<u64>,
+) -> Result<ThumbnailImage, ThumbnailError> {
     if width == 0 || height == 0 {
         return Err(ThumbnailError::InvalidGeometry { width, height });
     }
     match source {
-        PreviewSource::Synthetic => synthetic_rgb(
-            usize::try_from(width).unwrap_or(usize::MAX),
-            usize::try_from(height).unwrap_or(usize::MAX),
-            seed,
-        )
-        .ok_or(ThumbnailError::TooLarge),
+        PreviewSource::Synthetic => {
+            let pixels = synthetic_rgb(
+                usize::try_from(width).unwrap_or(usize::MAX),
+                usize::try_from(height).unwrap_or(usize::MAX),
+                seed,
+            )
+            .ok_or(ThumbnailError::TooLarge)?;
+            Ok(ThumbnailImage {
+                pixels,
+                label: "synthetic-gradient".to_owned(),
+            })
+        }
         PreviewSource::Random => {
             let agent = ureq::AgentBuilder::new()
                 .timeout(Duration::from_secs(10))
                 .build();
-            random_rgb(width, height, seed, |target_width| {
+            random_rgb_with_label(width, height, seed, |target_width| {
                 fetch_commons(&agent, target_width)
             })
         }
@@ -108,28 +137,37 @@ pub fn rgb(
                 path: label.clone(),
                 source,
             })?;
-            prepare_bytes(&data, &label, width, height)
+            Ok(ThumbnailImage {
+                pixels: prepare_bytes(&data, &label, width, height)?,
+                label: format!("file:{label}"),
+            })
         }
     }
 }
 
-fn random_rgb<F>(
+fn random_rgb_with_label<F>(
     width: u32,
     height: u32,
     seed: Option<u64>,
     mut fetch: F,
-) -> Result<Vec<u8>, ThumbnailError>
+) -> Result<ThumbnailImage, ThumbnailError>
 where
-    F: FnMut(u32) -> Result<Vec<u8>, ThumbnailError>,
+    F: FnMut(u32) -> Result<(Vec<u8>, String), ThumbnailError>,
 {
     for _ in 0..3 {
-        if let Ok(data) = fetch(width)
-            && let Ok(pixels) = prepare_bytes(&data, "commons", width, height)
+        if let Ok((data, source)) = fetch(width)
+            && let Ok(pixels) = prepare_bytes(&data, &source, width, height)
         {
-            return Ok(pixels);
+            return Ok(ThumbnailImage {
+                pixels,
+                label: format!("commons:{source}"),
+            });
         }
     }
-    noise_rgb(width, height, seed)
+    Ok(ThumbnailImage {
+        pixels: noise_rgb(width, height, seed)?,
+        label: "synthetic-noise-fallback".to_owned(),
+    })
 }
 
 /// Deterministic offline noise preview.
@@ -151,7 +189,7 @@ pub fn noise_rgb(width: u32, height: u32, seed: Option<u64>) -> Result<Vec<u8>, 
     Ok(pixels)
 }
 
-fn fetch_commons(agent: &ureq::Agent, width: u32) -> Result<Vec<u8>, ThumbnailError> {
+fn fetch_commons(agent: &ureq::Agent, width: u32) -> Result<(Vec<u8>, String), ThumbnailError> {
     let response = agent
         .get(RANDOM_URL)
         .set("User-Agent", USER_AGENT)
@@ -178,7 +216,7 @@ fn fetch_commons(agent: &ureq::Agent, width: u32) -> Result<Vec<u8>, ThumbnailEr
     if data.len() < 1024 {
         return Err(ThumbnailError::Network("empty download".to_owned()));
     }
-    Ok(data)
+    Ok((data, filename))
 }
 
 fn parse_commons_target(final_url: &str) -> Result<String, ThumbnailError> {
@@ -276,8 +314,15 @@ mod tests {
                 image::ImageFormat::Png,
             )
             .unwrap();
-        let pixels = random_rgb(8, 6, None, |_| Ok(bytes.clone())).unwrap();
+        let pixels = random_rgb_with_label(8, 6, None, |_| Ok((bytes.clone(), "test".to_owned())))
+            .unwrap()
+            .pixels;
         assert_eq!(pixels, prepare_bytes(&bytes, "test", 8, 6).unwrap());
+        let labeled =
+            random_rgb_with_label(8, 6, None, |_| Ok((bytes.clone(), "Photo.JPG".to_owned())))
+                .unwrap();
+        assert_eq!(labeled.label, "commons:Photo.JPG");
+        assert_eq!(labeled.pixels, pixels);
     }
 
     #[test]
@@ -312,13 +357,14 @@ mod tests {
     #[test]
     fn random_retries_three_times_then_falls_back() {
         let mut attempts = 0;
-        let pixels = random_rgb(8, 6, Some(3), |_| {
+        let pixels = random_rgb_with_label(8, 6, Some(3), |_| {
             attempts += 1;
             Err(ThumbnailError::Network("offline".to_owned()))
         })
         .unwrap();
         assert_eq!(attempts, 3);
-        assert_eq!(pixels, noise_rgb(8, 6, Some(3)).unwrap());
+        assert_eq!(pixels.pixels, noise_rgb(8, 6, Some(3)).unwrap());
+        assert_eq!(pixels.label, "synthetic-noise-fallback");
     }
 
     #[test]
@@ -337,10 +383,11 @@ mod tests {
 
     #[test]
     fn random_falls_back_to_noise_when_fetching_fails() {
-        let pixels = random_rgb(8, 6, Some(9), |_| {
+        let pixels = random_rgb_with_label(8, 6, Some(9), |_| {
             Err(ThumbnailError::Network("offline".to_owned()))
         })
         .unwrap();
-        assert_eq!(pixels, noise_rgb(8, 6, Some(9)).unwrap());
+        assert_eq!(pixels.pixels, noise_rgb(8, 6, Some(9)).unwrap());
+        assert_eq!(pixels.label, "synthetic-noise-fallback");
     }
 }

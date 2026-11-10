@@ -51,11 +51,14 @@ pub use sizing::{
     risk_warnings,
 };
 pub use split::{
-    SplitError, SplitIdField, SplitMarkers, SplitSeqField, chunk_bounds, chunk_path,
+    MAX_CHUNKS, SplitError, SplitIdField, SplitMarkers, SplitSeqField, chunk_bounds, chunk_path,
     order_by_markers, order_by_names, parse_chunk_name, parse_size, split_album_dir,
-    validate_fields,
+    validate_fields, validate_split_id,
 };
-pub use thumbnail::{PreviewSource, ThumbnailError, rgb as thumbnail_rgb};
+pub use thumbnail::{
+    PreviewSource, ThumbnailError, ThumbnailImage, rgb as thumbnail_rgb,
+    rgb_with_label as thumbnail_rgb_with_label,
+};
 pub use writer::{
     Compression, RawMode, WriteError, WriteInfo, WriterOptions, write_dng, write_dng_from_file,
     write_spike_dng,

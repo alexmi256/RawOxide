@@ -49,6 +49,38 @@ pub(super) fn embed_band(
     Ok(())
 }
 
+/// Feed one embedded raw band into a per-frame CRC.
+///
+/// Python hashes the array's storage bytes (`uint8` for 8-bit covers,
+/// little-endian `uint16` otherwise); the band is already in raster order.
+pub(super) fn update_frame_crc(hasher: &mut crc32fast::Hasher, band: &[u16], bit_depth: u16) {
+    const BUFFER: usize = 8192;
+    let mut bytes = [0_u8; BUFFER];
+    let mut used = 0_usize;
+    if bit_depth <= 8 {
+        for &sample in band {
+            bytes[used] = sample as u8;
+            used += 1;
+            if used == BUFFER {
+                hasher.update(&bytes);
+                used = 0;
+            }
+        }
+    } else {
+        for &sample in band {
+            let pair = sample.to_le_bytes();
+            bytes[used] = pair[0];
+            bytes[used + 1] = pair[1];
+            used += 2;
+            if used + 2 > BUFFER {
+                hasher.update(&bytes[..used]);
+                used = 0;
+            }
+        }
+    }
+    hasher.update(&bytes[..used]);
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(super) fn encode_tile_band(
     band: &[u16],

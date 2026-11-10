@@ -1,8 +1,8 @@
 //! Writer-spike tests: Rust output must be readable by the Rust reader and
 //! structurally valid for the Python/tifffile/rawpy toolchain.
 //!
-//! The Python cross-check is run in CI/manual verification because the Rust
-//! tests stay hermetic; see `docs/testing.md`.
+//! The Python cross-check runs in CI via `scripts/cross_decode.sh`; the Rust
+//! tests here stay hermetic. See `docs/testing.md`.
 
 use std::path::Path;
 
@@ -26,6 +26,8 @@ fn writes_a_decodable_linear_raw_dng() {
     assert_eq!(info.height, 192);
     assert_eq!(info.payload_len, 3000);
     assert!(info.size > 0);
+    assert_eq!(info.thumbnail_label, "synthetic-gradient");
+    assert!(info.payload_frame_crc32.is_none());
 
     let bytes = std::fs::read(&path).unwrap();
     assert_eq!(&bytes[..4], b"II*\0");
@@ -184,6 +186,7 @@ fn writer_handles_multiple_raw_frames() {
         split_seq_field: rawhide_core::SplitSeqField::default(),
         tile_width: 64,
         tile_height: 48,
+        debug_stats: false,
     };
     write_dng(&path, &payload, &options).unwrap();
     let reader = DngReader::open(&path).unwrap();
@@ -341,6 +344,67 @@ fn dng_tags_live_in_ifd0_not_raw_subifd() {
 }
 
 #[test]
+fn writer_reports_payload_and_frame_crcs() {
+    let payload: Vec<u8> = (0..2_000).map(|index| (index * 37 % 251) as u8).collect();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("crc.dng");
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Linear,
+        frames: 2,
+        seed: 11,
+        key: Some(b"crc-key"),
+        debug_stats: true,
+        ..WriterOptions::default()
+    };
+    let info = write_dng(&path, &payload, &options).unwrap();
+    let packed = rawhide_core::PayloadFrame::pack(&payload, Some(b"crc-key"));
+    assert_eq!(info.payload_frame_crc32, Some(crc32fast::hash(&packed)));
+    assert_eq!(info.frame_crc32s.len(), 2);
+
+    let frames = DngReader::open(&path).unwrap().raw_frames().unwrap();
+    for (frame, reported) in frames.iter().zip(&info.frame_crc32s) {
+        let mut hasher = crc32fast::Hasher::new();
+        if info.bit_depth <= 8 {
+            for &sample in &frame.samples {
+                hasher.update(&[sample as u8]);
+            }
+        } else {
+            for &sample in &frame.samples {
+                hasher.update(&sample.to_le_bytes());
+            }
+        }
+        assert_eq!(*reported, hasher.finalize());
+    }
+}
+
+#[test]
+fn writer_crcs_cover_multiple_stream_chunks() {
+    let payload: Vec<u8> = (0..70_000).map(|index| (index * 29 % 251) as u8).collect();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("crc-large.dng");
+    let options = WriterOptions {
+        width: 512,
+        height: 384,
+        mode: RawMode::Linear,
+        seed: 13,
+        key: Some(b"large-crc-key"),
+        debug_stats: true,
+        ..WriterOptions::default()
+    };
+    let info = write_dng(&path, &payload, &options).unwrap();
+    let packed = rawhide_core::PayloadFrame::pack(&payload, Some(b"large-crc-key"));
+    assert_eq!(info.payload_frame_crc32, Some(crc32fast::hash(&packed)));
+    let frame = &DngReader::open(&path).unwrap().raw_frames().unwrap()[0];
+    let mut hasher = crc32fast::Hasher::new();
+    for &sample in &frame.samples {
+        hasher.update(&sample.to_le_bytes());
+    }
+    assert_eq!(info.frame_crc32s[0], hasher.finalize());
+}
+
+#[test]
 fn strict_level_policy_changes_emitted_white_and_black() {
     let payload = vec![5_u8; 200];
     let dir = tempfile::tempdir().unwrap();
@@ -370,6 +434,19 @@ fn strict_level_policy_changes_emitted_white_and_black() {
     assert_eq!(
         raw.tag(50_714).map(|tag| &tag.value),
         Some(&tiff_reader::TagValue::Long(vec![1020, 1016, 1016, 1020]))
+    );
+    assert_eq!(
+        raw.tag(50_829).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![0, 0, 96, 128]))
+    );
+    assert_eq!(
+        raw.tag(51_125).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Rational(vec![
+            [0, 1],
+            [0, 1],
+            [1, 1],
+            [1, 1]
+        ]))
     );
     assert!(raw.tag(50_713).is_some());
     assert_eq!(
@@ -479,6 +556,8 @@ fn linear_mode_ignores_crop_margin_like_python() {
         raw.tag(50_720).map(|tag| &tag.value),
         Some(&tiff_reader::TagValue::Rational(vec![[128, 1], [96, 1]]))
     );
+    assert!(raw.tag(50_829).is_none());
+    assert!(raw.tag(51_125).is_none());
 }
 
 #[test]
