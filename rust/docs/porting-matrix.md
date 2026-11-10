@@ -8,7 +8,7 @@ Status: ✅ done · 🚧 partial · ⬜ planned · 🧪 needs oracle fixtures
 | `stegodng/codec.py` | `core::codec` | ✅ | `u8`/`u16` mapping, per-frame and banded writes |
 | `stegodng/codec.py` formatters | `core::codec::{format_kb*}` | ✅ | Python Ki KiB output pinned |
 | `stegodng/profile.py` | `core::profile` | ✅ | Constants, depth/black/white helpers, fidelity policies |
-| `stegodng/metadata.py` | `core::metadata` | ✅ | Seeded pools/fields, profile ranges, GPS sampling |
+| `stegodng/metadata.py` | `core::metadata` | ✅ | Seeded pools/fields, profile ranges, GPS sampling, static EXIF/IFD0 tag block |
 | `stegodng/geo/` | `core::geo` | ✅ | `zones.bin` embedded, land sampling, tz offsets |
 | `stegodng/filetime.py` | CLI `resolve_image_time` | ✅ | birth time (`created`/`statx`), Unix `ctime` fallback, mtime, now, explicit values |
 | `stegodng/cover.py` | `core::cover` / `writer` | ✅ | synthetic raw covers; plain TIFF gen-tiff |

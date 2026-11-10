@@ -58,7 +58,8 @@ cargo test --workspace
 | `assets/profiles/` | embedded camera registry copied from the Python profiles |
 | `scripts/` | fixture generation and Python-oracle helpers |
 | `docs/` | port plan, architecture, testing and ADRs |
-| `../.github/workflows/rust-ci.yml` | CI: fmt, clippy, tests, cross-decode, coverage, deny, audit, docs |
+| `../.github/workflows/rust-ci.yml` | CI: fmt, clippy, tests, MSRV, cross-decode, coverage, deny, audit, docs |
+| `../.github/workflows/rust-release.yml` | tag-triggered release binaries for Linux, macOS and Windows |
 
 ## Tooling
 

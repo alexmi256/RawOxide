@@ -98,8 +98,7 @@ payload buffer.
 - Prefer pure-Rust, MIT/Apache dependencies; no C toolchain for a default build.
 - Pin `tiff-reader` exactly (`=0.11.x`) until its API settles.
 - `cargo-deny` enforces licenses/advisories/sources; `cargo-audit` runs in CI.
-- MSRV is 1.88 (edition 2024). CI currently builds on stable; an explicit MSRV
-  job is still open.
+- MSRV is 1.88 (edition 2024); CI checks it separately from the stable build.
 
 ## DNG reader and `tiff-reader`
 

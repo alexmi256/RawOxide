@@ -52,9 +52,14 @@ pub(super) const TAG_EXPOSURE_TIME: u16 = 33434;
 pub(super) const TAG_FNUMBER: u16 = 33437;
 pub(super) const TAG_EXPOSURE_PROGRAM: u16 = 34850;
 pub(super) const TAG_ISO: u16 = 34855;
+pub(super) const TAG_SENSITIVITY_TYPE: u16 = 34864;
+pub(super) const TAG_STANDARD_OUTPUT_SENSITIVITY: u16 = 34865;
+pub(super) const TAG_EXIF_VERSION: u16 = 36864;
 pub(super) const TAG_DATETIME_ORIGINAL: u16 = 36867;
 pub(super) const TAG_DATETIME_DIGITIZED: u16 = 36868;
 pub(super) const TAG_OFFSET_TIME: u16 = 36880;
+pub(super) const TAG_OFFSET_TIME_ORIGINAL: u16 = 36881;
+pub(super) const TAG_OFFSET_TIME_DIGITIZED: u16 = 36882;
 pub(super) const TAG_SHUTTER_SPEED: u16 = 37377;
 pub(super) const TAG_APERTURE: u16 = 37378;
 pub(super) const TAG_BRIGHTNESS: u16 = 37379;
@@ -68,14 +73,31 @@ pub(super) const TAG_FOCAL_LENGTH: u16 = 37386;
 pub(super) const TAG_SUBSEC_TIME: u16 = 37520;
 pub(super) const TAG_SUBSEC_TIME_ORIGINAL: u16 = 37521;
 pub(super) const TAG_SUBSEC_TIME_DIGITIZED: u16 = 37522;
-pub(super) const TAG_SUBJECT_DISTANCE_RANGE: u16 = 41996;
+pub(super) const TAG_COLOR_SPACE: u16 = 40961;
+pub(super) const TAG_PIXEL_X_DIMENSION: u16 = 40962;
+pub(super) const TAG_PIXEL_Y_DIMENSION: u16 = 40963;
+pub(super) const TAG_FOCAL_PLANE_X_RESOLUTION: u16 = 41486;
+pub(super) const TAG_FOCAL_PLANE_Y_RESOLUTION: u16 = 41487;
+pub(super) const TAG_FOCAL_PLANE_RESOLUTION_UNIT: u16 = 41488;
+pub(super) const TAG_SENSING_METHOD: u16 = 41495;
+pub(super) const TAG_FILE_SOURCE: u16 = 41728;
+pub(super) const TAG_SCENE_TYPE: u16 = 41729;
+pub(super) const TAG_CFA_PATTERN_EXIF: u16 = 41730;
+pub(super) const TAG_CUSTOM_RENDERED: u16 = 41985;
+pub(super) const TAG_EXPOSURE_MODE: u16 = 41986;
+pub(super) const TAG_WHITE_BALANCE: u16 = 41987;
+pub(super) const TAG_DIGITAL_ZOOM_RATIO: u16 = 41988;
 pub(super) const TAG_FOCAL_35MM: u16 = 41989;
+pub(super) const TAG_SCENE_CAPTURE_TYPE: u16 = 41990;
+pub(super) const TAG_SUBJECT_DISTANCE_RANGE: u16 = 41996;
 pub(super) const TAG_BODY_SERIAL: u16 = 42033;
 pub(super) const TAG_LENS_SPEC: u16 = 42034;
 pub(super) const TAG_LENS_MAKE: u16 = 42035;
 pub(super) const TAG_LENS_MODEL: u16 = 42036;
 pub(super) const TAG_LENS_SERIAL: u16 = 42037;
 pub(super) const TAG_AS_SHOT_NEUTRAL: u16 = 50728;
+pub(super) const TAG_ANALOG_BALANCE: u16 = 50727;
+pub(super) const TAG_LENS_INFO: u16 = 50736;
 pub(super) const TAG_BASELINE_EXPOSURE: u16 = 50730;
 pub(super) const TAG_NOISE_PROFILE: u16 = 51041;
 pub(super) const TAG_IMAGE_UNIQUE_ID: u16 = 42016;
@@ -213,6 +235,9 @@ pub(super) fn build_ifd(
 pub(super) fn metadata_entries(
     profile: Option<&CameraProfile>,
     metadata: Option<&Metadata>,
+    mode: RawMode,
+    preview_width: usize,
+    preview_height: usize,
 ) -> (Vec<Entry>, Vec<Entry>) {
     let Some(metadata) = metadata else {
         return (Vec::new(), Vec::new());
@@ -227,6 +252,22 @@ pub(super) fn metadata_entries(
     let mut ifd0 = Vec::new();
     if emit_serials {
         ifd0.push(Entry::ascii(TAG_CAMERA_SERIAL, &metadata.camera_serial));
+    }
+    let analog =
+        if fidelity.and_then(|fidelity| fidelity.tag_conventions.as_deref()) == Some("adobe") {
+            (1_000_000_u32, 1_000_000_u32)
+        } else {
+            (10_000_u32, 10_000_u32)
+        };
+    ifd0.push(Entry::rationals(
+        TAG_ANALOG_BALANCE,
+        &[analog, analog, analog],
+    ));
+    if emit_lens {
+        ifd0.push(Entry::rationals(TAG_LENS_INFO, &metadata.lens_spec));
+    }
+    if let Some(noise) = metadata.noise_profile {
+        ifd0.push(Entry::doubles(TAG_NOISE_PROFILE, &noise));
     }
     let mut exif = Vec::new();
 
@@ -276,6 +317,18 @@ pub(super) fn metadata_entries(
         Entry::shorts(TAG_ISO, &[u16::try_from(metadata.iso).unwrap_or(u16::MAX)])
     );
     push_base!(
+        TAG_SENSITIVITY_TYPE,
+        Entry::shorts(TAG_SENSITIVITY_TYPE, &[1])
+    );
+    push_base!(
+        TAG_STANDARD_OUTPUT_SENSITIVITY,
+        Entry::longs(TAG_STANDARD_OUTPUT_SENSITIVITY, &[metadata.iso])
+    );
+    push_base!(
+        TAG_EXIF_VERSION,
+        Entry::bytes(TAG_EXIF_VERSION, TagType::Undefined, b"0230".to_vec())
+    );
+    push_base!(
         TAG_DATETIME_ORIGINAL,
         Entry::ascii(TAG_DATETIME_ORIGINAL, &metadata.datetime)
     );
@@ -286,6 +339,14 @@ pub(super) fn metadata_entries(
     push_base!(
         TAG_OFFSET_TIME,
         Entry::ascii(TAG_OFFSET_TIME, &metadata.offset)
+    );
+    push_base!(
+        TAG_OFFSET_TIME_ORIGINAL,
+        Entry::ascii(TAG_OFFSET_TIME_ORIGINAL, &metadata.offset)
+    );
+    push_base!(
+        TAG_OFFSET_TIME_DIGITIZED,
+        Entry::ascii(TAG_OFFSET_TIME_DIGITIZED, &metadata.offset)
     );
     push_base!(
         TAG_SHUTTER_SPEED,
@@ -319,6 +380,16 @@ pub(super) fn metadata_entries(
         TAG_MAX_APERTURE,
         Entry::rationals(TAG_MAX_APERTURE, &[metadata.max_aperture])
     );
+    if extra_enabled(TAG_DIGITAL_ZOOM_RATIO) {
+        exif.push(Entry::rationals(TAG_DIGITAL_ZOOM_RATIO, &[(0, 1)]));
+    }
+    if extra_enabled(TAG_CFA_PATTERN_EXIF) && mode == RawMode::Cfa {
+        exif.push(Entry::bytes(
+            TAG_CFA_PATTERN_EXIF,
+            TagType::Undefined,
+            vec![2, 0, 2, 0, 2, 1, 1, 0],
+        ));
+    }
     if extra_enabled(TAG_SUBJECT_DISTANCE) && metadata.subject_distance.1 != 0 {
         exif.push(Entry::rationals(
             TAG_SUBJECT_DISTANCE,
@@ -346,6 +417,52 @@ pub(super) fn metadata_entries(
     push_base!(
         TAG_SUBSEC_TIME_DIGITIZED,
         Entry::ascii(TAG_SUBSEC_TIME_DIGITIZED, &metadata.subsec)
+    );
+    push_base!(TAG_COLOR_SPACE, Entry::shorts(TAG_COLOR_SPACE, &[1]));
+    push_base!(
+        TAG_PIXEL_X_DIMENSION,
+        Entry::longs(
+            TAG_PIXEL_X_DIMENSION,
+            &[u32::try_from(preview_width).unwrap_or(u32::MAX)]
+        )
+    );
+    push_base!(
+        TAG_PIXEL_Y_DIMENSION,
+        Entry::longs(
+            TAG_PIXEL_Y_DIMENSION,
+            &[u32::try_from(preview_height).unwrap_or(u32::MAX)]
+        )
+    );
+    push_base!(
+        TAG_FOCAL_PLANE_X_RESOLUTION,
+        Entry::rationals(TAG_FOCAL_PLANE_X_RESOLUTION, &[(913, 1)])
+    );
+    push_base!(
+        TAG_FOCAL_PLANE_Y_RESOLUTION,
+        Entry::rationals(TAG_FOCAL_PLANE_Y_RESOLUTION, &[(913, 1)])
+    );
+    push_base!(
+        TAG_FOCAL_PLANE_RESOLUTION_UNIT,
+        Entry::shorts(TAG_FOCAL_PLANE_RESOLUTION_UNIT, &[3])
+    );
+    push_base!(TAG_SENSING_METHOD, Entry::shorts(TAG_SENSING_METHOD, &[2]));
+    push_base!(
+        TAG_FILE_SOURCE,
+        Entry::bytes(TAG_FILE_SOURCE, TagType::Undefined, vec![3])
+    );
+    push_base!(
+        TAG_SCENE_TYPE,
+        Entry::bytes(TAG_SCENE_TYPE, TagType::Undefined, vec![1])
+    );
+    push_base!(
+        TAG_CUSTOM_RENDERED,
+        Entry::shorts(TAG_CUSTOM_RENDERED, &[0])
+    );
+    push_base!(TAG_EXPOSURE_MODE, Entry::shorts(TAG_EXPOSURE_MODE, &[0]));
+    push_base!(TAG_WHITE_BALANCE, Entry::shorts(TAG_WHITE_BALANCE, &[0]));
+    push_base!(
+        TAG_SCENE_CAPTURE_TYPE,
+        Entry::shorts(TAG_SCENE_CAPTURE_TYPE, &[0])
     );
     push_base!(
         TAG_FOCAL_35MM,
@@ -443,8 +560,18 @@ pub(super) fn preview_entries(
     let software = metadata
         .map(|metadata| metadata.software.as_str())
         .filter(|software| !software.is_empty())
-        .or_else(|| profile.map(|profile| profile.software.as_str()))
-        .unwrap_or("RawHide Rust writer");
+        .or_else(|| {
+            profile
+                .map(|profile| profile.software.as_str())
+                .filter(|software| !software.is_empty())
+        });
+    let adobe = profile.is_some_and(|profile| {
+        profile
+            .fidelity
+            .as_ref()
+            .and_then(|fidelity| fidelity.tag_conventions.as_deref())
+            == Some("adobe")
+    });
     let datetime = metadata.map_or("2026:11:08 12:00:00", |metadata| metadata.datetime.as_str());
     let orientation = metadata.map_or(1, |metadata| metadata.orientation);
     let mut entries = vec![
@@ -473,11 +600,7 @@ pub(super) fn preview_entries(
             TAG_STRIP_BYTE_COUNTS,
             &[u32::try_from(jpeg_len).unwrap_or(u32::MAX)],
         ),
-        Entry::rationals(TAG_X_RESOLUTION, &[(72, 1)]),
-        Entry::rationals(TAG_Y_RESOLUTION, &[(72, 1)]),
         Entry::shorts(TAG_PLANAR_CONFIGURATION, &[1]),
-        Entry::shorts(TAG_RESOLUTION_UNIT, &[2]),
-        Entry::ascii(TAG_SOFTWARE, software),
         Entry::ascii(TAG_DATE_TIME, datetime),
         if big {
             Entry::ifds8(TAG_SUB_IFDS, sub_ifd_offsets)
@@ -488,13 +611,6 @@ pub(super) fn preview_entries(
                     u32::try_from(*offset).expect("classic offsets validated before IFD build")
                 })
                 .collect::<Vec<_>>();
-            let adobe = profile.is_some_and(|profile| {
-                profile
-                    .fidelity
-                    .as_ref()
-                    .and_then(|fidelity| fidelity.tag_conventions.as_deref())
-                    == Some("adobe")
-            });
             if adobe {
                 Entry::longs(TAG_SUB_IFDS, &offsets)
             } else {
@@ -507,19 +623,13 @@ pub(super) fn preview_entries(
             &[(0, 1), (255, 1), (128, 1), (255, 1), (128, 1), (255, 1)],
         ),
     ];
-    if profile.is_some_and(|profile| {
-        profile
-            .fidelity
-            .as_ref()
-            .and_then(|fidelity| fidelity.tag_conventions.as_deref())
-            == Some("adobe")
-    }) {
-        entries.retain(|entry| {
-            !matches!(
-                entry.tag,
-                TAG_X_RESOLUTION | TAG_Y_RESOLUTION | TAG_RESOLUTION_UNIT
-            )
-        });
+    if !adobe {
+        entries.push(Entry::rationals(TAG_X_RESOLUTION, &[(1, 1)]));
+        entries.push(Entry::rationals(TAG_Y_RESOLUTION, &[(1, 1)]));
+        entries.push(Entry::shorts(TAG_RESOLUTION_UNIT, &[1]));
+    }
+    if let Some(software) = software {
+        entries.push(Entry::ascii(TAG_SOFTWARE, software));
     }
     if let Some(profile) = profile {
         entries.extend(profile_ifd0_entries(profile));
@@ -686,7 +796,6 @@ pub(super) fn raw_entries(
     tile_offsets: &[u64],
     tile_byte_counts: &[u64],
     profile: Option<&CameraProfile>,
-    metadata: Option<&Metadata>,
     level_policy: LevelPolicy,
     compression: Compression,
     opcode2: Option<&[u8]>,
@@ -822,10 +931,15 @@ pub(super) fn raw_entries(
     {
         entries.push(Entry::longs(TAG_BAYER_GREEN_SPLIT, &[u32::from(green)]));
     }
-    if let Some(metadata) = metadata
-        && let Some(noise) = metadata.noise_profile
-    {
-        entries.push(Entry::doubles(TAG_NOISE_PROFILE, &noise));
+    let adobe = profile
+        .fidelity
+        .as_ref()
+        .and_then(|fidelity| fidelity.tag_conventions.as_deref())
+        == Some("adobe");
+    if !adobe {
+        entries.push(Entry::rationals(TAG_X_RESOLUTION, &[(1, 1)]));
+        entries.push(Entry::rationals(TAG_Y_RESOLUTION, &[(1, 1)]));
+        entries.push(Entry::shorts(TAG_RESOLUTION_UNIT, &[1]));
     }
     if mode == RawMode::Cfa {
         entries.push(Entry::shorts(TAG_CFA_REPEAT_PATTERN_DIM, &[2, 2]));

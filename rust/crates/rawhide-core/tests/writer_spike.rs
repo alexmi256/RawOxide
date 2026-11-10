@@ -405,6 +405,51 @@ fn writer_crcs_cover_multiple_stream_chunks() {
 }
 
 #[test]
+fn default_writer_emits_static_exif_and_ifd0_tags() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("static-tags.dng");
+    let profile = rawhide_core::profiles::get_profile("gfx_100").unwrap();
+    let metadata = rawhide_core::MetadataRandomizer::new(Some(1), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Linear,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [50_727_u16, 50_736] {
+        assert!(ifd0.tag(tag).is_some(), "IFD0 tag {tag}");
+    }
+
+    let pointer = ifd0.tag(34_665).expect("ExifTag");
+    let offset = match &pointer.value {
+        tiff_reader::TagValue::Long(values) => u64::from(values[0]),
+        tiff_reader::TagValue::Long8(values) => values[0],
+        other => panic!("unexpected Exif IFD pointer {other:?}"),
+    };
+    let exif = file.read_ifd_at_offset(offset).unwrap();
+    for tag in [
+        34_864_u16, 34_865, 36_864, 36_881, 36_882, 40_961, 40_962, 40_963, 41_486, 41_487, 41_488,
+        41_495, 41_728, 41_729, 41_985, 41_986, 41_987, 41_990,
+    ] {
+        assert!(exif.tag(tag).is_some(), "EXIF tag {tag}");
+    }
+
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    for tag in [282_u16, 283, 296] {
+        assert!(raw.tag(tag).is_some(), "raw tag {tag}");
+    }
+}
+
+#[test]
 fn strict_level_policy_changes_emitted_white_and_black() {
     let payload = vec![5_u8; 200];
     let dir = tempfile::tempdir().unwrap();
@@ -453,8 +498,9 @@ fn strict_level_policy_changes_emitted_white_and_black() {
         raw.tag(33_422).map(|tag| &tag.value),
         Some(&tiff_reader::TagValue::Byte(vec![2, 1, 1, 0]))
     );
+    assert!(raw.tag(51_041).is_none());
     assert!(matches!(
-        raw.tag(51_041).map(|tag| &tag.value),
+        ifd0.tag(51_041).map(|tag| &tag.value),
         Some(tiff_reader::TagValue::Double(values)) if values.len() == 6
     ));
     let max_sample = DngReader::open(&path)
@@ -510,7 +556,13 @@ fn fidelity_tag_flags_and_allowlist_are_honoured() {
         assert!(exif_ifd.tag(tag).is_none(), "tag {tag} should be filtered");
     }
     assert!(file.ifd(0).unwrap().tag(700).is_none());
+    assert!(file.ifd(0).unwrap().tag(50_727).is_some());
+    assert!(file.ifd(0).unwrap().tag(51_041).is_some());
+    assert!(file.ifd(0).unwrap().tag(50_736).is_none());
     assert!(exif_ifd.tag(37_382).is_some());
+    assert!(exif_ifd.tag(41_730).is_some());
+    assert!(exif_ifd.tag(41_987).is_some());
+    assert!(exif_ifd.tag(41_988).is_some());
     assert!(exif_ifd.tag(41_996).is_some());
 }
 

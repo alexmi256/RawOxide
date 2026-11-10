@@ -35,6 +35,19 @@ check() {
     echo "ok: $(basename "$actual")"
 }
 
+compare_tag_inventory() {
+    local label="$1"
+    shift
+    local rust_dng="$tmp/tags-rust-$label.dng"
+    local python_dng="$tmp/tags-python-$label.dng"
+    "$rawhide" encode -i "$payload" -o "$rust_dng" \
+        --thumbnail synthetic --seed 5 --debug-metadata-output "$@" >/dev/null
+    run_python encode -i "$payload" -o "$python_dng" \
+        --thumbnail synthetic --seed 5 --debug-metadata-output --no-progress "$@" >/dev/null
+    "$python" "$rust_root/scripts/tag_inventory_parity.py" \
+        "${rust_dng%.dng}.json" "${python_dng%.dng}.json"
+}
+
 echo "== Rust encode -> Python decode =="
 payload="$payload_dir/payload_3000.bin"
 "$rawhide" encode -i "$payload" -o "$tmp/rust.dng" \
@@ -47,6 +60,11 @@ run_python encode -i "$payload" -o "$tmp/python.dng" \
     --width 128 --height 96 --seed 5 --thumbnail synthetic --no-progress
 "$rawhide" decode -i "$tmp/python.dng" -o "$tmp/from-python.bin" --no-progress
 check "$payload" "$tmp/from-python.bin"
+
+echo "== Written tag inventory =="
+compare_tag_inventory gfx --width 128 --height 96
+compare_tag_inventory canon --camera-profile canon_eos_80d --width 128 --height 96
+compare_tag_inventory pxl --camera-profile custom_pixel_xl --width 128 --height 96
 
 echo "== Rust CFA profile -> Python decode =="
 "$rawhide" encode -i "$payload" -o "$tmp/rust-cfa.dng" \

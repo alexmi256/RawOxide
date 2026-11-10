@@ -380,6 +380,7 @@ See [testing.md](testing.md). The short version:
 - CLI/JSON assertions (`assert_cmd` + `serde_json`) for sidecars and output;
 - committed Python-generated DNG fixtures for cross-decode;
 - bidirectional Python ↔ Rust encode/decode checks via `just cross-decode`;
+- written tag-inventory comparisons for reference profiles in the cross-decode gate;
 - manual consumer checks with `tiffdump`, `exiv2`, `rawpy`;
 - `cargo llvm-cov` coverage (patch target 80%);
 - fuzzing for untrusted parsers (planned, no targets committed yet);
@@ -406,7 +407,8 @@ See [testing.md](testing.md). The short version:
 Resolved:
 
 1. Keep MIT; no `rawler` adoption (ADR 0004).
-2. CI covers Linux, Windows and macOS; release packaging is still open.
+2. CI covers Linux, Windows and macOS, with an MSRV check; a tag-triggered
+   release workflow uploads release binaries.
 3. No PyO3 shim; the Python CLI remains the specification/oracle.
 4. Preview fetching is Commons-only, matching Python.
 5. `--progress` follows the tri-state TTY/force/disable behaviour and reports
@@ -415,8 +417,7 @@ Resolved:
 
 Still open:
 
-1. Release artifacts and a distribution pipeline.
-2. Whether decoding arbitrary third-party DNGs (broader compression/layout
+1. Whether decoding arbitrary third-party DNGs (broader compression/layout
    support) belongs in v1 or a later reader track.
 
 ---

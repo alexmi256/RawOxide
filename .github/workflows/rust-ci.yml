@@ -69,6 +69,19 @@ jobs:
       - run: cargo nextest run --workspace --all-features --profile ci
       - run: cargo test --workspace --doc --all-features
 
+  msrv:
+    name: MSRV (1.88)
+    runs-on: ubuntu-latest
+    env:
+      RUSTUP_TOOLCHAIN: "1.88"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.88
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust -> target
+      - run: cargo check --workspace --all-targets --all-features
+
   cross-decode:
     name: cross-decode (Python oracle)
     runs-on: ubuntu-latest

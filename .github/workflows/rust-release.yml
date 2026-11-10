@@ -1,0 +1,65 @@
+name: Rust Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+defaults:
+  run:
+    working-directory: rust
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: rawhide-linux-x86_64
+            binary: target/release/rawhide
+          - os: macos-latest
+            artifact: rawhide-macos
+            binary: target/release/rawhide
+          - os: windows-latest
+            artifact: rawhide-windows-x86_64.exe
+            binary: target/release/rawhide.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust -> target
+      - run: cargo build --locked --release -p rawhide-cli
+      - name: Stage platform binary
+        shell: bash
+        run: cp "${{ matrix.binary }}" "${{ matrix.artifact }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: rust/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  publish:
+    name: publish release assets
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true

@@ -109,8 +109,10 @@ appear verbatim in `DateTimeOriginal` and `DateTime`.
 ## Cross-decode matrix
 
 `just cross-decode` (also the `cross-decode` CI job) automates the core
-both-directions checks for linear, CFA, multi-frame and split output. Run the
-full matrix below when touching the writer or reader:
+both-directions checks for linear, CFA, multi-frame and split output, and
+compares written tag inventories for `gfx_100`, `canon_eos_80d` and
+`custom_pixel_xl`. Run the full matrix below when touching the writer or
+reader:
 
 Run for every depth (8/10/12/14/16), mode (`linear`/`cfa`), planes (1, 2, 4, 8,
 16), frames (1, 2, 8), compression (`none`, `adobe_deflate` where legal), key

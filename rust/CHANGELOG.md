@@ -8,6 +8,17 @@ semantic versioning.
 
 ### Added
 
+- Static EXIF and IFD0 metadata parity with Python: `ExifVersion`,
+  `SensitivityType`, `ColorSpace`, pixel dimensions, focal-plane/sensing tags,
+  offset-time variants, scene/exposure fields, `CFAPattern`,
+  `DigitalZoomRatio`, `AnalogBalance`, `LensInfo` and IFD0 `NoiseProfile` are
+  now emitted in the same places as the reference writer.
+- Temp output files now use `tempfile`-created unique names in the destination
+  directory instead of predictable `.<name>.rawhide.tmp` paths, while retaining
+  normal umask-derived permissions for the final file.
+- Cross-decode now compares written tag inventories for `gfx_100`,
+  `canon_eos_80d` and `custom_pixel_xl`.
+- CI adds an MSRV 1.88 check and a tag-triggered release workflow.
 - Split-set fixes: single-chunk `--split-file` runs now honour the album
   layout, unseeded split chunks draw fresh per-chunk cover/metadata seeds, the
   shared UUID is validated as non-empty ASCII, chunk counts above the DCF

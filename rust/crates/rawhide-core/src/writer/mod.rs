@@ -334,19 +334,6 @@ impl Compression {
     }
 }
 
-struct TempGuard<'a> {
-    path: &'a Path,
-    armed: bool,
-}
-
-impl Drop for TempGuard<'_> {
-    fn drop(&mut self) {
-        if self.armed {
-            let _ = std::fs::remove_file(self.path);
-        }
-    }
-}
-
 /// Write a DNG containing `payload` with the given options.
 ///
 /// # Errors
@@ -594,16 +581,16 @@ fn write_dng_with(
     let mut frame_crc32s = Vec::with_capacity(usize::from(frames));
 
     let output_path = path.as_ref();
-    let file_name = output_path
-        .file_name()
-        .and_then(|name| name.to_str())
-        .unwrap_or("output.dng");
-    let temp_path = output_path.with_file_name(format!(".{file_name}.rawhide.tmp"));
-    let mut guard = TempGuard {
-        path: &temp_path,
-        armed: true,
-    };
-    let mut file = BufWriter::new(std::fs::File::create(&temp_path)?);
+    let parent = output_path.parent().unwrap_or_else(|| Path::new("."));
+    let mut builder = tempfile::Builder::new();
+    builder.prefix(".rawhide-").suffix(".dng.tmp");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt as _;
+        builder.permissions(std::fs::Permissions::from_mode(0o666));
+    }
+    let temp = builder.tempfile_in(parent)?;
+    let mut file = BufWriter::new(temp.reopen()?);
     if big {
         file.write_all(b"II")?;
         file.write_all(&43_u16.to_le_bytes())?;
@@ -730,7 +717,8 @@ fn write_dng_with(
         split_id_field,
         split_seq_field,
     )?;
-    let (metadata_ifd0, metadata_exif) = metadata_entries(profile, metadata);
+    let (metadata_ifd0, metadata_exif) =
+        metadata_entries(profile, metadata, mode, preview_width, preview_height);
     ifd0_split.extend(metadata_ifd0);
     exif_entries.extend(metadata_exif);
     if let Some((digest, unique)) = raw_digests {
@@ -786,7 +774,6 @@ fn write_dng_with(
         &raw_template_offsets,
         &raw_template_counts,
         profile,
-        metadata,
         level_policy,
         compression,
         opcode2.as_deref(),
@@ -871,7 +858,6 @@ fn write_dng_with(
             tile_offsets,
             tile_byte_counts,
             profile,
-            metadata,
             level_policy,
             compression,
             opcode2.as_deref(),
@@ -925,8 +911,8 @@ fn write_dng_with(
     }
     file.flush()?;
     drop(file);
-    std::fs::rename(&temp_path, output_path)?;
-    guard.armed = false;
+    temp.persist(output_path)
+        .map_err(|error| WriteError::Io(error.error))?;
     let size = std::fs::metadata(output_path)?.len();
     Ok(WriteInfo {
         path: path.as_ref().to_path_buf(),

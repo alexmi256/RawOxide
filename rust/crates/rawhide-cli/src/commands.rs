@@ -49,21 +49,18 @@ pub fn decode(args: &DecodeArgs) -> Result<()> {
         split_seq_field: args.split_file_metadata_seq.into(),
     };
 
-    let file_name = args
-        .output
-        .file_name()
-        .and_then(|name| name.to_str())
-        .unwrap_or("output.bin");
-    let temp_path = args
-        .output
-        .with_file_name(format!(".{file_name}.rawhide.tmp"));
-    let mut guard = TempOutput {
-        path: &temp_path,
-        armed: true,
-    };
-    let file = std::fs::File::create(&temp_path)
-        .with_context(|| format!("cannot create {}", temp_path.display()))?;
-    let mut writer = std::io::BufWriter::new(file);
+    let parent = args.output.parent().unwrap_or_else(|| Path::new("."));
+    let mut builder = tempfile::Builder::new();
+    builder.prefix(".rawhide-").suffix(".bin.tmp");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt as _;
+        builder.permissions(std::fs::Permissions::from_mode(0o666));
+    }
+    let temp = builder
+        .tempfile_in(parent)
+        .with_context(|| format!("cannot create temporary output in {}", parent.display()))?;
+    let mut writer = std::io::BufWriter::new(temp.reopen()?);
     let outcome = if progress.is_enabled() {
         decode_files_to_writer_with_progress(
             &args.input,
@@ -81,13 +78,15 @@ pub fn decode(args: &DecodeArgs) -> Result<()> {
     } else {
         decode_files_to_writer(&args.input, &options, &mut writer)?
     };
-    writer
-        .flush()
-        .with_context(|| format!("cannot write {}", temp_path.display()))?;
+    writer.flush().with_context(|| {
+        format!(
+            "cannot write temporary output for {}",
+            args.output.display()
+        )
+    })?;
     drop(writer);
-    std::fs::rename(&temp_path, &args.output)
+    temp.persist(&args.output)
         .with_context(|| format!("cannot replace {}", args.output.display()))?;
-    guard.armed = false;
 
     for warning in &outcome.warnings {
         eprintln!("warning: {warning}");
@@ -98,19 +97,6 @@ pub fn decode(args: &DecodeArgs) -> Result<()> {
         args.output.display()
     );
     Ok(())
-}
-
-struct TempOutput<'a> {
-    path: &'a Path,
-    armed: bool,
-}
-
-impl Drop for TempOutput<'_> {
-    fn drop(&mut self) {
-        if self.armed {
-            let _ = std::fs::remove_file(self.path);
-        }
-    }
 }
 
 pub fn capacity(args: &CapacityArgs) {
