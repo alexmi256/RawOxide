@@ -226,11 +226,6 @@ impl PayloadFrame {
         Ok((stream, total))
     }
 
-    /// Mask or unmask a body buffer in place using the body keystream.
-    pub(crate) fn unmask_body(data: &mut [u8], key: &[u8]) {
-        Self::xor_in_place(data, key);
-    }
-
     fn xor_in_place(data: &mut [u8], key: &[u8]) {
         for (index, chunk) in data.chunks_mut(Self::XOR_CHUNK).enumerate() {
             let offset = (index * Self::XOR_CHUNK) as u64;

@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 
 use rawhide_core::{
     DecodeError, DecodeOptions, DngReader, RawMode, SplitIdField, SplitSeqField, WriterOptions,
-    decode_files, write_dng,
+    decode_files, decode_files_to_writer, write_dng,
 };
 
 fn fixtures() -> PathBuf {
@@ -200,5 +200,69 @@ fn decodes_multi_frame_headers_that_span_frames() {
             .unwrap_or_else(|error| panic!("frames={frames} planes={planes}: {error}"))
             .payload;
         assert_eq!(decoded, payload, "frames={frames} planes={planes}");
+    }
+}
+
+#[test]
+fn streaming_decode_to_writer_matches_in_memory() {
+    let keyed = DecodeOptions {
+        key: Some(b"fixture-key"),
+        lsb_planes: Some(4),
+        ..DecodeOptions::default()
+    };
+    let cases = [
+        (
+            vec![fixture("linear_256x192_16bit_1plane.dng")],
+            DecodeOptions::default(),
+        ),
+        (
+            vec![fixture("linear_128x96_16bit_4planes_keyed.dng")],
+            keyed,
+        ),
+        (
+            vec![fixture("split0002.dng"), fixture("split0001.dng")],
+            DecodeOptions::default(),
+        ),
+    ];
+    for (paths, options) in cases {
+        let mut streamed = Vec::new();
+        let outcome = decode_files_to_writer(&paths, &options, &mut streamed).unwrap();
+        let memory = decode_files(&paths, &options).unwrap();
+        assert_eq!(streamed, memory.payload);
+        assert_eq!(outcome.payload_len, streamed.len() as u64);
+        assert_eq!(outcome.warnings, memory.warnings);
+        assert_eq!(outcome.ordered_paths, memory.ordered_paths);
+    }
+}
+
+#[test]
+fn large_payload_streams_and_decodes_in_memory() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload: Vec<u8> = (0..100_000).map(|index| (index * 37) as u8).collect();
+    for key in [None, Some(&b"large-stream-key"[..])] {
+        let path = dir.path().join(format!("large-{}.dng", key.is_some()));
+        let write_options = WriterOptions {
+            width: 512,
+            height: 512,
+            mode: RawMode::Cfa,
+            lsb_planes: 4,
+            seed: 7,
+            key,
+            ..WriterOptions::default()
+        };
+        write_dng(&path, &payload, &write_options).unwrap();
+
+        let options = DecodeOptions {
+            key,
+            lsb_planes: Some(4),
+            ..DecodeOptions::default()
+        };
+        let memory = decode_files(std::slice::from_ref(&path), &options).unwrap();
+        assert_eq!(memory.payload, payload);
+
+        let mut streamed = Vec::new();
+        let outcome = decode_files_to_writer(&[path], &options, &mut streamed).unwrap();
+        assert_eq!(streamed, payload);
+        assert_eq!(outcome.payload_len, payload.len() as u64);
     }
 }

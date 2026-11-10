@@ -54,14 +54,16 @@ frame.
 DNG file
   → TIFF reader parses IFD0 + SubIFDs (bounded offsets/counts)
   → RawBandReader yields tile rows/strips in raster order
-  → header probe (first ≤144 samples), then LSB extract into the payload buffer
+  → header probe (first ≤144 samples), then LSB extract into a payload sink
   → stop reading once the declared payload is complete
-  → CRC verification (wrong key fails closed)
-  → payload bytes
+  → incremental CRC verification (wrong key fails closed)
+  → in-memory `Vec` for `decode_files` or a writer for `decode_files_to_writer`
 ```
 
-Only one band and one decoded block are live at a time; the payload buffer is
-the only payload-sized allocation.
+Only one band, one decoded block and a small payload sink buffer are live at a
+time. `decode_files` still returns a payload-sized `Vec` for API compatibility;
+`rawhide decode` uses `decode_files_to_writer` with a temp file, so CLI memory
+is effectively constant.
 
 Auto-detection tries plane counts 1–16 and accepts the first frame that passes
 magic + CRC, matching Python. `--max-bytes` is checked *before* allocating the

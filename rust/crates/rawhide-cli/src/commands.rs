@@ -1,8 +1,11 @@
 //! Remaining command implementations and debug inventory.
 
+use std::io::Write as _;
+use std::path::Path;
+
 use super::{
     CapacityArgs, Context, DecodeArgs, DecodeOptions, GenTiffArgs, Result, capacity_bytes,
-    decode_files, format_kb, parse_size, progress_bar, write_cover_tiff,
+    decode_files_to_writer, format_kb, parse_size, progress_bar, write_cover_tiff,
 };
 
 pub fn gen_tiff(args: &GenTiffArgs) -> Result<()> {
@@ -95,18 +98,52 @@ pub fn decode(args: &DecodeArgs) -> Result<()> {
         split_seq_field: args.split_file_metadata_seq.into(),
     };
 
-    let outcome = decode_files(&args.input, &options)?;
+    let file_name = args
+        .output
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("output.bin");
+    let temp_path = args
+        .output
+        .with_file_name(format!(".{file_name}.rawhide.tmp"));
+    let mut guard = TempOutput {
+        path: &temp_path,
+        armed: true,
+    };
+    let file = std::fs::File::create(&temp_path)
+        .with_context(|| format!("cannot create {}", temp_path.display()))?;
+    let mut writer = std::io::BufWriter::new(file);
+    let outcome = decode_files_to_writer(&args.input, &options, &mut writer)?;
+    writer
+        .flush()
+        .with_context(|| format!("cannot write {}", temp_path.display()))?;
+    drop(writer);
+    std::fs::rename(&temp_path, &args.output)
+        .with_context(|| format!("cannot replace {}", args.output.display()))?;
+    guard.armed = false;
+
     for warning in &outcome.warnings {
         eprintln!("warning: {warning}");
     }
-    std::fs::write(&args.output, &outcome.payload)
-        .with_context(|| format!("cannot write {}", args.output.display()))?;
     println!(
         "recovered {} -> {}",
-        format_kb(outcome.payload.len() as u64),
+        format_kb(outcome.payload_len),
         args.output.display()
     );
     Ok(())
+}
+
+struct TempOutput<'a> {
+    path: &'a Path,
+    armed: bool,
+}
+
+impl Drop for TempOutput<'_> {
+    fn drop(&mut self) {
+        if self.armed {
+            let _ = std::fs::remove_file(self.path);
+        }
+    }
 }
 
 pub fn capacity(args: &CapacityArgs) {

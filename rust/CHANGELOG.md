@@ -111,6 +111,11 @@ semantic versioning.
   now releases raw frames before unpacking and reuses the extracted buffer in
   place (`PayloadFrame::unpack_owned`), halving the extra payload copy.
 
+- `decode_files_to_writer`: stream recovered payload bytes directly to a writer
+  with incremental CRC. `rawhide decode` now writes to a temporary file and
+  renames it on success, so CLI decode memory stays near the band size
+  regardless of payload size.
+
 ### Changed
 
 - Internal structure: `writer`, `profile` and the CLI are split into focused

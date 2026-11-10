@@ -207,6 +207,29 @@ fn decode_max_bytes_fails_before_writing() {
         .failure()
         .stderr(predicate::str::contains("exceeds max_bytes"));
     assert!(!output.exists());
+    let temp = output.with_file_name(format!(
+        ".{}.rawhide.tmp",
+        output.file_name().unwrap().to_str().unwrap()
+    ));
+    assert!(!temp.exists());
+}
+
+#[test]
+fn decode_failure_after_streaming_removes_temp_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let output = dir.path().join("as-directory");
+    std::fs::create_dir(&output).unwrap();
+
+    let mut command = cargo_bin_cmd!("rawhide");
+    command.args([
+        "decode",
+        "-i",
+        fixture("linear_256x192_16bit_1plane.dng").to_str().unwrap(),
+        "-o",
+        output.to_str().unwrap(),
+    ]);
+    command.assert().failure();
+    assert!(!dir.path().join(".as-directory.rawhide.tmp").exists());
 }
 
 #[test]

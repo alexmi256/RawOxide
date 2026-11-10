@@ -7,6 +7,7 @@
 //! - one file returns its chunk (with a warning when split markers are present);
 //! - several files are ordered/verified via split metadata or 4-digit names.
 
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use thiserror::Error;
@@ -42,6 +43,17 @@ pub struct DecodeOutcome {
     /// Recovered payload bytes, chunks concatenated in order.
     pub payload: Vec<u8>,
     /// Non-fatal notices for the CLI (partial chunk, missing totals, ...).
+    pub warnings: Vec<String>,
+    /// Chunk files in the order actually used.
+    pub ordered_paths: Vec<PathBuf>,
+}
+
+/// Streaming decode result.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DecodeStreamOutcome {
+    /// Total payload bytes written.
+    pub payload_len: u64,
+    /// Non-fatal notices for the CLI.
     pub warnings: Vec<String>,
     /// Chunk files in the order actually used.
     pub ordered_paths: Vec<PathBuf>,
@@ -98,6 +110,10 @@ pub enum DecodeError {
         detail: String,
     },
 
+    /// Writing the recovered payload failed.
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
+
     /// The supplied files mix marker/no-marker states.
     #[error("inconsistent split metadata: {detail}")]
     InconsistentSplitMetadata {
@@ -116,6 +132,67 @@ pub fn decode_files(
     paths: &[PathBuf],
     options: &DecodeOptions<'_>,
 ) -> Result<DecodeOutcome, DecodeError> {
+    let plan = plan_files(paths, options)?;
+    if plan.ordered.len() == 1 {
+        let payload = decode_one(&plan.ordered[0], options)?;
+        return Ok(DecodeOutcome {
+            payload,
+            warnings: plan.warnings,
+            ordered_paths: plan.ordered,
+        });
+    }
+
+    let mut payload = Vec::new();
+    for path in &plan.ordered {
+        let mut chunk =
+            decode_one(path, options).map_err(|error| per_file_error(path, error, true))?;
+        payload.append(&mut chunk);
+    }
+    Ok(DecodeOutcome {
+        payload,
+        warnings: plan.warnings,
+        ordered_paths: plan.ordered,
+    })
+}
+
+/// Decode one file or a chunk set directly into a writer.
+///
+/// Unlike [`decode_files`], this never materializes the payload in memory: each
+/// chunk is streamed into `writer` as it is extracted. On error, bytes already
+/// written remain the caller's responsibility (the CLI writes to a temp file).
+///
+/// # Errors
+///
+/// Returns [`DecodeError`] under the same conditions as [`decode_files`], plus
+/// I/O errors from `writer`.
+pub fn decode_files_to_writer<W: Write>(
+    paths: &[PathBuf],
+    options: &DecodeOptions<'_>,
+    writer: &mut W,
+) -> Result<DecodeStreamOutcome, DecodeError> {
+    let plan = plan_files(paths, options)?;
+    let multiple = plan.ordered.len() > 1;
+    let mut payload_len = 0_u64;
+    for path in &plan.ordered {
+        let len = decode_one_into(path, options, writer)
+            .map_err(|error| per_file_error(path, error, multiple))?;
+        payload_len = payload_len
+            .checked_add(len)
+            .ok_or(DecodeError::CapacityExceeded)?;
+    }
+    Ok(DecodeStreamOutcome {
+        payload_len,
+        warnings: plan.warnings,
+        ordered_paths: plan.ordered,
+    })
+}
+
+struct DecodePlan {
+    ordered: Vec<PathBuf>,
+    warnings: Vec<String>,
+}
+
+fn plan_files(paths: &[PathBuf], options: &DecodeOptions<'_>) -> Result<DecodePlan, DecodeError> {
     if paths.is_empty() {
         return Err(DecodeError::NoInput);
     }
@@ -128,7 +205,6 @@ pub fn decode_files(
     }
 
     if paths.len() == 1 {
-        let payload = decode_one(&paths[0], options)?;
         let mut warnings = Vec::new();
         let marker = &markers[0];
         if marker.seq_present || marker.id_present {
@@ -143,10 +219,9 @@ pub fn decode_files(
                     .map_or_else(|| "?".to_owned(), |total| format!("{total:04}"))
             ));
         }
-        return Ok(DecodeOutcome {
-            payload,
+        return Ok(DecodePlan {
+            ordered: paths.to_vec(),
             warnings,
-            ordered_paths: paths.to_vec(),
         });
     }
 
@@ -170,14 +245,6 @@ pub fn decode_files(
         });
     };
 
-    let mut payload = Vec::new();
-    for path in &ordered {
-        let chunk = decode_one(path, options).map_err(|error| DecodeError::NoPayload {
-            detail: format!("{}: {error}", path.display()),
-        })?;
-        payload.extend_from_slice(&chunk);
-    }
-
     let mut warnings = Vec::new();
     if seq_active && ordered.len() > 1 && markers.iter().all(|marker| marker.total.is_none()) {
         warnings.push(format!(
@@ -186,14 +253,147 @@ pub fn decode_files(
         ));
     }
 
-    Ok(DecodeOutcome {
-        payload,
-        warnings,
-        ordered_paths: ordered,
-    })
+    Ok(DecodePlan { ordered, warnings })
+}
+
+fn per_file_error(path: &Path, error: DecodeError, multiple: bool) -> DecodeError {
+    if multiple {
+        DecodeError::NoPayload {
+            detail: format!("{}: {error}", path.display()),
+        }
+    } else {
+        error
+    }
 }
 
 fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, DecodeError> {
+    let mut payload = Vec::new();
+    let mut target = VecTarget(&mut payload);
+    decode_one_target(path, options, &mut target)?;
+    Ok(payload)
+}
+
+fn decode_one_into<W: Write>(
+    path: &Path,
+    options: &DecodeOptions<'_>,
+    writer: &mut W,
+) -> Result<u64, DecodeError> {
+    let mut target = WriterTarget(writer);
+    decode_one_target(path, options, &mut target)
+}
+
+trait PayloadTarget {
+    fn reserve(&mut self, len: usize);
+    fn write_bytes(&mut self, bytes: &[u8]) -> std::io::Result<()>;
+}
+
+struct VecTarget<'a>(&'a mut Vec<u8>);
+
+impl PayloadTarget for VecTarget<'_> {
+    fn reserve(&mut self, len: usize) {
+        self.0.reserve(len);
+    }
+
+    fn write_bytes(&mut self, bytes: &[u8]) -> std::io::Result<()> {
+        self.0.extend_from_slice(bytes);
+        Ok(())
+    }
+}
+
+struct WriterTarget<'a, W: Write>(&'a mut W);
+
+impl<W: Write> PayloadTarget for WriterTarget<'_, W> {
+    fn reserve(&mut self, _len: usize) {}
+
+    fn write_bytes(&mut self, bytes: &[u8]) -> std::io::Result<()> {
+        self.0.write_all(bytes)
+    }
+}
+
+const SINK_BUFFER: usize = 64 * 1024;
+
+struct PayloadSink<'a, T: PayloadTarget> {
+    target: &'a mut T,
+    key: Option<&'a [u8]>,
+    hasher: crc32fast::Hasher,
+    buffer: Vec<u8>,
+    written: u64,
+    bit: u8,
+    bits: u8,
+}
+
+impl<'a, T: PayloadTarget> PayloadSink<'a, T> {
+    fn new(target: &'a mut T, key: Option<&'a [u8]>, payload_len: usize) -> Self {
+        target.reserve(payload_len);
+        Self {
+            target,
+            key: key.filter(|key| !key.is_empty()),
+            hasher: crc32fast::Hasher::new(),
+            buffer: Vec::with_capacity(SINK_BUFFER),
+            written: 0,
+            bit: 0,
+            bits: 0,
+        }
+    }
+
+    fn push_bit(&mut self, bit: u8) -> Result<(), DecodeError> {
+        self.bit = (self.bit << 1) | (bit & 1);
+        self.bits += 1;
+        if self.bits == 8 {
+            self.buffer.push(self.bit);
+            self.bit = 0;
+            self.bits = 0;
+            if self.buffer.len() >= SINK_BUFFER {
+                self.flush()?;
+            }
+        }
+        Ok(())
+    }
+
+    fn flush(&mut self) -> Result<(), DecodeError> {
+        if self.buffer.is_empty() {
+            return Ok(());
+        }
+        if let Some(key) = self.key {
+            let mask = PayloadFrame::keystream_range(key, self.written, self.buffer.len());
+            for (byte, mask) in self.buffer.iter_mut().zip(mask) {
+                *byte ^= mask;
+            }
+        }
+        self.hasher.update(&self.buffer);
+        self.target.write_bytes(&self.buffer)?;
+        self.written += u64::try_from(self.buffer.len()).unwrap_or(u64::MAX);
+        self.buffer.clear();
+        Ok(())
+    }
+
+    fn finish(mut self, expected_crc: u32, expected_len: u64) -> Result<(), DecodeError> {
+        if self.bits != 0 {
+            return Err(DecodeError::NoPayload {
+                detail: "payload is not byte-aligned".to_owned(),
+            });
+        }
+        self.flush()?;
+        if self.written != expected_len {
+            return Err(DecodeError::NoPayload {
+                detail: format!(
+                    "decoded payload is {} bytes, expected {expected_len}",
+                    self.written
+                ),
+            });
+        }
+        if self.hasher.finalize() != expected_crc {
+            return Err(DecodeError::Frame(FrameError::CrcMismatch));
+        }
+        Ok(())
+    }
+}
+
+fn decode_one_target<T: PayloadTarget>(
+    path: &Path,
+    options: &DecodeOptions<'_>,
+    target: &mut T,
+) -> Result<u64, DecodeError> {
     if let Some(planes) = options.lsb_planes
         && !(1..=16).contains(&planes)
     {
@@ -293,21 +493,21 @@ fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, Decod
         return Err(DecodeError::CapacityExceeded);
     }
 
-    let mut payload = vec![0_u8; payload_len];
+    let mut sink = PayloadSink::new(target, options.key, payload_len);
     let mut framed_bit = 0_u64;
 
-    fill_payload_bits(&mut payload, &prefix, planes, &mut framed_bit, total_bits);
+    fill_payload_sink(&mut sink, &prefix, planes, &mut framed_bit, total_bits)?;
     if framed_bit < total_bits
         && let Some(mut bands) = current_reader
     {
         while let Some(band) = bands.next_band()? {
-            fill_payload_bits(
-                &mut payload,
+            fill_payload_sink(
+                &mut sink,
                 &band.samples,
                 planes,
                 &mut framed_bit,
                 total_bits,
-            );
+            )?;
             if framed_bit >= total_bits {
                 break;
             }
@@ -323,13 +523,13 @@ fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, Decod
             let Some(band) = bands.next_band()? else {
                 break;
             };
-            fill_payload_bits(
-                &mut payload,
+            fill_payload_sink(
+                &mut sink,
                 &band.samples,
                 planes,
                 &mut framed_bit,
                 total_bits,
-            );
+            )?;
         }
     }
 
@@ -337,13 +537,8 @@ fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, Decod
         return Err(DecodeError::CapacityExceeded);
     }
 
-    if let Some(key) = options.key.filter(|key| !key.is_empty()) {
-        PayloadFrame::unmask_body(&mut payload, key);
-    }
-    if crc32fast::hash(&payload) != header.crc32 {
-        return Err(DecodeError::Frame(FrameError::CrcMismatch));
-    }
-    Ok(payload)
+    sink.finish(header.crc32, header.payload_len)?;
+    Ok(header.payload_len)
 }
 
 const HEADER_BITS: u64 = PayloadFrame::HEADER_LEN as u64 * 8;
@@ -364,27 +559,26 @@ fn extract_prefix_bytes(samples: &[u16], planes: u8, n_bytes: usize) -> Option<V
     Some(out)
 }
 
-fn fill_payload_bits(
-    payload: &mut [u8],
+fn fill_payload_sink<T: PayloadTarget>(
+    sink: &mut PayloadSink<'_, T>,
     samples: &[u16],
     planes: u8,
     framed_bit: &mut u64,
     total_bits: u64,
-) {
+) -> Result<(), DecodeError> {
     let planes = usize::from(planes);
     for &sample in samples {
         for plane in 0..planes {
             if *framed_bit >= total_bits {
-                return;
+                return Ok(());
             }
             if *framed_bit >= HEADER_BITS {
-                let bit = (sample >> plane) & 1;
-                let index = usize::try_from(*framed_bit - HEADER_BITS).unwrap_or(usize::MAX);
-                payload[index / 8] |= u8::try_from(bit).unwrap_or(0) << (7 - (index % 8));
+                sink.push_bit(u8::try_from((sample >> plane) & 1).unwrap_or(0))?;
             }
             *framed_bit += 1;
         }
     }
+    Ok(())
 }
 
 fn no_payload_error(explicit: Option<u8>, last_error: Option<String>) -> DecodeError {
@@ -493,17 +687,21 @@ mod tests {
             for planes in [1_u8, 2, 3, 7, 8, 16] {
                 let mut samples = vec![0_u16; framed.len() * 8 / usize::from(planes) + 1];
                 crate::codec::embed_frame(&mut samples, &framed, planes).unwrap();
-                let mut payload = vec![0_u8; body.len()];
-                let mut framed_bit = 0_u64;
-                fill_payload_bits(
-                    &mut payload,
-                    &samples,
-                    planes,
-                    &mut framed_bit,
-                    u64::try_from(framed.len() * 8).unwrap(),
-                );
-                if let Some(key) = key {
-                    PayloadFrame::unmask_body(&mut payload, key);
+                let mut payload = Vec::new();
+                {
+                    let mut target = VecTarget(&mut payload);
+                    let mut sink = PayloadSink::new(&mut target, key, body.len());
+                    let mut framed_bit = 0_u64;
+                    fill_payload_sink(
+                        &mut sink,
+                        &samples,
+                        planes,
+                        &mut framed_bit,
+                        u64::try_from(framed.len() * 8).unwrap(),
+                    )
+                    .unwrap();
+                    sink.finish(crc32fast::hash(body), u64::try_from(body.len()).unwrap())
+                        .unwrap();
                 }
                 assert_eq!(payload, body, "keyed={key:?} planes={planes}");
             }

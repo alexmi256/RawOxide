@@ -34,7 +34,10 @@ pub use codec::{
     LsbCodec, capacity_bytes, capacity_bytes_total, format_kb, format_kb_hi, format_kb_lo,
 };
 pub use cover::{CoverError, write_cover_tiff};
-pub use decode::{DecodeError, DecodeOptions, DecodeOutcome, decode_files};
+pub use decode::{
+    DecodeError, DecodeOptions, DecodeOutcome, DecodeStreamOutcome, decode_files,
+    decode_files_to_writer,
+};
 pub use digests::{new_raw_image_digest, raw_data_unique_id};
 pub use dng::{DngError, DngReader, RawFrame};
 pub use error::{CodecError, Error, FrameError, Result};
