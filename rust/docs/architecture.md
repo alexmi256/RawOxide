@@ -48,16 +48,20 @@ Only one payload chunk, one band and one tile buffer are live at a time. The
 payload is streamed from disk; a 1 GB payload is never materialized beside the
 frame.
 
-## Decode data flow (target)
+## Decode data flow
 
 ```text
 DNG file
   → TIFF reader parses IFD0 + SubIFDs (bounded offsets/counts)
-  → read only the tiles covering the required bit prefix
-  → LSB extract (header first, then declared payload length)
-  → PayloadFrame::unpack (CRC; wrong key fails closed)
-  → payload file
+  → RawBandReader yields tile rows/strips in raster order
+  → header probe (first ≤144 samples), then LSB extract into the payload buffer
+  → stop reading once the declared payload is complete
+  → CRC verification (wrong key fails closed)
+  → payload bytes
 ```
+
+Only one band and one decoded block are live at a time; the payload buffer is
+the only payload-sized allocation.
 
 Auto-detection tries plane counts 1–16 and accepts the first frame that passes
 magic + CRC, matching Python. `--max-bytes` is checked *before* allocating the

@@ -9,8 +9,9 @@
 //! - reading the split chunk fields (`ImageUniqueID`, `ImageNumber`,
 //!   `PageNumber`, `ImageDescription`).
 //!
-//! Full-raster reads are intentional for the first milestone. The streaming
-//! windowed path will replace them once decode correctness is pinned.
+//! `DngReader::raw_frames` still returns full frames for compatibility. The
+//! decode path uses `RawBandReader` to consume tile rows/strips in raster order,
+//! so it does not need to keep the full raster resident.
 
 use std::fmt;
 use std::fs::File;
@@ -141,6 +142,266 @@ impl RawFrame {
     }
 }
 
+/// Per-frame raw geometry shared by the full-frame and streaming readers.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct RawFrameInfo {
+    width: usize,
+    height: usize,
+    samples_per_pixel: usize,
+    bits_per_sample: u16,
+    sample_count: usize,
+    little_endian: bool,
+    compression: u16,
+    predictor: u16,
+}
+
+impl RawFrameInfo {
+    /// Number of interleaved samples in the frame.
+    pub(crate) const fn sample_count(self) -> usize {
+        self.sample_count
+    }
+}
+
+/// One horizontal band of decoded raw samples.
+pub(crate) struct RawBand {
+    y_start: usize,
+    #[allow(dead_code)]
+    rows: usize,
+    pub(crate) samples: Vec<u16>,
+}
+
+enum FrameLayout {
+    Tiles {
+        tile_width: usize,
+        tile_height: usize,
+        across: usize,
+        offsets: Vec<u64>,
+        byte_counts: Vec<u64>,
+    },
+    Strips {
+        rows_per_strip: usize,
+        offsets: Vec<u64>,
+        byte_counts: Vec<u64>,
+    },
+}
+
+enum BandPlan {
+    Tiles {
+        tile_width: usize,
+        tile_height: usize,
+        rows: usize,
+        offsets: Vec<u64>,
+        byte_counts: Vec<u64>,
+    },
+    Strip {
+        y_start: usize,
+        rows: usize,
+        offset: u64,
+        byte_count: u64,
+    },
+}
+
+/// Streaming reader for one raw frame, yielding tile rows or strips.
+pub(crate) struct RawBandReader<'a> {
+    reader: &'a DngReader,
+    info: RawFrameInfo,
+    layout: FrameLayout,
+    file: File,
+    next_y: usize,
+}
+
+impl RawBandReader<'_> {
+    /// Next band in raster order, or `None` after the last row.
+    ///
+    /// # Errors
+    ///
+    /// Returns a TIFF/layout error for malformed blocks.
+    pub(crate) fn next_band(&mut self) -> Result<Option<RawBand>, DngError> {
+        if self.next_y >= self.info.height {
+            return Ok(None);
+        }
+        let next_y = self.next_y;
+        let plan = match &self.layout {
+            FrameLayout::Tiles {
+                tile_width,
+                tile_height,
+                across,
+                offsets,
+                byte_counts,
+            } => {
+                let tile_y = next_y / tile_height;
+                let rows = (self.info.height - next_y).min(*tile_height);
+                let start =
+                    tile_y
+                        .checked_mul(*across)
+                        .ok_or_else(|| DngError::UnsupportedLayout {
+                            detail: "tile row index overflows usize".to_owned(),
+                        })?;
+                let end =
+                    start
+                        .checked_add(*across)
+                        .ok_or_else(|| DngError::UnsupportedLayout {
+                            detail: "tile row range overflows usize".to_owned(),
+                        })?;
+                let row_offsets =
+                    offsets
+                        .get(start..end)
+                        .ok_or_else(|| DngError::UnsupportedLayout {
+                            detail: "missing tile offsets in row".to_owned(),
+                        })?;
+                let row_counts =
+                    byte_counts
+                        .get(start..end)
+                        .ok_or_else(|| DngError::UnsupportedLayout {
+                            detail: "missing tile byte counts in row".to_owned(),
+                        })?;
+                BandPlan::Tiles {
+                    tile_width: *tile_width,
+                    tile_height: *tile_height,
+                    rows,
+                    offsets: row_offsets.to_vec(),
+                    byte_counts: row_counts.to_vec(),
+                }
+            }
+            FrameLayout::Strips {
+                rows_per_strip,
+                offsets,
+                byte_counts,
+            } => {
+                let index = next_y / rows_per_strip;
+                let y_start = index.checked_mul(*rows_per_strip).ok_or_else(|| {
+                    DngError::UnsupportedLayout {
+                        detail: "strip row index overflows usize".to_owned(),
+                    }
+                })?;
+                let rows = (self.info.height - y_start).min(*rows_per_strip);
+                let offset = *offsets
+                    .get(index)
+                    .ok_or_else(|| DngError::UnsupportedLayout {
+                        detail: "missing strip offset".to_owned(),
+                    })?;
+                let byte_count =
+                    *byte_counts
+                        .get(index)
+                        .ok_or_else(|| DngError::UnsupportedLayout {
+                            detail: "missing strip byte count".to_owned(),
+                        })?;
+                BandPlan::Strip {
+                    y_start,
+                    rows,
+                    offset,
+                    byte_count,
+                }
+            }
+        };
+        self.read_plan(plan).map(Some)
+    }
+
+    fn read_plan(&mut self, plan: BandPlan) -> Result<RawBand, DngError> {
+        let info = self.info;
+        match plan {
+            BandPlan::Tiles {
+                tile_width,
+                tile_height,
+                rows,
+                offsets,
+                byte_counts,
+            } => {
+                let y_start = self.next_y;
+                let samples = info
+                    .width
+                    .checked_mul(rows)
+                    .and_then(|pixels| pixels.checked_mul(info.samples_per_pixel))
+                    .ok_or_else(|| DngError::UnsupportedLayout {
+                        detail: "band sample count overflows usize".to_owned(),
+                    })?;
+                let mut band = vec![0_u16; samples];
+                let row_bytes =
+                    row_bytes(tile_width, info.samples_per_pixel, info.bits_per_sample)?;
+                let expected_bytes = row_bytes.checked_mul(tile_height).ok_or_else(|| {
+                    DngError::UnsupportedLayout {
+                        detail: "tile byte count overflows usize".to_owned(),
+                    }
+                })?;
+                for (tile_x, (&offset, &byte_count)) in
+                    offsets.iter().zip(byte_counts.iter()).enumerate()
+                {
+                    let raw = self.reader.read_block(
+                        &mut self.file,
+                        offset,
+                        byte_count,
+                        info.compression,
+                        expected_bytes,
+                    )?;
+                    let block = decode_block(
+                        &raw,
+                        tile_width,
+                        tile_height,
+                        info.samples_per_pixel,
+                        info.bits_per_sample,
+                        info.little_endian,
+                        info.predictor,
+                    )?;
+                    copy_block(
+                        &mut band,
+                        info.width,
+                        rows,
+                        info.samples_per_pixel,
+                        tile_width,
+                        tile_height,
+                        tile_x * tile_width,
+                        0,
+                        &block,
+                    );
+                }
+                self.next_y = y_start + rows;
+                Ok(RawBand {
+                    y_start,
+                    rows,
+                    samples: band,
+                })
+            }
+            BandPlan::Strip {
+                y_start,
+                rows,
+                offset,
+                byte_count,
+            } => {
+                let row_bytes =
+                    row_bytes(info.width, info.samples_per_pixel, info.bits_per_sample)?;
+                let expected_bytes =
+                    row_bytes
+                        .checked_mul(rows)
+                        .ok_or_else(|| DngError::UnsupportedLayout {
+                            detail: "strip byte count overflows usize".to_owned(),
+                        })?;
+                let raw = self.reader.read_block(
+                    &mut self.file,
+                    offset,
+                    byte_count,
+                    info.compression,
+                    expected_bytes,
+                )?;
+                let samples = decode_block(
+                    &raw,
+                    info.width,
+                    rows,
+                    info.samples_per_pixel,
+                    info.bits_per_sample,
+                    info.little_endian,
+                    info.predictor,
+                )?;
+                self.next_y = y_start + rows;
+                Ok(RawBand {
+                    y_start,
+                    rows,
+                    samples,
+                })
+            }
+        }
+    }
+}
+
 /// A read-only DNG handle.
 pub struct DngReader {
     path: PathBuf,
@@ -209,30 +470,49 @@ impl DngReader {
     /// Returns [`DngError::NoRawSubIfd`] when no raw image is present, or a
     /// TIFF/layout error for malformed or unsupported files.
     pub fn raw_frames(&self) -> Result<Vec<RawFrame>, DngError> {
-        let mut frames = Vec::new();
+        let ifds = self.raw_ifd_list()?;
+        if ifds.is_empty() {
+            return Err(DngError::NoRawSubIfd);
+        }
+        ifds.iter().map(|ifd| self.read_frame(ifd)).collect()
+    }
 
-        let offsets = self.read_sub_ifd_offsets()?;
-        for offset in offsets {
+    /// Per-frame geometry in file order.
+    pub(crate) fn raw_frame_infos(&self) -> Result<Vec<RawFrameInfo>, DngError> {
+        let ifds = self.raw_ifd_list()?;
+        if ifds.is_empty() {
+            return Err(DngError::NoRawSubIfd);
+        }
+        ifds.iter().map(|ifd| self.frame_info(ifd)).collect()
+    }
+
+    /// Streaming reader for raw frame `index`.
+    pub(crate) fn band_reader(&self, index: usize) -> Result<RawBandReader<'_>, DngError> {
+        let ifds = self.raw_ifd_list()?;
+        let ifd = ifds.get(index).ok_or_else(|| DngError::UnsupportedLayout {
+            detail: format!("raw frame index {index} out of range"),
+        })?;
+        self.band_reader_for_ifd(ifd)
+    }
+
+    fn raw_ifd_list(&self) -> Result<Vec<Ifd>, DngError> {
+        let mut ifds = Vec::new();
+        for offset in self.read_sub_ifd_offsets()? {
             let ifd = self.read_ifd(offset)?;
             if is_raw(&ifd) {
-                frames.push(self.read_frame(&ifd)?);
+                ifds.push(ifd);
             }
         }
-
-        if frames.is_empty() {
+        if ifds.is_empty() {
             // Fallback for a plain multi-page TIFF: top-level IFDs after IFD0.
             for index in 1..self.file.ifd_count() {
                 let ifd = self.ifd(index)?;
                 if is_raw(ifd) {
-                    frames.push(self.read_frame(ifd)?);
+                    ifds.push(ifd.clone());
                 }
             }
         }
-
-        if frames.is_empty() {
-            return Err(DngError::NoRawSubIfd);
-        }
-        Ok(frames)
+        Ok(ifds)
     }
 
     /// Read split markers using the configured fields.
@@ -474,6 +754,40 @@ impl DngReader {
     }
 
     fn read_frame(&self, ifd: &Ifd) -> Result<RawFrame, DngError> {
+        let info = self.frame_info(ifd)?;
+        let mut bands = self.band_reader_for_ifd(ifd)?;
+        let mut samples = vec![0_u16; info.sample_count()];
+        while let Some(band) = bands.next_band()? {
+            let start = band
+                .y_start
+                .checked_mul(info.width)
+                .and_then(|pixels| pixels.checked_mul(info.samples_per_pixel))
+                .ok_or_else(|| DngError::UnsupportedLayout {
+                    detail: "band offset overflows usize".to_owned(),
+                })?;
+            let end = start.checked_add(band.samples.len()).ok_or_else(|| {
+                DngError::UnsupportedLayout {
+                    detail: "band end overflows usize".to_owned(),
+                }
+            })?;
+            let target =
+                samples
+                    .get_mut(start..end)
+                    .ok_or_else(|| DngError::UnsupportedLayout {
+                        detail: "band lies outside the frame".to_owned(),
+                    })?;
+            target.copy_from_slice(&band.samples);
+        }
+        Ok(RawFrame {
+            width: info.width,
+            height: info.height,
+            samples_per_pixel: info.samples_per_pixel,
+            bits_per_sample: info.bits_per_sample,
+            samples,
+        })
+    }
+
+    fn frame_info(&self, ifd: &Ifd) -> Result<RawFrameInfo, DngError> {
         let width = usize::try_from(ifd.width()).map_err(|_| DngError::UnsupportedLayout {
             detail: "width does not fit usize".to_owned(),
         })?;
@@ -548,7 +862,6 @@ impl DngReader {
             });
         }
 
-        let little_endian = matches!(self.file.byte_order(), tiff_reader::ByteOrder::LittleEndian);
         let sample_count = width
             .checked_mul(height)
             .and_then(|pixels| pixels.checked_mul(samples_per_pixel))
@@ -560,12 +873,20 @@ impl DngReader {
                 detail: format!("frame has {sample_count} samples (limit {MAX_FRAME_SAMPLES})"),
             });
         }
-        let mut samples = vec![0_u16; sample_count];
-        let mut raw_file = File::open(&self.path).map_err(|error| DngError::InvalidFile {
-            path: self.path.clone(),
-            detail: format!("cannot open raw data: {error}"),
-        })?;
 
+        Ok(RawFrameInfo {
+            width,
+            height,
+            samples_per_pixel,
+            bits_per_sample: bits,
+            sample_count,
+            little_endian: matches!(self.file.byte_order(), tiff_reader::ByteOrder::LittleEndian),
+            compression,
+            predictor,
+        })
+    }
+
+    fn frame_layout(ifd: &Ifd, info: &RawFrameInfo) -> Result<FrameLayout, DngError> {
         let tiles = (
             Self::tag_u64_vec(ifd, 324)?,
             Self::tag_u64_vec(ifd, 325)?,
@@ -573,163 +894,61 @@ impl DngReader {
             Self::tag_u32(ifd, 323)?,
         );
         if let (Some(offsets), Some(byte_counts), Some(tile_width), Some(tile_height)) = tiles {
-            self.read_tiles(
-                &mut raw_file,
-                &mut samples,
-                width,
-                height,
-                samples_per_pixel,
-                bits,
-                little_endian,
-                predictor,
-                compression,
-                &offsets,
-                &byte_counts,
+            let tile_width =
                 usize::try_from(tile_width).map_err(|_| DngError::UnsupportedLayout {
                     detail: "tile width does not fit usize".to_owned(),
-                })?,
+                })?;
+            let tile_height =
                 usize::try_from(tile_height).map_err(|_| DngError::UnsupportedLayout {
                     detail: "tile height does not fit usize".to_owned(),
-                })?,
-            )?;
-        } else {
-            let offsets =
-                Self::tag_u64_vec(ifd, 273)?.ok_or_else(|| DngError::UnsupportedLayout {
-                    detail: "missing StripOffsets and TileOffsets".to_owned(),
                 })?;
-            let byte_counts =
-                Self::tag_u64_vec(ifd, 279)?.ok_or_else(|| DngError::UnsupportedLayout {
-                    detail: "missing StripByteCounts and TileByteCounts".to_owned(),
-                })?;
-            let rows_per_strip = Self::tag_u32(ifd, 278)?
-                .map_or(height, |rows| usize::try_from(rows).unwrap_or(height));
-            self.read_strips(
-                &mut raw_file,
-                &mut samples,
-                width,
-                height,
-                samples_per_pixel,
-                bits,
-                little_endian,
-                predictor,
-                compression,
-                &offsets,
-                &byte_counts,
-                rows_per_strip,
-            )?;
-        }
-
-        Ok(RawFrame {
-            width,
-            height,
-            samples_per_pixel,
-            bits_per_sample: bits,
-            samples,
-        })
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn read_tiles(
-        &self,
-        file: &mut File,
-        samples: &mut [u16],
-        width: usize,
-        height: usize,
-        samples_per_pixel: usize,
-        bits: u16,
-        little_endian: bool,
-        predictor: u16,
-        compression: u16,
-        offsets: &[u64],
-        byte_counts: &[u64],
-        tile_width: usize,
-        tile_height: usize,
-    ) -> Result<(), DngError> {
-        if tile_width == 0 || tile_height == 0 {
-            return Err(DngError::UnsupportedLayout {
-                detail: "zero tile dimension".to_owned(),
-            });
-        }
-        let across = width.div_ceil(tile_width);
-        let down = height.div_ceil(tile_height);
-        let expected_count =
-            across
-                .checked_mul(down)
-                .ok_or_else(|| DngError::UnsupportedLayout {
-                    detail: "tile count overflows usize".to_owned(),
-                })?;
-        if offsets.len() < expected_count || byte_counts.len() < expected_count {
-            return Err(DngError::UnsupportedLayout {
-                detail: format!(
-                    "expected {expected_count} tiles, got {} offsets and {} byte counts",
-                    offsets.len(),
-                    byte_counts.len()
-                ),
+            if tile_width == 0 || tile_height == 0 {
+                return Err(DngError::UnsupportedLayout {
+                    detail: "zero tile dimension".to_owned(),
+                });
+            }
+            let across = info.width.div_ceil(tile_width);
+            let down = info.height.div_ceil(tile_height);
+            let expected_count =
+                across
+                    .checked_mul(down)
+                    .ok_or_else(|| DngError::UnsupportedLayout {
+                        detail: "tile count overflows usize".to_owned(),
+                    })?;
+            if offsets.len() < expected_count || byte_counts.len() < expected_count {
+                return Err(DngError::UnsupportedLayout {
+                    detail: format!(
+                        "expected {expected_count} tiles, got {} offsets and {} byte counts",
+                        offsets.len(),
+                        byte_counts.len()
+                    ),
+                });
+            }
+            return Ok(FrameLayout::Tiles {
+                tile_width,
+                tile_height,
+                across,
+                offsets,
+                byte_counts,
             });
         }
 
-        let row_bytes = row_bytes(tile_width, samples_per_pixel, bits)?;
-        let expected_bytes =
-            row_bytes
-                .checked_mul(tile_height)
-                .ok_or_else(|| DngError::UnsupportedLayout {
-                    detail: "tile byte count overflows usize".to_owned(),
-                })?;
-
-        for index in 0..expected_count {
-            let raw = self.read_block(
-                file,
-                offsets[index],
-                byte_counts[index],
-                compression,
-                expected_bytes,
-            )?;
-            let block = decode_block(
-                &raw,
-                tile_width,
-                tile_height,
-                samples_per_pixel,
-                bits,
-                little_endian,
-                predictor,
-            )?;
-            copy_block(
-                samples,
-                width,
-                height,
-                samples_per_pixel,
-                tile_width,
-                tile_height,
-                (index % across) * tile_width,
-                (index / across) * tile_height,
-                &block,
-            );
-        }
-        Ok(())
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn read_strips(
-        &self,
-        file: &mut File,
-        samples: &mut [u16],
-        width: usize,
-        height: usize,
-        samples_per_pixel: usize,
-        bits: u16,
-        little_endian: bool,
-        predictor: u16,
-        compression: u16,
-        offsets: &[u64],
-        byte_counts: &[u64],
-        rows_per_strip: usize,
-    ) -> Result<(), DngError> {
+        let offsets = Self::tag_u64_vec(ifd, 273)?.ok_or_else(|| DngError::UnsupportedLayout {
+            detail: "missing StripOffsets and TileOffsets".to_owned(),
+        })?;
+        let byte_counts =
+            Self::tag_u64_vec(ifd, 279)?.ok_or_else(|| DngError::UnsupportedLayout {
+                detail: "missing StripByteCounts and TileByteCounts".to_owned(),
+            })?;
+        let rows_per_strip = Self::tag_u32(ifd, 278)?.map_or(info.height, |rows| {
+            usize::try_from(rows).unwrap_or(info.height)
+        });
         if rows_per_strip == 0 {
             return Err(DngError::UnsupportedLayout {
                 detail: "RowsPerStrip is zero".to_owned(),
             });
         }
-        let strip_count = height.div_ceil(rows_per_strip);
+        let strip_count = info.height.div_ceil(rows_per_strip);
         if offsets.len() < strip_count || byte_counts.len() < strip_count {
             return Err(DngError::UnsupportedLayout {
                 detail: format!(
@@ -739,46 +958,27 @@ impl DngReader {
                 ),
             });
         }
+        Ok(FrameLayout::Strips {
+            rows_per_strip,
+            offsets,
+            byte_counts,
+        })
+    }
 
-        let row_bytes = row_bytes(width, samples_per_pixel, bits)?;
-        for index in 0..strip_count {
-            let y = index * rows_per_strip;
-            let rows = rows_per_strip.min(height - y);
-            let expected_bytes =
-                row_bytes
-                    .checked_mul(rows)
-                    .ok_or_else(|| DngError::UnsupportedLayout {
-                        detail: "strip byte count overflows usize".to_owned(),
-                    })?;
-            let raw = self.read_block(
-                file,
-                offsets[index],
-                byte_counts[index],
-                compression,
-                expected_bytes,
-            )?;
-            let block = decode_block(
-                &raw,
-                width,
-                rows,
-                samples_per_pixel,
-                bits,
-                little_endian,
-                predictor,
-            )?;
-            copy_block(
-                samples,
-                width,
-                height,
-                samples_per_pixel,
-                width,
-                rows,
-                0,
-                y,
-                &block,
-            );
-        }
-        Ok(())
+    fn band_reader_for_ifd(&self, ifd: &Ifd) -> Result<RawBandReader<'_>, DngError> {
+        let info = self.frame_info(ifd)?;
+        let layout = Self::frame_layout(ifd, &info)?;
+        let file = File::open(&self.path).map_err(|error| DngError::InvalidFile {
+            path: self.path.clone(),
+            detail: format!("cannot open raw data: {error}"),
+        })?;
+        Ok(RawBandReader {
+            reader: self,
+            info,
+            layout,
+            file,
+            next_y: 0,
+        })
     }
 
     fn read_block(
@@ -1289,5 +1489,87 @@ mod tests {
         std::fs::write(&path, b"XX").unwrap();
         let reader = DngReader::open(&path);
         assert!(reader.is_err());
+    }
+
+    #[test]
+    fn band_reader_reproduces_full_frames() {
+        let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/dng");
+        for name in [
+            "linear_256x192_16bit_1plane.dng",
+            "linear_128x96_8bit_deflate.dng",
+            "cfa_128x96_14bit_2planes.dng",
+            "linear_128x96_16bit_4planes_keyed.dng",
+            "linear_128x96_16bit_3frames.dng",
+            "split0001.dng",
+        ] {
+            let reader = DngReader::open(fixtures.join(name)).unwrap();
+            let frames = reader.raw_frames().unwrap();
+            for (index, frame) in frames.iter().enumerate() {
+                let mut bands = reader.band_reader(index).unwrap();
+                let mut joined = Vec::new();
+                let mut expected_y = 0_usize;
+                while let Some(band) = bands.next_band().unwrap() {
+                    assert_eq!(band.y_start, expected_y);
+                    assert_ne!(band.samples.len(), 0);
+                    expected_y += band.rows;
+                    joined.extend_from_slice(&band.samples);
+                }
+                assert_eq!(expected_y, frame.height);
+                assert_eq!(joined, frame.samples, "{name} frame {index}");
+            }
+        }
+    }
+
+    #[test]
+    fn band_reader_handles_strip_layouts() {
+        fn entry(bytes: &mut Vec<u8>, tag: u16, kind: u16, count: u32, value: u32) {
+            bytes.extend_from_slice(&tag.to_le_bytes());
+            bytes.extend_from_slice(&kind.to_le_bytes());
+            bytes.extend_from_slice(&count.to_le_bytes());
+            bytes.extend_from_slice(&value.to_le_bytes());
+        }
+        let width = 4_usize;
+        let height = 3_usize;
+        let sub_ifd = 26_u32;
+        let strip_offset = sub_ifd + 2 + 11 * 12 + 4;
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(b"II");
+        bytes.extend_from_slice(&42_u16.to_le_bytes());
+        bytes.extend_from_slice(&8_u32.to_le_bytes());
+        bytes.extend_from_slice(&1_u16.to_le_bytes());
+        bytes.extend_from_slice(&330_u16.to_le_bytes());
+        bytes.extend_from_slice(&13_u16.to_le_bytes());
+        bytes.extend_from_slice(&1_u32.to_le_bytes());
+        bytes.extend_from_slice(&sub_ifd.to_le_bytes());
+        bytes.extend_from_slice(&0_u32.to_le_bytes());
+
+        bytes.extend_from_slice(&11_u16.to_le_bytes());
+        entry(&mut bytes, 256, 4, 1, width as u32);
+        entry(&mut bytes, 257, 4, 1, height as u32);
+        entry(&mut bytes, 258, 3, 1, 16);
+        entry(&mut bytes, 259, 3, 1, 1);
+        entry(&mut bytes, 262, 3, 1, u32::from(PHOTOMETRIC_LINEAR_RAW));
+        entry(&mut bytes, 273, 4, 1, strip_offset);
+        entry(&mut bytes, 277, 3, 1, 1);
+        entry(&mut bytes, 278, 4, 1, height as u32);
+        entry(&mut bytes, 279, 4, 1, (width * height * 2) as u32);
+        entry(&mut bytes, 284, 3, 1, 1);
+        entry(&mut bytes, 339, 3, 1, 1);
+        bytes.extend_from_slice(&0_u32.to_le_bytes());
+        for sample in 0..width * height {
+            bytes.extend_from_slice(&(sample as u16).to_le_bytes());
+        }
+
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("strip.dng");
+        std::fs::write(&path, bytes).unwrap();
+        let reader = DngReader::open(&path).unwrap();
+        let frames = reader.raw_frames().unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].samples, (0..12).collect::<Vec<u16>>());
+        let mut bands = reader.band_reader(0).unwrap();
+        let band = bands.next_band().unwrap().unwrap();
+        assert_eq!(band.samples, frames[0].samples);
+        assert!(bands.next_band().unwrap().is_none());
     }
 }

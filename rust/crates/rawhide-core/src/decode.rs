@@ -12,7 +12,9 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 use crate::codec::{format_kb_hi, format_kb_lo};
-use crate::dng::{DngError, DngReader, RawFrame};
+#[cfg(test)]
+use crate::dng::RawFrame;
+use crate::dng::{DngError, DngReader};
 use crate::error::{CodecError, FrameError};
 use crate::framing::PayloadFrame;
 use crate::split::{
@@ -199,116 +201,210 @@ fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, Decod
     }
 
     let reader = DngReader::open(path)?;
-    let mut frames = reader.raw_frames()?;
+    let infos = reader.raw_frame_infos()?;
+    if infos.is_empty() {
+        return Err(DecodeError::Dng(DngError::NoRawSubIfd));
+    }
     let candidates: Vec<u8> = options
         .lsb_planes
         .map_or_else(|| (1..=16).collect(), |planes| vec![planes]);
 
-    let mut last_error = None;
-    let mut limit_error = None;
-    for planes in candidates {
-        match decode_with_planes(&mut frames, options.key, planes, options.max_bytes) {
-            Ok(payload) => return Ok(payload),
-            Err(AttemptError::Limit(error)) => {
-                limit_error.get_or_insert(error);
-            }
-            Err(AttemptError::Other(error)) => {
-                last_error = Some(error.to_string());
-            }
+    // The header is at most 144 bits and may span frames in small multi-frame
+    // files. Accumulate whole bands across frames, keeping the current reader
+    // positioned for the payload fill so no band is decoded twice.
+    let header_samples = match options.lsb_planes {
+        Some(planes) => {
+            usize::try_from(HEADER_BITS.div_ceil(u64::from(planes))).unwrap_or(usize::MAX)
         }
-    }
-
-    if let Some(error) = limit_error {
-        return Err(error);
-    }
-    let detail = if options.lsb_planes.is_some() {
-        "magic not found - wrong key, wrong LSB depth/mode or no payload".to_owned()
+        // Auto-detection must still be able to test the 1-plane candidate.
+        None => usize::try_from(HEADER_BITS).unwrap_or(usize::MAX),
+    };
+    let mut prefix = Vec::new();
+    let mut current_frame = 0_usize;
+    let mut current_reader = if infos.is_empty() {
+        None
     } else {
-        format!(
-            "no decodable payload at 1-16 LSB planes - wrong key or no payload (last error: {})",
-            last_error.unwrap_or_else(|| "no valid frame".to_owned())
-        )
+        Some(reader.band_reader(0)?)
     };
-    Err(DecodeError::NoPayload { detail })
-}
+    while prefix.len() < header_samples {
+        let next = match current_reader.as_mut() {
+            Some(bands) => bands.next_band()?,
+            None => break,
+        };
+        if let Some(band) = next {
+            prefix.extend_from_slice(&band.samples);
+        } else {
+            current_frame += 1;
+            current_reader = if current_frame < infos.len() {
+                Some(reader.band_reader(current_frame)?)
+            } else {
+                None
+            };
+        }
+    }
 
-#[derive(Debug)]
-enum AttemptError {
-    Limit(DecodeError),
-    Other(DecodeError),
-}
-
-fn decode_with_planes(
-    frames: &mut Vec<RawFrame>,
-    key: Option<&[u8]>,
-    planes: u8,
-    max_bytes: Option<u64>,
-) -> Result<Vec<u8>, AttemptError> {
-    let header_bytes =
-        extract_bytes(frames.as_slice(), planes, PayloadFrame::HEADER_LEN).map_err(|error| {
-            match error {
-                DecodeError::CapacityExceeded => AttemptError::Limit(error),
-                other => AttemptError::Other(other),
+    let mut last_error = None;
+    let mut chosen = None;
+    for planes in candidates {
+        let Some(header_bytes) = extract_prefix_bytes(&prefix, planes, PayloadFrame::HEADER_LEN)
+        else {
+            continue;
+        };
+        match PayloadFrame::parse_header(&header_bytes, options.key) {
+            Ok(header) => {
+                chosen = Some((planes, header));
+                break;
             }
-        })?;
+            Err(error) => last_error = Some(error.to_string()),
+        }
+    }
 
-    let header = match PayloadFrame::parse_header(&header_bytes, key) {
-        Ok(header) => header,
-        Err(FrameError::BadMagic) => {
-            return Err(AttemptError::Other(DecodeError::NoPayload {
-                detail: "no magic".to_owned(),
-            }));
-        }
-        Err(error) => {
-            return Err(AttemptError::Other(DecodeError::Frame(error)));
-        }
+    let Some((planes, header)) = chosen else {
+        return Err(no_payload_error(options.lsb_planes, last_error));
     };
 
-    if let Some(max) = max_bytes
+    if let Some(max) = options.max_bytes
         && header.payload_len > max
     {
-        return Err(AttemptError::Limit(DecodeError::MaxBytesExceeded {
+        return Err(DecodeError::MaxBytesExceeded {
             declared: header.payload_len,
             max,
-        }));
+        });
     }
 
-    let total_bytes = usize::try_from(header.payload_len)
+    let payload_len = usize::try_from(header.payload_len).map_err(|_| DecodeError::NoPayload {
+        detail: "declared payload length does not fit in memory".to_owned(),
+    })?;
+    let total_bytes = payload_len
+        .checked_add(PayloadFrame::HEADER_LEN)
+        .ok_or(DecodeError::CapacityExceeded)?;
+    let total_bits = u64::try_from(total_bytes)
         .ok()
-        .and_then(|payload| payload.checked_add(PayloadFrame::HEADER_LEN))
-        .ok_or_else(|| {
-            AttemptError::Limit(DecodeError::NoPayload {
-                detail: "declared payload length does not fit in memory".to_owned(),
-            })
-        })?;
-
-    let total_bits = total_bytes
-        .checked_mul(8)
-        .ok_or(AttemptError::Limit(DecodeError::CapacityExceeded))?;
-    let total_slots = frames.iter().fold(0_u64, |total, frame| {
+        .and_then(|bytes| bytes.checked_mul(8))
+        .ok_or(DecodeError::CapacityExceeded)?;
+    let total_slots = infos.iter().fold(0_u64, |total, info| {
         total.saturating_add(
-            u64::try_from(frame.sample_count())
+            u64::try_from(info.sample_count())
                 .unwrap_or(u64::MAX)
                 .saturating_mul(u64::from(planes)),
         )
     });
-    if u64::try_from(total_bits).unwrap_or(u64::MAX) > total_slots {
-        return Err(AttemptError::Limit(DecodeError::CapacityExceeded));
+    if total_bits > total_slots {
+        return Err(DecodeError::CapacityExceeded);
     }
 
-    let stream =
-        extract_bytes(frames.as_slice(), planes, total_bytes).map_err(|error| match error {
-            DecodeError::CapacityExceeded => AttemptError::Limit(error),
-            other => AttemptError::Other(other),
-        })?;
-    let (payload, _) = PayloadFrame::unpack_owned(stream, key)
-        .map_err(|error| AttemptError::Other(DecodeError::Frame(error)))?;
-    // Extraction already peaked with both allocations live; releasing the raw
-    // samples here keeps the peak unchanged while preserving plane fallback.
-    frames.clear();
+    let mut payload = vec![0_u8; payload_len];
+    let mut framed_bit = 0_u64;
+
+    fill_payload_bits(&mut payload, &prefix, planes, &mut framed_bit, total_bits);
+    if framed_bit < total_bits
+        && let Some(mut bands) = current_reader
+    {
+        while let Some(band) = bands.next_band()? {
+            fill_payload_bits(
+                &mut payload,
+                &band.samples,
+                planes,
+                &mut framed_bit,
+                total_bits,
+            );
+            if framed_bit >= total_bits {
+                break;
+            }
+        }
+    }
+
+    for frame_index in current_frame + 1..infos.len() {
+        if framed_bit >= total_bits {
+            break;
+        }
+        let mut bands = reader.band_reader(frame_index)?;
+        while framed_bit < total_bits {
+            let Some(band) = bands.next_band()? else {
+                break;
+            };
+            fill_payload_bits(
+                &mut payload,
+                &band.samples,
+                planes,
+                &mut framed_bit,
+                total_bits,
+            );
+        }
+    }
+
+    if framed_bit < total_bits {
+        return Err(DecodeError::CapacityExceeded);
+    }
+
+    if let Some(key) = options.key.filter(|key| !key.is_empty()) {
+        PayloadFrame::unmask_body(&mut payload, key);
+    }
+    if crc32fast::hash(&payload) != header.crc32 {
+        return Err(DecodeError::Frame(FrameError::CrcMismatch));
+    }
     Ok(payload)
 }
 
+const HEADER_BITS: u64 = PayloadFrame::HEADER_LEN as u64 * 8;
+
+fn extract_prefix_bytes(samples: &[u16], planes: u8, n_bytes: usize) -> Option<Vec<u8>> {
+    let planes = usize::from(planes);
+    let n_bits = n_bytes.checked_mul(8)?;
+    if samples.len().checked_mul(planes)? < n_bits {
+        return None;
+    }
+    let mut out = vec![0_u8; n_bytes];
+    for bit_index in 0..n_bits {
+        let sample = samples[bit_index / planes];
+        let plane = bit_index % planes;
+        let bit = (sample >> plane) & 1;
+        out[bit_index / 8] |= u8::try_from(bit).unwrap_or(0) << (7 - (bit_index % 8));
+    }
+    Some(out)
+}
+
+fn fill_payload_bits(
+    payload: &mut [u8],
+    samples: &[u16],
+    planes: u8,
+    framed_bit: &mut u64,
+    total_bits: u64,
+) {
+    let planes = usize::from(planes);
+    for &sample in samples {
+        for plane in 0..planes {
+            if *framed_bit >= total_bits {
+                return;
+            }
+            if *framed_bit >= HEADER_BITS {
+                let bit = (sample >> plane) & 1;
+                let index = usize::try_from(*framed_bit - HEADER_BITS).unwrap_or(usize::MAX);
+                payload[index / 8] |= u8::try_from(bit).unwrap_or(0) << (7 - (index % 8));
+            }
+            *framed_bit += 1;
+        }
+    }
+}
+
+fn no_payload_error(explicit: Option<u8>, last_error: Option<String>) -> DecodeError {
+    let detail = last_error.unwrap_or_else(|| "no valid frame".to_owned());
+    if let Some(planes) = explicit {
+        DecodeError::NoPayload {
+            detail: format!(
+                "magic not found at {planes} LSB plane(s) - wrong key, wrong LSB depth/mode or no payload ({detail})"
+            ),
+        }
+    } else {
+        DecodeError::NoPayload {
+            detail: format!(
+                "no decodable payload at 1-16 LSB planes - wrong key or no payload (last error: {detail})"
+            ),
+        }
+    }
+}
+
+#[cfg(test)]
 fn extract_bytes(frames: &[RawFrame], planes: u8, n_bytes: usize) -> Result<Vec<u8>, DecodeError> {
     if !(1..=16).contains(&planes) {
         return Err(DecodeError::InvalidPlanes(planes));
@@ -389,52 +485,28 @@ mod tests {
         let bytes = extract_bytes(&[frame], 2, 1).unwrap();
         assert_eq!(bytes, vec![0b1001_0011]);
     }
-
     #[test]
-    fn decode_with_planes_accepts_a_synthetic_frame() {
-        let payload = b"synthetic payload";
-        let frame_bytes = PayloadFrame::pack(payload, None);
-        let mut samples = vec![0_u16; frame_bytes.len() * 8];
-        crate::codec::embed_frame(&mut samples, &frame_bytes, 1).unwrap();
-        let raw = RawFrame {
-            width: samples.len(),
-            height: 1,
-            samples_per_pixel: 1,
-            bits_per_sample: 16,
-            samples,
-        };
-        let decoded = decode_with_planes(&mut vec![raw], None, 1, None).unwrap();
-        assert_eq!(decoded, payload);
-    }
-
-    #[test]
-    fn decode_with_planes_reports_no_magic_and_limits() {
-        let raw = RawFrame {
-            width: 200,
-            height: 1,
-            samples_per_pixel: 1,
-            bits_per_sample: 16,
-            samples: vec![0; 200],
-        };
-        assert!(matches!(
-            decode_with_planes(&mut vec![raw], None, 1, None),
-            Err(AttemptError::Other(DecodeError::NoPayload { .. }))
-        ));
-
-        let payload = b"x";
-        let frame_bytes = PayloadFrame::pack(payload, None);
-        let mut samples = vec![0_u16; frame_bytes.len() * 8];
-        crate::codec::embed_frame(&mut samples, &frame_bytes, 1).unwrap();
-        let raw = RawFrame {
-            width: samples.len(),
-            height: 1,
-            samples_per_pixel: 1,
-            bits_per_sample: 16,
-            samples,
-        };
-        assert!(matches!(
-            decode_with_planes(&mut vec![raw], None, 1, Some(0)),
-            Err(AttemptError::Limit(DecodeError::MaxBytesExceeded { .. }))
-        ));
+    fn streaming_fill_matches_framed_payload() {
+        let body = b"streaming body bits across planes";
+        for key in [None, Some(&b"stream-key"[..])] {
+            let framed = PayloadFrame::pack(body, key);
+            for planes in [1_u8, 2, 3, 7, 8, 16] {
+                let mut samples = vec![0_u16; framed.len() * 8 / usize::from(planes) + 1];
+                crate::codec::embed_frame(&mut samples, &framed, planes).unwrap();
+                let mut payload = vec![0_u8; body.len()];
+                let mut framed_bit = 0_u64;
+                fill_payload_bits(
+                    &mut payload,
+                    &samples,
+                    planes,
+                    &mut framed_bit,
+                    u64::try_from(framed.len() * 8).unwrap(),
+                );
+                if let Some(key) = key {
+                    PayloadFrame::unmask_body(&mut payload, key);
+                }
+                assert_eq!(payload, body, "keyed={key:?} planes={planes}");
+            }
+        }
     }
 }

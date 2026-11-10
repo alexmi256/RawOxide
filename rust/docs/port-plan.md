@@ -313,9 +313,10 @@ the writer has to be built from scratch or `rawler` is adopted.
 - Cover generation, embedding and tile writing share one band/tile buffer.
 - Encode reads payload file ranges in 64 KiB chunks; in-memory callers borrow
   the payload slice instead of copying it into a framed buffer.
-- Decode extracts into the payload buffer, releases the raw samples, then
-  unpacks in place. Tile-streamed decode remains future work, so a large raw
-  frame is still resident during extraction.
+- Decode streams tile-row/strip bands from `RawBandReader` into the payload
+  buffer and stops once the declared payload is complete; the full raster is
+  never resident. Strip rows larger than a payload still decode one strip at a
+  time rather than the whole frame.
 - Target peak RSS: < 64 MiB for encode at multi-gigabyte payload sizes; future
   tile-streamed decode target is < 100 MiB for 2.5 GB pixel-shift (excluding OS
   page cache).

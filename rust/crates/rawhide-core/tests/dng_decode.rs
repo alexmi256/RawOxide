@@ -7,7 +7,8 @@
 use std::path::{Path, PathBuf};
 
 use rawhide_core::{
-    DecodeError, DecodeOptions, DngReader, SplitIdField, SplitSeqField, decode_files,
+    DecodeError, DecodeOptions, DngReader, RawMode, SplitIdField, SplitSeqField, WriterOptions,
+    decode_files, write_dng,
 };
 
 fn fixtures() -> PathBuf {
@@ -165,4 +166,39 @@ fn split_markers_match_python_defaults() {
 fn empty_input_is_rejected() {
     let error = decode_files(&[], &DecodeOptions::default()).unwrap_err();
     assert!(matches!(error, DecodeError::NoInput));
+}
+
+#[test]
+fn decodes_multi_frame_headers_that_span_frames() {
+    let dir = tempfile::tempdir().unwrap();
+    for (frames, planes, payload) in [
+        (2_u8, 1_u8, vec![0x5a_u8]),
+        (
+            3_u8,
+            1_u8,
+            (0..19).map(|index| index as u8).collect::<Vec<_>>(),
+        ),
+        (5_u8, 2_u8, vec![0x5a_u8]),
+    ] {
+        let path = dir.path().join(format!("span-{frames}-{planes}.dng"));
+        let (width, height) = if planes == 1 { (10, 10) } else { (4, 4) };
+        write_dng(
+            &path,
+            &payload,
+            &WriterOptions {
+                width,
+                height,
+                mode: RawMode::Cfa,
+                lsb_planes: planes,
+                frames,
+                seed: 1,
+                ..WriterOptions::default()
+            },
+        )
+        .unwrap();
+        let decoded = decode_files(&[path], &DecodeOptions::default())
+            .unwrap_or_else(|error| panic!("frames={frames} planes={planes}: {error}"))
+            .payload;
+        assert_eq!(decoded, payload, "frames={frames} planes={planes}");
+    }
 }
