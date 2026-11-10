@@ -267,19 +267,19 @@ impl Rng64 {
 
 /// Seeded metadata randomizer for one profile.
 #[derive(Debug, Clone)]
-pub struct MetadataRandomizer {
+pub struct MetadataRandomizer<'a> {
     rng: Rng64,
     location_rng: Rng64,
     makernote_rng: Rng64,
-    profile: Option<CameraProfile>,
+    profile: Option<&'a CameraProfile>,
     date_bounds: Option<(NaiveDateTime, NaiveDateTime)>,
     gps_radius_km: f64,
 }
 
-impl MetadataRandomizer {
+impl<'a> MetadataRandomizer<'a> {
     /// Create a randomizer for `profile` (defaults to the GFX pools).
     #[must_use]
-    pub fn new(seed: Option<u64>, profile: Option<&CameraProfile>) -> Self {
+    pub fn new(seed: Option<u64>, profile: Option<&'a CameraProfile>) -> Self {
         let date_bounds = profile
             .and_then(|profile| profile.fidelity.as_ref())
             .and_then(FidelityConfig::date_bounds);
@@ -287,7 +287,7 @@ impl MetadataRandomizer {
             rng: Rng64::new(seed),
             location_rng: Rng64::new(seed),
             makernote_rng: Rng64::new(seed),
-            profile: profile.cloned(),
+            profile,
             date_bounds,
             gps_radius_km: crate::geo::MAX_RADIUS_KM,
         }
@@ -317,8 +317,7 @@ impl MetadataRandomizer {
         image_time: Option<&ImageTime>,
         shared_location: Option<&Location>,
     ) -> Metadata {
-        let profile = self.profile.clone();
-        let profile = profile.as_ref();
+        let profile = self.profile;
         let fidelity = profile.and_then(|profile| profile.fidelity.as_ref());
 
         let lens = self.pick_lens(profile);

@@ -103,3 +103,11 @@ semantic versioning.
   `auto-config`/risk warning output and profile `suggested_mode`.
 - Tooling: rustfmt, clippy, nextest, llvm-cov, cargo-deny, cargo-audit, insta,
   proptest, criterion, `just`, CI workflow, roadmap/architecture/testing docs.
+
+### Changed
+
+- Internal structure: `writer`, `profile` and the CLI are split into focused
+  modules (cover/encode/entries, model/parse, args/commands). The writer reuses
+  one band buffer across tiles and precomputes synthetic-cover column terms, and
+  `MetadataRandomizer` borrows the camera profile instead of cloning it. The
+  borrow gives the public type a lifetime parameter (`MetadataRandomizer<'a>`).
