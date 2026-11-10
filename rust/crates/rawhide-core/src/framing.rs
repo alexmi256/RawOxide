@@ -70,28 +70,43 @@ impl PayloadFrame {
     #[must_use]
     pub fn pack(payload: &[u8], key: Option<&[u8]>) -> Vec<u8> {
         let keyed = key.is_some_and(|key| !key.is_empty());
-        let mut flags = 0_u8;
-        if keyed {
-            flags |= Self::FLAG_KEYED;
+        let header = Self::masked_header(
+            u64::try_from(payload.len()).unwrap_or(u64::MAX),
+            crc32fast::hash(payload),
+            key,
+        );
+
+        let mut framed = Vec::with_capacity(Self::HEADER_LEN + payload.len());
+        framed.extend_from_slice(&header);
+        if let Some(key) = key.filter(|_| keyed) {
+            for (index, chunk) in payload.chunks(Self::XOR_CHUNK).enumerate() {
+                let offset = (index * Self::XOR_CHUNK) as u64;
+                let keystream = Self::keystream_range(key, offset, chunk.len());
+                framed.extend(chunk.iter().zip(keystream).map(|(byte, mask)| byte ^ mask));
+            }
+        } else {
+            framed.extend_from_slice(payload);
         }
+        framed
+    }
 
-        let body = match key {
-            Some(key) if keyed => Self::xor_data(payload, key),
-            _ => payload.to_vec(),
-        };
-
-        let mut header = Vec::with_capacity(Self::HEADER_LEN);
-        header.extend_from_slice(&Self::MAGIC);
-        header.push(Self::VERSION);
-        header.push(flags);
-        header.extend_from_slice(&(payload.len() as u64).to_be_bytes());
-        header.extend_from_slice(&crc32fast::hash(payload).to_be_bytes());
-
-        if let Some(key) = key.filter(|key| !key.is_empty()) {
-            header = Self::xor_data(&header, key);
+    /// Masked frame header for a payload length and CRC.
+    pub(crate) fn masked_header(
+        payload_len: u64,
+        crc32: u32,
+        key: Option<&[u8]>,
+    ) -> [u8; Self::HEADER_LEN] {
+        let keyed = key.is_some_and(|key| !key.is_empty());
+        let mut header = [0_u8; Self::HEADER_LEN];
+        header[..4].copy_from_slice(&Self::MAGIC);
+        header[4] = Self::VERSION;
+        header[5] = if keyed { Self::FLAG_KEYED } else { 0 };
+        header[6..14].copy_from_slice(&payload_len.to_be_bytes());
+        header[14..18].copy_from_slice(&crc32.to_be_bytes());
+        if let Some(key) = key.filter(|_| keyed) {
+            let masked = Self::xor_data(&header, key);
+            header.copy_from_slice(&masked);
         }
-
-        header.extend_from_slice(&body);
         header
     }
 
@@ -172,6 +187,53 @@ impl PayloadFrame {
             return Err(FrameError::CrcMismatch);
         }
         Ok((body, total))
+    }
+
+    /// Unpack an owned framed stream, reusing its buffer for the payload.
+    ///
+    /// Unlike [`Self::unpack`], this does not allocate a second payload buffer:
+    /// the header is dropped by shifting the body left in place.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`FrameError`] under the same conditions as [`Self::unpack`].
+    pub fn unpack_owned(
+        mut stream: Vec<u8>,
+        key: Option<&[u8]>,
+    ) -> Result<(Vec<u8>, usize), FrameError> {
+        let header = Self::parse_header(&stream, key)?;
+        let total = usize::try_from(header.payload_len)
+            .ok()
+            .and_then(|len| len.checked_add(Self::HEADER_LEN))
+            .ok_or(FrameError::LengthOverflow {
+                declared: header.payload_len,
+            })?;
+        if stream.len() < total {
+            return Err(FrameError::Truncated {
+                need: total,
+                have: stream.len(),
+            });
+        }
+
+        if let Some(key) = key.filter(|key| !key.is_empty()) {
+            Self::xor_in_place(&mut stream[Self::HEADER_LEN..total], key);
+        }
+        if crc32fast::hash(&stream[Self::HEADER_LEN..total]) != header.crc32 {
+            return Err(FrameError::CrcMismatch);
+        }
+        stream.copy_within(Self::HEADER_LEN..total, 0);
+        stream.truncate(total - Self::HEADER_LEN);
+        Ok((stream, total))
+    }
+
+    fn xor_in_place(data: &mut [u8], key: &[u8]) {
+        for (index, chunk) in data.chunks_mut(Self::XOR_CHUNK).enumerate() {
+            let offset = (index * Self::XOR_CHUNK) as u64;
+            let keystream = Self::keystream_range(key, offset, chunk.len());
+            for (byte, mask) in chunk.iter_mut().zip(keystream) {
+                *byte ^= mask;
+            }
+        }
     }
 
     /// SHA-256 counter keystream slice `[offset, offset + length)`.
@@ -377,5 +439,20 @@ mod tests {
             PayloadFrame::unpack(&frame, Some(b"wrong")).unwrap_err(),
             FrameError::BadMagic
         );
+    }
+
+    #[test]
+    fn owned_unpack_matches_borrowed_unpack() {
+        let payload: Vec<u8> = (0..(4 << 20) + 37)
+            .map(|index| u8::try_from(index % 251).unwrap_or(0))
+            .collect();
+        for key in [None, Some(&b"stream-key"[..])] {
+            let frame = PayloadFrame::pack(&payload, key);
+            let (borrowed, borrowed_len) = PayloadFrame::unpack(&frame, key).unwrap();
+            let (owned, owned_len) = PayloadFrame::unpack_owned(frame.clone(), key).unwrap();
+            assert_eq!(borrowed_len, owned_len);
+            assert_eq!(borrowed, owned);
+            assert_eq!(owned, payload);
+        }
     }
 }

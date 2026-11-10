@@ -164,7 +164,7 @@ BigTIFF. Split markers in a BigTIFF whose EXIF IFD sits past 4 GiB may therefore
 be misread. Raw decode is unaffected; revisit when adding full metadata support
 in Phase 3.
 
-### Phase 2 — Write DNG (core writer done; streaming/compression next)
+### Phase 2 — Write DNG (core writer done; streaming/compression done)
 
 **Result:** a custom classic-TIFF/`BigTIFF` writer in `core::writer` emits tiled raw pages
 (`LinearRaw` or `CFA`) at 8/10/12/14/16-bit, a baseline JPEG preview, multiple
@@ -190,6 +190,9 @@ Completed in this phase:
 - EXIF IFD linking (`--split-file-metadata-id`/`-seq`) with the Python field
   names and fail-closed defaults.
 - Banded single-frame writes and incremental 256-row digest computation.
+- Streaming payload I/O from a file range in 64 KiB chunks, keeping encode memory
+  independent of payload size; decode releases raw frames and reuses the
+  extracted buffer for the payload.
 - Adobe profile tags, Commons thumbnails and the debug sidecar inventory.
 
 Remaining full-writer work:
@@ -308,11 +311,14 @@ the writer has to be built from scratch or `rawler` is adopted.
 ### Streaming and memory
 
 - Cover generation, embedding and tile writing share one band/tile buffer.
-- Decode reads only the tiles covering the required bit prefix; a small payload
-  in a large DNG must not allocate the raster.
-- Payload framing is streamed (CRC/length known before or in a first pass).
-- Target peak RSS: < 64 MiB for the 588 MB native case; < 100 MiB for 2.5 GB
-  pixel-shift (excluding OS page cache).
+- Encode reads payload file ranges in 64 KiB chunks; in-memory callers borrow
+  the payload slice instead of copying it into a framed buffer.
+- Decode extracts into the payload buffer, releases the raw samples, then
+  unpacks in place. Tile-streamed decode remains future work, so a large raw
+  frame is still resident during extraction.
+- Target peak RSS: < 64 MiB for encode at multi-gigabyte payload sizes; future
+  tile-streamed decode target is < 100 MiB for 2.5 GB pixel-shift (excluding OS
+  page cache).
 
 ### Profiles/assets
 

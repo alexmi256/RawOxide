@@ -17,7 +17,7 @@ use rawhide_core::{
     PreviewSource, RawMode, RecommendOptions, RecommendedConfig, SizingMode, SplitIdField,
     SplitSeqField, WriterOptions, capacity_bytes, chunk_bounds, chunk_path, decode_files,
     format_kb, parse_size, profiles, recommend, risk_warnings, split_album_dir, write_cover_tiff,
-    write_dng,
+    write_dng_from_file,
 };
 use tracing_subscriber::EnvFilter;
 

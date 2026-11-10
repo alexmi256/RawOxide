@@ -11,7 +11,6 @@ use thiserror::Error;
 
 use crate::codec::{capacity_bytes_total, format_kb_hi, format_kb_lo};
 use crate::error::CodecError;
-use crate::framing::PayloadFrame;
 use crate::metadata::Metadata;
 use crate::profile::{CameraProfile, LevelPolicy};
 use crate::split::{SplitIdField, SplitSeqField, validate_fields};
@@ -21,6 +20,7 @@ use crate::tiff::{Entry, IfdBuilder, TagType};
 mod cover;
 mod encode;
 mod entries;
+mod payload;
 
 use self::cover::CoverGenerator;
 use self::encode::{embed_band, encode_tile_band, tile_row_bytes};
@@ -28,6 +28,7 @@ use self::entries::{
     TAG_NEW_RAW_IMAGE_DIGEST, TAG_RAW_DATA_UNIQUE_ID, build_ifd, crop_rect, gps_entries,
     metadata_entries, preview_entries, raw_entries, select_bigtiff, split_entries,
 };
+use self::payload::{FileSource, PayloadBitReader, PayloadSource, SliceSource};
 
 /// Raw layout for the writer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -242,6 +243,10 @@ pub enum WriteError {
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
+    /// Payload bytes changed while the file was being written.
+    #[error("payload changed during write (CRC mismatch); retry once the file is stable")]
+    PayloadChanged,
+
     /// LSB embedding failed.
     #[error(transparent)]
     Codec(#[from] CodecError),
@@ -330,6 +335,34 @@ impl Drop for TempGuard<'_> {
 pub fn write_dng(
     path: impl AsRef<Path>,
     payload: &[u8],
+    options: &WriterOptions<'_>,
+) -> Result<WriteInfo, WriteError> {
+    let mut source = SliceSource { data: payload };
+    write_dng_with(path, &mut source, options)
+}
+
+/// Write a DNG from a byte range of a payload file.
+///
+/// The payload is streamed in small chunks and is never materialized in
+/// memory, which keeps peak memory independent of the payload size.
+///
+/// # Errors
+///
+/// See [`write_dng`], plus I/O errors when the file or range cannot be read.
+pub fn write_dng_from_file(
+    path: impl AsRef<Path>,
+    payload_path: impl AsRef<Path>,
+    offset: u64,
+    len: u64,
+    options: &WriterOptions<'_>,
+) -> Result<WriteInfo, WriteError> {
+    let mut source = FileSource::open(payload_path, offset, len)?;
+    write_dng_with(path, &mut source, options)
+}
+
+fn write_dng_with(
+    path: impl AsRef<Path>,
+    source: &mut dyn PayloadSource,
     options: &WriterOptions<'_>,
 ) -> Result<WriteInfo, WriteError> {
     let WriterOptions {
@@ -427,7 +460,8 @@ pub fn write_dng(
         lsb_planes,
         u64::from(frames),
     );
-    let payload_len = u64::try_from(payload.len()).unwrap_or(u64::MAX);
+    let payload_len = source.len();
+    let payload_len_usize = usize::try_from(payload_len).map_err(|_| WriteError::TooLarge)?;
     if payload_len > capacity {
         return Err(WriteError::Capacity {
             payload: payload_len,
@@ -479,7 +513,7 @@ pub fn write_dng(
         .checked_add(u64::try_from(preview.len()).map_err(|_| WriteError::TooLarge)?)
         .ok_or(WriteError::TooLarge)?;
 
-    let frame_bytes = PayloadFrame::pack(payload, key);
+    let mut frame = PayloadBitReader::new(source, key)?;
     let tile_row_bytes = tile_row_bytes(tile_width, channels, bit_depth)?;
     let across = width.div_ceil(tile_width);
     let down = height.div_ceil(tile_height);
@@ -558,7 +592,7 @@ pub fn write_dng(
                 rows,
                 channels,
                 lsb_planes,
-                &frame_bytes,
+                &mut frame,
                 u64::try_from(frame_index).unwrap_or(u64::MAX),
             )?;
             if let Some(hasher) = &mut digest_hasher {
@@ -610,6 +644,7 @@ pub fn write_dng(
         }
         frame_tiles.push((tile_offsets, tile_byte_counts));
     }
+    frame.finish()?;
     let ifd0_offset = raw_cursor;
 
     let (mut ifd0_split, mut exif_entries) = split_entries(
@@ -821,7 +856,7 @@ pub fn write_dng(
         path: path.as_ref().to_path_buf(),
         size,
         capacity,
-        payload_len: payload.len(),
+        payload_len: payload_len_usize,
         width,
         height,
         mode,

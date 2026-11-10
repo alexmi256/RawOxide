@@ -104,6 +104,13 @@ semantic versioning.
 - Tooling: rustfmt, clippy, nextest, llvm-cov, cargo-deny, cargo-audit, insta,
   proptest, criterion, `just`, CI workflow, roadmap/architecture/testing docs.
 
+- Streaming payload writer (`write_dng_from_file`): the CLI reads the input in
+  64 KiB chunks, so encode peak memory is independent of payload size; the
+  embedding pass re-hashes the file and fails closed if it changed mid-write.
+  Decode
+  now releases raw frames before unpacking and reuses the extracted buffer in
+  place (`PayloadFrame::unpack_owned`), halving the extra payload copy.
+
 ### Changed
 
 - Internal structure: `writer`, `profile` and the CLI are split into focused

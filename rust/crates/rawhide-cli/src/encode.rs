@@ -4,7 +4,8 @@ use super::{
     CameraProfile, Compression, CompressionArg, Context, EncodeArgs, ImageTime, LevelPolicy,
     MetadataRandomizer, PathBuf, PreviewSource, RawMode, RecommendOptions, RecommendedConfig,
     Result, SizingMode, SplitIdArg, WriterOptions, bail, chunk_bounds, chunk_path, format_kb,
-    parse_size, profiles, progress_bar, recommend, risk_warnings, split_album_dir, write_dng,
+    parse_size, profiles, progress_bar, recommend, risk_warnings, split_album_dir,
+    write_dng_from_file,
 };
 use crate::commands::{debug_file_inventory, print_write};
 
@@ -17,21 +18,23 @@ pub fn encode(args: &EncodeArgs) -> Result<()> {
     }
     let image_time = resolve_image_time(args.image_time.as_deref(), &args.input)?;
     rawhide_core::geo::validate_radius(args.gps_radius)?;
-    let payload = std::fs::read(&args.input)
-        .with_context(|| format!("cannot read {}", args.input.display()))?;
+    let input_len = std::fs::metadata(&args.input)
+        .with_context(|| format!("cannot read {}", args.input.display()))?
+        .len();
     let output = args
         .output
         .clone()
         .unwrap_or_else(|| PathBuf::from(format!("{}.dng", args.input.display())));
     let split_size = args.split_file.as_deref().map(parse_size).transpose()?;
-    let payload_len = split_size.unwrap_or(payload.len() as u64);
+    let payload_len = split_size.unwrap_or(input_len);
     let config = resolve_config(args, profile, subprofile, payload_len)?;
-    print_auto_config(args, &config, payload_len, payload.len() as u64);
+    print_auto_config(args, &config, payload_len, input_len);
 
     if let Some(split_size) = split_size {
         return encode_split(
             args,
-            &payload,
+            &args.input,
+            input_len,
             &output,
             &config,
             profile,
@@ -43,7 +46,9 @@ pub fn encode(args: &EncodeArgs) -> Result<()> {
 
     let info = write_one(
         args,
-        &payload,
+        &args.input,
+        0,
+        input_len,
         &output,
         &config,
         profile,
@@ -245,7 +250,9 @@ fn print_auto_config(
 #[allow(clippy::too_many_arguments)]
 fn write_one(
     args: &EncodeArgs,
-    payload: &[u8],
+    payload_path: &std::path::Path,
+    payload_offset: u64,
+    payload_len: u64,
     output: &std::path::Path,
     config: &RecommendedConfig,
     profile: &CameraProfile,
@@ -296,7 +303,7 @@ fn write_one(
         tile_width: 128,
         tile_height: 96,
     };
-    let info = write_dng(output, payload, &options)?;
+    let info = write_dng_from_file(output, payload_path, payload_offset, payload_len, &options)?;
     if args.debug_metadata_output {
         write_debug_sidecar(
             args,
@@ -379,7 +386,8 @@ fn write_debug_sidecar(
 
 fn encode_split(
     args: &EncodeArgs,
-    payload: &[u8],
+    payload_path: &std::path::Path,
+    payload_len: u64,
     output: &std::path::Path,
     config: &RecommendedConfig,
     profile: &CameraProfile,
@@ -387,10 +395,26 @@ fn encode_split(
     preview: PreviewSource<'_>,
     split_size: u64,
 ) -> Result<()> {
-    let bounds = chunk_bounds(payload.len(), split_size)?;
+    let bounds = chunk_bounds(
+        usize::try_from(payload_len).map_err(|_| anyhow::anyhow!("payload is too large"))?,
+        split_size,
+    )?;
     if bounds.len() == 1 {
         let info = write_one(
-            args, payload, output, config, profile, image_time, preview, 0, None, None, None, None,
+            args,
+            payload_path,
+            0,
+            payload_len,
+            output,
+            config,
+            profile,
+            image_time,
+            preview,
+            0,
+            None,
+            None,
+            None,
+            None,
         )?;
         print_write(&info);
         return Ok(());
@@ -432,7 +456,9 @@ fn encode_split(
         let path = chunk_path(&base, seq);
         let info = write_one(
             args,
-            &payload[start..end],
+            payload_path,
+            u64::try_from(start).unwrap_or(u64::MAX),
+            u64::try_from(end - start).unwrap_or(u64::MAX),
             &path,
             config,
             profile,
@@ -448,7 +474,7 @@ fn encode_split(
             "wrote {} (chunk {seq}/{total}, {} of {})",
             info.path.display(),
             format_kb(info.payload_len as u64),
-            format_kb(payload.len() as u64)
+            format_kb(payload_len)
         );
     }
     if args.split_file_metadata_id == SplitIdArg::None {

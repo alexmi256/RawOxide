@@ -33,19 +33,20 @@ Dependencies point one way: `rawhide-cli → rawhide-core`. Core never reads
 process arguments, never installs a global logger and never performs network
 I/O unless a feature explicitly asks for it.
 
-## Encode data flow (target)
+## Encode data flow (file input)
 
 ```text
-payload file
-  → PayloadFrame::pack (streaming CRC/length, optional XOR)
+payload file range
+  → streaming frame header + CRC (64 KiB chunks, optional XOR)
   → cover generation (bands, deterministic per-band RNG)
   → LSB embed (in place, same band buffer)
   → TIFF writer (tiles, compression, preview, EXIF/GPS)
   → post-write patch/link (only where the writer cannot express it)
 ```
 
-Only one band and one tile buffer are live at a time. The payload is streamed
-from disk; a 1 GB payload must not be materialized beside the frame.
+Only one payload chunk, one band and one tile buffer are live at a time. The
+payload is streamed from disk; a 1 GB payload is never materialized beside the
+frame.
 
 ## Decode data flow (target)
 

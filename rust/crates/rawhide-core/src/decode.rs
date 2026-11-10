@@ -199,7 +199,7 @@ fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, Decod
     }
 
     let reader = DngReader::open(path)?;
-    let frames = reader.raw_frames()?;
+    let mut frames = reader.raw_frames()?;
     let candidates: Vec<u8> = options
         .lsb_planes
         .map_or_else(|| (1..=16).collect(), |planes| vec![planes]);
@@ -207,7 +207,7 @@ fn decode_one(path: &Path, options: &DecodeOptions<'_>) -> Result<Vec<u8>, Decod
     let mut last_error = None;
     let mut limit_error = None;
     for planes in candidates {
-        match decode_with_planes(&frames, options.key, planes, options.max_bytes) {
+        match decode_with_planes(&mut frames, options.key, planes, options.max_bytes) {
             Ok(payload) => return Ok(payload),
             Err(AttemptError::Limit(error)) => {
                 limit_error.get_or_insert(error);
@@ -239,15 +239,17 @@ enum AttemptError {
 }
 
 fn decode_with_planes(
-    frames: &[RawFrame],
+    frames: &mut Vec<RawFrame>,
     key: Option<&[u8]>,
     planes: u8,
     max_bytes: Option<u64>,
 ) -> Result<Vec<u8>, AttemptError> {
     let header_bytes =
-        extract_bytes(frames, planes, PayloadFrame::HEADER_LEN).map_err(|error| match error {
-            DecodeError::CapacityExceeded => AttemptError::Limit(error),
-            other => AttemptError::Other(other),
+        extract_bytes(frames.as_slice(), planes, PayloadFrame::HEADER_LEN).map_err(|error| {
+            match error {
+                DecodeError::CapacityExceeded => AttemptError::Limit(error),
+                other => AttemptError::Other(other),
+            }
         })?;
 
     let header = match PayloadFrame::parse_header(&header_bytes, key) {
@@ -294,12 +296,16 @@ fn decode_with_planes(
         return Err(AttemptError::Limit(DecodeError::CapacityExceeded));
     }
 
-    let stream = extract_bytes(frames, planes, total_bytes).map_err(|error| match error {
-        DecodeError::CapacityExceeded => AttemptError::Limit(error),
-        other => AttemptError::Other(other),
-    })?;
-    let (payload, _) = PayloadFrame::unpack(&stream, key)
+    let stream =
+        extract_bytes(frames.as_slice(), planes, total_bytes).map_err(|error| match error {
+            DecodeError::CapacityExceeded => AttemptError::Limit(error),
+            other => AttemptError::Other(other),
+        })?;
+    let (payload, _) = PayloadFrame::unpack_owned(stream, key)
         .map_err(|error| AttemptError::Other(DecodeError::Frame(error)))?;
+    // Extraction already peaked with both allocations live; releasing the raw
+    // samples here keeps the peak unchanged while preserving plane fallback.
+    frames.clear();
     Ok(payload)
 }
 
@@ -397,7 +403,7 @@ mod tests {
             bits_per_sample: 16,
             samples,
         };
-        let decoded = decode_with_planes(&[raw], None, 1, None).unwrap();
+        let decoded = decode_with_planes(&mut vec![raw], None, 1, None).unwrap();
         assert_eq!(decoded, payload);
     }
 
@@ -411,7 +417,7 @@ mod tests {
             samples: vec![0; 200],
         };
         assert!(matches!(
-            decode_with_planes(&[raw], None, 1, None),
+            decode_with_planes(&mut vec![raw], None, 1, None),
             Err(AttemptError::Other(DecodeError::NoPayload { .. }))
         ));
 
@@ -427,7 +433,7 @@ mod tests {
             samples,
         };
         assert!(matches!(
-            decode_with_planes(&[raw], None, 1, Some(0)),
+            decode_with_planes(&mut vec![raw], None, 1, Some(0)),
             Err(AttemptError::Limit(DecodeError::MaxBytesExceeded { .. }))
         ));
     }

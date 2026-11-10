@@ -6,6 +6,7 @@ use flate2::write::ZlibEncoder;
 
 #[cfg(test)]
 use super::RawMode;
+use super::payload::PayloadBitReader;
 use super::{Compression, WriteError};
 
 #[allow(clippy::too_many_arguments)]
@@ -17,7 +18,7 @@ pub(super) fn embed_band(
     rows: usize,
     channels: usize,
     lsb_planes: u8,
-    frame: &[u8],
+    frame: &mut PayloadBitReader<'_>,
     frame_index: u64,
 ) -> Result<(), WriteError> {
     let planes = usize::from(lsb_planes);
@@ -28,23 +29,18 @@ pub(super) fn embed_band(
         .ok_or(WriteError::TooLarge)?;
     let frame_offset =
         frame_index.saturating_mul(u64::try_from(slots_per_frame).unwrap_or(u64::MAX));
-    let total_bits = frame.len().checked_mul(8).ok_or(WriteError::TooLarge)?;
+    let band_start = u64::try_from(y_start.saturating_mul(width).saturating_mul(channels))
+        .unwrap_or(u64::MAX)
+        .saturating_mul(u64::from(lsb_planes));
+    frame.seek(frame_offset.saturating_add(band_start));
     for local_y in 0..rows {
-        let y = y_start + local_y;
         for x in 0..width {
             for channel in 0..channels {
-                let sample = ((y * width + x) * channels + channel) * planes;
-                let bit_index = usize::try_from(
-                    frame_offset.saturating_add(u64::try_from(sample).unwrap_or(u64::MAX)),
-                )
-                .unwrap_or(usize::MAX);
+                let slot = (local_y * width + x) * channels + channel;
                 for plane in 0..planes {
-                    let index = bit_index.saturating_add(plane);
-                    if index >= total_bits {
-                        continue;
-                    }
-                    let bit = (frame[index / 8] >> (7 - (index % 8))) & 1;
-                    let slot = (local_y * width + x) * channels + channel;
+                    let Some(bit) = frame.next_bit()? else {
+                        return Ok(());
+                    };
                     band[slot] = (band[slot] & !(1_u16 << plane)) | (u16::from(bit) << plane);
                 }
             }

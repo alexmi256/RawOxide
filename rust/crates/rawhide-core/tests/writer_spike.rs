@@ -8,7 +8,7 @@ use std::path::Path;
 
 use rawhide_core::{
     DecodeOptions, DngReader, RawMode, WriteError, WriterOptions, decode_files, write_dng,
-    write_spike_dng,
+    write_dng_from_file, write_spike_dng,
 };
 
 fn payload() -> Vec<u8> {
@@ -1201,4 +1201,32 @@ fn adobe_bigtiff_keeps_ifd8_subifds() {
         DngReader::open(&path).unwrap().raw_frames().unwrap().len(),
         1
     );
+}
+
+#[test]
+fn file_payload_matches_in_memory_payload() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload = payload();
+    let payload_path = dir.path().join("payload.bin");
+    std::fs::write(&payload_path, &payload).unwrap();
+
+    for key in [None, Some(&b"file-key"[..])] {
+        let memory_path = dir.path().join("memory.dng");
+        let file_path = dir.path().join("file.dng");
+        let options = WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            lsb_planes: 4,
+            frames: 2,
+            key,
+            ..WriterOptions::default()
+        };
+        write_dng(&memory_path, &payload, &options).unwrap();
+        write_dng_from_file(&file_path, &payload_path, 0, payload.len() as u64, &options).unwrap();
+        assert_eq!(
+            std::fs::read(&memory_path).unwrap(),
+            std::fs::read(&file_path).unwrap()
+        );
+    }
 }

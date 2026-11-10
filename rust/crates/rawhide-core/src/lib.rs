@@ -54,5 +54,6 @@ pub use split::{
 };
 pub use thumbnail::{PreviewSource, ThumbnailError, rgb as thumbnail_rgb};
 pub use writer::{
-    Compression, RawMode, WriteError, WriteInfo, WriterOptions, write_dng, write_spike_dng,
+    Compression, RawMode, WriteError, WriteInfo, WriterOptions, write_dng, write_dng_from_file,
+    write_spike_dng,
 };
