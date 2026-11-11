@@ -11,43 +11,102 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
+  ZIG_VERSION: "0.17.1"
+  ZIG_SHA256: "3581863e3cbcfd0fce0efc682ce7e9e93da96668a977791d356a26d2a7e9b17a"
 
 jobs:
   verify:
     name: verify
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --locked --workspace --all-features
 
   build:
-    name: build (${{ matrix.os }})
+    name: build (${{ matrix.artifact }})
     needs: verify
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
             artifact: rawoxide-linux-x86_64
-            binary: target/release/rawoxide
+            binary: target/x86_64-unknown-linux-gnu/release/rawoxide
           - os: macos-latest
-            artifact: rawoxide-macos
-            binary: target/release/rawoxide
+            target: aarch64-apple-darwin
+            artifact: rawoxide-macos-aarch64
+            binary: target/aarch64-apple-darwin/release/rawoxide
+          - os: macos-26-intel
+            target: x86_64-apple-darwin
+            artifact: rawoxide-macos-x86_64
+            binary: target/x86_64-apple-darwin/release/rawoxide
           - os: windows-latest
+            target: x86_64-pc-windows-msvc
             artifact: rawoxide-windows-x86_64.exe
-            binary: target/release/rawoxide.exe
+            binary: target/x86_64-pc-windows-msvc/release/rawoxide.exe
+          - os: windows-11-arm
+            target: aarch64-pc-windows-msvc
+            artifact: rawoxide-windows-aarch64.exe
+            binary: target/aarch64-pc-windows-msvc/release/rawoxide.exe
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo build --locked --release -p rawoxide-cli
+        with:
+          key: ${{ matrix.target }}
+      - run: cargo build --locked --release -p rawoxide-cli --target ${{ matrix.target }}
       - name: Stage platform binary
         shell: bash
         run: cp "${{ matrix.binary }}" "${{ matrix.artifact }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+
+  build-arm:
+    name: build arm (${{ matrix.target }})
+    needs: verify
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-unknown-linux-gnu
+            artifact: rawoxide-linux-aarch64
+          - target: armv7-unknown-linux-gnueabihf
+            artifact: rawoxide-linux-armv7
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-zigbuild@0.24.1
+      - name: Install Zig
+        run: |
+          curl --fail --location --proto '=https' --proto-redir '=https' --tlsv1.2 \
+            --retry 5 --retry-delay 2 \
+            "https://ziglang.org/download/${ZIG_VERSION}/zig-x86_64-linux-${ZIG_VERSION}.tar.xz" \
+            --output "$RUNNER_TEMP/zig.tar.xz"
+          echo "${ZIG_SHA256}  $RUNNER_TEMP/zig.tar.xz" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/zig.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/zig-x86_64-linux-${ZIG_VERSION}" >> "$GITHUB_PATH"
+      - run: cargo zigbuild --locked --release -p rawoxide-cli --target ${{ matrix.target }}
+      - name: Stage platform binary
+        shell: bash
+        run: cp "target/${{ matrix.target }}/release/rawoxide" "${{ matrix.artifact }}"
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}
@@ -56,10 +115,10 @@ jobs:
   publish:
     name: publish release assets
     if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    needs: [build, build-arm]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: artifacts
           merge-multiple: true
@@ -67,7 +126,7 @@ jobs:
         run: |
           cd artifacts
           sha256sum * > SHA256SUMS
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: artifacts/*
           fail_on_unmatched_files: true

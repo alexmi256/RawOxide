@@ -67,8 +67,12 @@ the [GitHub release](https://github.com/alexmi256/RawOxide/releases):
 | platform | asset |
 |---|---|
 | Linux x86-64 | `rawoxide-linux-x86_64` |
-| macOS | `rawoxide-macos` |
+| Linux ARM64 (aarch64) | `rawoxide-linux-aarch64` |
+| Linux ARMv7 (32-bit, hard-float) | `rawoxide-linux-armv7` |
+| macOS Apple Silicon (ARM64) | `rawoxide-macos-aarch64` |
+| macOS Intel (x86-64) | `rawoxide-macos-x86_64` |
 | Windows x86-64 | `rawoxide-windows-x86_64.exe` |
+| Windows ARM64 | `rawoxide-windows-aarch64.exe` |
 
 ```bash
 chmod +x rawoxide-linux-x86_64
@@ -90,6 +94,18 @@ cargo build --release -p rawoxide-cli
 # Or install it into ~/.cargo/bin
 cargo install --path crates/rawoxide-cli
 ```
+
+To cross-compile an ARM Linux binary, install [Zig](https://ziglang.org/download/)
+and `cargo-zigbuild` (`cargo install --locked cargo-zigbuild --version 0.24.1`),
+then run:
+
+```bash
+just build-arm64  # aarch64, 64-bit
+just build-arm32  # armv7 hard-float, 32-bit
+```
+
+The binaries are written to `target/aarch64-unknown-linux-gnu/release/rawoxide`
+and `target/armv7-unknown-linux-gnueabihf/release/rawoxide`.
 
 `just` is optional but convenient; `just --list` shows the recipes.
 
@@ -147,8 +163,9 @@ well-formed raw image.
 
 The workspace declares stable Rust plus `rustfmt`, `clippy` and
 `llvm-tools-preview` in `rust-toolchain.toml`. CI runs the same checks on
-Linux, macOS and Windows, together with an MSRV build, `cargo-deny`,
-`cargo-audit` and rustdoc.
+Linux, macOS and Windows, together with 32-bit and 64-bit ARM cross-compilation
+checks, native Intel macOS and Windows ARM64 builds, an MSRV build,
+`cargo-deny`, `cargo-audit` and rustdoc.
 
 The committed fixtures under `fixtures/` make the tests hermetic: no network,
 no external tools and no reference implementation are needed to run the suite.
