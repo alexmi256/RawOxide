@@ -2,9 +2,15 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -15,8 +21,107 @@ env:
   ZIG_SHA256: "3581863e3cbcfd0fce0efc682ce7e9e93da96668a977791d356a26d2a7e9b17a"
 
 jobs:
+  # Decide what this run publishes:
+  #
+  #   push to main  -> a pre-release beta, plus the official release when the
+  #                    workspace version has no tag yet. Queued runs cancel
+  #                    older pending ones, so a burst of merges can collapse
+  #                    into the newest run; the code is still in its beta.
+  #   push of v*    -> the official release for that tag (tag must match the
+  #                    workspace version)
+  #   manual run    -> build and upload workflow artifacts only
+  prepare:
+    name: prepare
+    runs-on: ubuntu-latest
+    outputs:
+      is_official: ${{ steps.channel.outputs.is_official }}
+      official_tag: ${{ steps.channel.outputs.official_tag }}
+      previous_tag: ${{ steps.channel.outputs.previous_tag }}
+      is_beta: ${{ steps.channel.outputs.is_beta }}
+      beta_tag: ${{ steps.channel.outputs.beta_tag }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Choose release channel
+        id: channel
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(python3 - <<'PY'
+          import tomllib
+          with open("Cargo.toml", "rb") as handle:
+              print(tomllib.load(handle)["workspace"]["package"]["version"])
+          PY
+          )"
+          beta_tag="v${version}-beta.${GITHUB_RUN_NUMBER}"
+
+          is_official=false
+          official_tag=""
+          is_beta=false
+
+          if [[ "${GITHUB_EVENT_NAME}" == workflow_dispatch ]]; then
+              echo "Manual run: building artifacts without publishing."
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+              tag="${GITHUB_REF#refs/tags/}"
+              if [[ "${tag}" != "v${version}" ]]; then
+                  echo "::error::tag ${tag} does not match workspace version ${version}"
+                  exit 1
+              fi
+              is_official=true
+              official_tag="${tag}"
+              echo "Publishing official release ${tag} from tag push."
+          elif [[ "${GITHUB_REF}" == refs/heads/main ]]; then
+              is_beta=true
+              if git rev-parse -q --verify "refs/tags/v${version}" >/dev/null; then
+                  echo "v${version} is already released; publishing beta only."
+              else
+                  is_official=true
+                  official_tag="v${version}"
+                  echo "v${version} has no release yet; publishing the official release."
+              fi
+          else
+              echo "Not a main or tag push: building artifacts without publishing."
+          fi
+
+          # Generate official notes against the last stable release, not the
+          # sibling beta created from the same commit minutes earlier.
+          previous_tag=""
+          if [[ "${is_official}" == true ]]; then
+              previous_tag="$(git describe --tags --abbrev=0 --match 'v*' \
+                  --exclude 'v*-beta.*' "${GITHUB_SHA}^" 2>/dev/null || true)"
+          fi
+
+          {
+              echo "is_official=${is_official}"
+              echo "official_tag=${official_tag}"
+              echo "previous_tag=${previous_tag}"
+              echo "is_beta=${is_beta}"
+              echo "beta_tag=${beta_tag}"
+          } >> "$GITHUB_OUTPUT"
+      - name: Summarize
+        run: |
+          {
+              echo "### Release plan"
+              echo
+              echo "| channel | tag |"
+              echo "|---|---|"
+              if [[ "${{ steps.channel.outputs.is_official }}" == "true" ]]; then
+                  echo "| official | \`${{ steps.channel.outputs.official_tag }}\` |"
+              fi
+              if [[ "${{ steps.channel.outputs.is_beta }}" == "true" ]]; then
+                  echo "| beta | \`${{ steps.channel.outputs.beta_tag }}\` (pre-release) |"
+              fi
+              if [[ "${{ steps.channel.outputs.is_official }}" != "true" && \
+                    "${{ steps.channel.outputs.is_beta }}" != "true" ]]; then
+                  echo "| none | build and workflow artifacts only |"
+              fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
   verify:
     name: verify
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -112,10 +217,10 @@ jobs:
           path: ${{ matrix.artifact }}
           if-no-files-found: error
 
-  publish:
-    name: publish release assets
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: [build, build-arm]
+  publish-official:
+    name: publish official release
+    if: needs.prepare.outputs.is_official == 'true'
+    needs: [prepare, build, build-arm]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v7
@@ -128,6 +233,36 @@ jobs:
           sha256sum * > SHA256SUMS
       - uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ needs.prepare.outputs.official_tag }}
+          target_commitish: ${{ github.sha }}
+          name: RawOxide ${{ needs.prepare.outputs.official_tag }}
           files: artifacts/*
           fail_on_unmatched_files: true
           generate_release_notes: true
+          previous_tag: ${{ needs.prepare.outputs.previous_tag }}
+          make_latest: true
+
+  publish-beta:
+    name: publish beta pre-release
+    if: needs.prepare.outputs.is_beta == 'true'
+    needs: [prepare, build, build-arm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Generate SHA-256 checksums
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.prepare.outputs.beta_tag }}
+          target_commitish: ${{ github.sha }}
+          name: RawOxide ${{ needs.prepare.outputs.beta_tag }}
+          files: artifacts/*
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          prerelease: true
+          make_latest: false

@@ -1,6 +1,7 @@
 # RawOxide
 
 [![CI](https://github.com/alexmi256/RawOxide/actions/workflows/ci.yml/badge.svg)](https://github.com/alexmi256/RawOxide/actions/workflows/ci.yml)
+[![Release](https://github.com/alexmi256/RawOxide/actions/workflows/release.yml/badge.svg)](https://github.com/alexmi256/RawOxide/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Rust 1.99.1+](https://img.shields.io/badge/rust-1.99.1%2B-orange)
 
@@ -61,8 +62,11 @@ no Python, NumPy, Pillow or `tifffile` at runtime.
 
 ### Prebuilt binaries
 
-When a release is published, platform binaries and `SHA256SUMS` are attached to
-the [GitHub release](https://github.com/alexmi256/RawOxide/releases):
+Platform binaries and `SHA256SUMS` are attached to every
+[GitHub release](https://github.com/alexmi256/RawOxide/releases). Merges to
+`main` publish beta pre-releases (rapid consecutive merges can collapse into a
+single beta); an official release is published when the workspace version
+changes. See [`docs/release.md`](docs/release.md):
 
 | platform | asset |
 |---|---|
@@ -439,7 +443,7 @@ known boundaries.
 | [`docs/architecture.md`](docs/architecture.md) | workspace, data flow, memory and dependency rules |
 | [`docs/compatibility.md`](docs/compatibility.md) | interoperability contract and known boundaries |
 | [`docs/testing.md`](docs/testing.md) | test pyramid, fixtures, cross-decode and consumer checks |
-| [`docs/release.md`](docs/release.md) | release checklist and artifact names |
+| [`docs/release.md`](docs/release.md) | release process, channels and artifact names |
 | [`docs/adr/`](docs/adr/) | architecture decision records |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | setup, style and pull-request gates |
 | [`SECURITY.md`](SECURITY.md) | vulnerability reporting and threat model |

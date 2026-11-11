@@ -86,6 +86,13 @@ ci: add llvm-cov coverage job
 
 Keep the body focused on *why*; the diff shows *what*.
 
+## Releases
+
+Merges to `main` publish beta pre-releases (rapid consecutive merges can
+collapse into one); the first merge for a new workspace version also publishes
+the official release. Version bumps, changelog entries and the tag rules are in
+[`docs/release.md`](docs/release.md). Do not reuse a released version number.
+
 ## License
 
 By contributing you agree that your contribution is licensed under the
