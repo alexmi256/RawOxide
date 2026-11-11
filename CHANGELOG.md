@@ -36,9 +36,16 @@ semantic versioning.
 - CI for Linux, macOS and Windows, an MSRV check, `cargo-deny`, `cargo-audit`,
   rustdoc, and a tag-triggered release workflow that publishes per-platform
   binaries with `SHA256SUMS`.
+- ARM release builds: Linux 64-bit (`aarch64-unknown-linux-gnu`) and 32-bit
+  hard-float (`armv7-unknown-linux-gnueabihf`), macOS Apple Silicon
+  (`aarch64-apple-darwin`) and Windows ARM64 (`aarch64-pc-windows-msvc`), plus
+  cross-compilation checks in CI and `just build-arm64` / `just build-arm32`
+  recipes.
 
 ### Changed
 
+- macOS release assets are now architecture-specific: `rawoxide-macos-aarch64`
+  and `rawoxide-macos-x86_64` replace the single `rawoxide-macos` binary.
 - Project renamed to **RawOxide**; binaries and crates are now `rawoxide`,
   `rawoxide-cli` and `rawoxide-core`.
 - The Rust workspace moved from `rust/` to the repository root.

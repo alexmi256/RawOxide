@@ -24,13 +24,25 @@ git push origin vX.Y.Z
 `.github/workflows/release.yml` then:
 
 - runs `cargo test --locked --workspace --all-features`,
-- builds `rawoxide` for Linux, macOS and Windows,
+- builds `rawoxide` for Linux (x86-64, ARM64 and ARMv7 hard-float), macOS
+  (Intel and Apple Silicon) and Windows (x86-64 and ARM64),
 - stages platform names:
   - `rawoxide-linux-x86_64`
-  - `rawoxide-macos`
+  - `rawoxide-linux-aarch64`
+  - `rawoxide-linux-armv7`
+  - `rawoxide-macos-x86_64`
+  - `rawoxide-macos-aarch64`
   - `rawoxide-windows-x86_64.exe`
+  - `rawoxide-windows-aarch64.exe`
 - generates `SHA256SUMS` and attaches the binaries plus checksums to the GitHub
   release.
+
+The Linux ARM binaries are cross-compiled with the GNU toolchains
+(`aarch64-linux-gnu-gcc` and `arm-linux-gnueabihf-gcc`) and the matching target
+libc headers. The `rawoxide-linux-armv7` build targets ARMv7-A with hard-float.
+They are linked against the CI cross sysroot and require a recent glibc; older
+releases such as Bullseye may report missing GLIBC symbol versions. The macOS
+and Windows ARM64 binaries are built natively on ARM64 runners.
 
 A `workflow_dispatch` run builds and uploads artifacts without publishing.
 
@@ -42,7 +54,7 @@ sha256sum -c SHA256SUMS
 
 On macOS use `shasum -a 256 -c SHA256SUMS`.
 
-The macOS binary is currently unsigned/unnotarized, so Gatekeeper may require
+The macOS binaries are currently unsigned/unnotarized, so Gatekeeper may require
 an explicit override. Windows binaries are not code-signed either. Treat these
 as release-policy limitations until signing credentials are available.
 

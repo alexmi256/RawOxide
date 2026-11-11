@@ -88,6 +88,15 @@ cross-decode:
     cargo build -p rawoxide-cli
     ./scripts/cross_decode.sh
 
+# Cross-compile the CLI for ARM Linux (needs the matching GNU cross toolchain).
+build-arm64:
+    rustup target add aarch64-unknown-linux-gnu
+    CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc cargo build --locked --release -p rawoxide-cli --target aarch64-unknown-linux-gnu
+
+build-arm32:
+    rustup target add armv7-unknown-linux-gnueabihf
+    CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc cargo build --locked --release -p rawoxide-cli --target armv7-unknown-linux-gnueabihf
+
 run:
     cargo run -p rawoxide-cli --
 
