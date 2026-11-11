@@ -1,0 +1,85 @@
+[workspace]
+resolver = "3"
+members = ["crates/rawoxide-core", "crates/rawoxide-cli"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99.1"
+license = "MIT"
+repository = "https://github.com/alexmi256/RawOxide"
+homepage = "https://github.com/alexmi256/RawOxide"
+authors = ["Alex M."]
+description = "DNG steganography toolkit and CLI"
+keywords = ["steganography", "dng", "tiff", "raw", "image"]
+categories = ["multimedia::images", "encoding", "command-line-utilities"]
+
+[workspace.dependencies]
+anyhow = "1.0"
+clap = { version = "4.6", features = ["derive", "env", "wrap_help"] }
+crc32fast = "1.5"
+flate2 = "1.0"
+console = "0.16"
+indicatif = "0.18"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif", "bmp", "tiff"] }
+md-5 = "0.10"
+sha2 = "0.11"
+thiserror = "2.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+ureq = { version = "2.12", features = ["proxy-from-env"] }
+urlencoding = "2"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+chrono-tz = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tiff-reader = { version = "=0.11.0", default-features = false }
+
+assert_cmd = "2.2"
+criterion = "0.8"
+predicates = "3.1"
+proptest = "1.12"
+tempfile = "3.27"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unused_must_use = "deny"
+missing_debug_implementations = "warn"
+missing_docs = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+cargo = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+# Deliberately allowed during the port; revisit once the API settles.
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+cast_possible_truncation = "allow"
+cast_sign_loss = "allow"
+cast_possible_wrap = "allow"
+too_many_lines = "allow"
+similar_names = "allow"
+struct_excessive_bools = "allow"
+option_if_let_else = "allow"
+# Transitive proc-macro crates lag their syn major; not actionable here.
+multiple_crate_versions = "allow"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+# Compile dependencies with optimisations even in dev builds; this matters for
+# image codecs and TIFF compression during day-to-day test runs.
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.bench]
+lto = "thin"
+codegen-units = 1
