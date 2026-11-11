@@ -34,8 +34,8 @@ semantic versioning.
 - Fixture and golden-vector test suite, property tests, CLI assertions,
   criterion benchmarks and coverage configuration.
 - CI for Linux, macOS and Windows, an MSRV check, `cargo-deny`, `cargo-audit`,
-  rustdoc, and a tag-triggered release workflow that publishes per-platform
-  binaries with `SHA256SUMS`.
+  rustdoc, and a release workflow that publishes per-platform binaries with
+  `SHA256SUMS`.
 - ARM release builds: Linux 64-bit (`aarch64-unknown-linux-gnu`) and 32-bit
   hard-float (`armv7-unknown-linux-gnueabihf`), macOS Apple Silicon
   (`aarch64-apple-darwin`) and Windows ARM64 (`aarch64-pc-windows-msvc`), plus
@@ -44,6 +44,11 @@ semantic versioning.
 
 ### Changed
 
+- Releases are now produced by merging to `main`: merges publish a beta
+  pre-release, and the first merge on a new workspace version also publishes the
+  matching official release. Pushing a `v*` tag still works for explicit
+  releases, but the tag must match the workspace version; a manual workflow run
+  builds artifacts without publishing.
 - macOS release assets are now architecture-specific: `rawoxide-macos-aarch64`
   and `rawoxide-macos-x86_64` replace the single `rawoxide-macos` binary.
 - Project renamed to **RawOxide**; binaries and crates are now `rawoxide`,
