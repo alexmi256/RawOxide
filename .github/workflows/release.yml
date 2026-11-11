@@ -11,13 +11,14 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
+  ZIG_VERSION: "0.17.1"
 
 jobs:
   verify:
     name: verify
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --locked --workspace --all-features
@@ -51,7 +52,7 @@ jobs:
             binary: target/aarch64-pc-windows-msvc/release/rawoxide.exe
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -62,7 +63,7 @@ jobs:
       - name: Stage platform binary
         shell: bash
         run: cp "${{ matrix.binary }}" "${{ matrix.artifact }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}
@@ -78,34 +79,29 @@ jobs:
         include:
           - target: aarch64-unknown-linux-gnu
             artifact: rawoxide-linux-aarch64
-            packages: gcc-aarch64-linux-gnu libc6-dev-arm64-cross
           - target: armv7-unknown-linux-gnueabihf
             artifact: rawoxide-linux-armv7
-            packages: gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
-    env:
-      CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
-      CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-gcc
-      CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
-      AR_aarch64_unknown_linux_gnu: aarch64-linux-gnu-ar
-      CC_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
-      AR_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.target }}
-      - name: Install cross toolchain
+      - uses: taiki-e/install-action@cargo-zigbuild
+      - name: Install Zig
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ${{ matrix.packages }}
-      - run: cargo build --locked --release -p rawoxide-cli --target ${{ matrix.target }}
+          curl --fail --location --retry 5 --retry-delay 2 \
+            "https://ziglang.org/download/${ZIG_VERSION}/zig-x86_64-linux-${ZIG_VERSION}.tar.xz" \
+            --output "$RUNNER_TEMP/zig.tar.xz"
+          tar -xJf "$RUNNER_TEMP/zig.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/zig-x86_64-linux-${ZIG_VERSION}" >> "$GITHUB_PATH"
+      - run: cargo zigbuild --locked --release -p rawoxide-cli --target ${{ matrix.target }}
       - name: Stage platform binary
         shell: bash
         run: cp "target/${{ matrix.target }}/release/rawoxide" "${{ matrix.artifact }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}
@@ -117,7 +113,7 @@ jobs:
     needs: [build, build-arm]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: artifacts
           merge-multiple: true
@@ -125,7 +121,7 @@ jobs:
         run: |
           cd artifacts
           sha256sum * > SHA256SUMS
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: artifacts/*
           fail_on_unmatched_files: true

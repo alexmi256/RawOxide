@@ -37,12 +37,10 @@ git push origin vX.Y.Z
 - generates `SHA256SUMS` and attaches the binaries plus checksums to the GitHub
   release.
 
-The Linux ARM binaries are cross-compiled with the GNU toolchains
-(`aarch64-linux-gnu-gcc` and `arm-linux-gnueabihf-gcc`) and the matching target
-libc headers. The `rawoxide-linux-armv7` build targets ARMv7-A with hard-float.
-They are linked against the CI cross sysroot and require a recent glibc; older
-releases such as Bullseye may report missing GLIBC symbol versions. The macOS
-and Windows ARM64 binaries are built natively on ARM64 runners.
+The Linux ARM binaries are cross-compiled with `cargo-zigbuild` and the pinned
+Zig toolchain. The `rawoxide-linux-armv7` build targets ARMv7-A with hard-float.
+Older distributions such as Bullseye may report missing GLIBC symbol versions.
+The macOS and Windows ARM64 binaries are built natively on ARM64 runners.
 
 A `workflow_dispatch` run builds and uploads artifacts without publishing.
 
