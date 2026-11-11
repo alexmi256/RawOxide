@@ -12,6 +12,7 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   ZIG_VERSION: "0.17.1"
+  ZIG_SHA256: "3581863e3cbcfd0fce0efc682ce7e9e93da96668a977791d356a26d2a7e9b17a"
 
 jobs:
   verify:
@@ -89,12 +90,16 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.target }}
-      - uses: taiki-e/install-action@cargo-zigbuild
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-zigbuild@0.24.1
       - name: Install Zig
         run: |
-          curl --fail --location --retry 5 --retry-delay 2 \
+          curl --fail --location --proto '=https' --proto-redir '=https' --tlsv1.2 \
+            --retry 5 --retry-delay 2 \
             "https://ziglang.org/download/${ZIG_VERSION}/zig-x86_64-linux-${ZIG_VERSION}.tar.xz" \
             --output "$RUNNER_TEMP/zig.tar.xz"
+          echo "${ZIG_SHA256}  $RUNNER_TEMP/zig.tar.xz" | sha256sum -c -
           tar -xJf "$RUNNER_TEMP/zig.tar.xz" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/zig-x86_64-linux-${ZIG_VERSION}" >> "$GITHUB_PATH"
       - run: cargo zigbuild --locked --release -p rawoxide-cli --target ${{ matrix.target }}

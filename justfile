@@ -12,7 +12,8 @@ setup:
 
 # Install the developer tools used by CI (user-level; no sudo).
 tools:
-    cargo install --locked cargo-nextest cargo-llvm-cov cargo-deny cargo-audit cargo-mutants cargo-zigbuild
+    cargo install --locked cargo-nextest cargo-llvm-cov cargo-deny cargo-audit cargo-mutants
+    cargo install --locked cargo-zigbuild --version 0.24.1
 
 fmt:
     cargo fmt --all

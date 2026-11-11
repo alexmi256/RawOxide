@@ -96,7 +96,8 @@ cargo install --path crates/rawoxide-cli
 ```
 
 To cross-compile an ARM Linux binary, install [Zig](https://ziglang.org/download/)
-and `cargo-zigbuild` (`cargo install --locked cargo-zigbuild`), then run:
+and `cargo-zigbuild` (`cargo install --locked cargo-zigbuild --version 0.24.1`),
+then run:
 
 ```bash
 just build-arm64  # aarch64, 64-bit
