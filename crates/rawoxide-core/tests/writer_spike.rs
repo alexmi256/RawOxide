@@ -1,0 +1,1363 @@
+//! Writer-spike tests: Rust output must be readable by the Rust reader and
+//! structurally valid for the Python/tifffile/rawpy toolchain.
+//!
+//! The Python cross-check runs in CI via `scripts/cross_decode.sh`; the Rust
+//! tests here stay hermetic. See `docs/testing.md`.
+
+use std::path::Path;
+
+use rawoxide_core::{
+    DecodeOptions, DngReader, RawMode, WriteError, WriterOptions, decode_files, write_dng,
+    write_dng_from_file, write_spike_dng,
+};
+
+fn payload() -> Vec<u8> {
+    (0..3000)
+        .map(|index| ((index * 37 + 17) & 0xFF) as u8)
+        .collect()
+}
+
+#[test]
+fn writes_a_decodable_linear_raw_dng() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("spike.dng");
+    let info = write_spike_dng(&path, &payload(), 256, 192, 1, None).unwrap();
+    assert_eq!(info.width, 256);
+    assert_eq!(info.height, 192);
+    assert_eq!(info.payload_len, 3000);
+    assert!(info.size > 0);
+    assert_eq!(info.thumbnail_label, "synthetic-gradient");
+    assert!(info.payload_frame_crc32.is_none());
+
+    let bytes = std::fs::read(&path).unwrap();
+    assert_eq!(&bytes[..4], b"II*\0");
+
+    let reader = DngReader::open(&path).unwrap();
+    let frames = reader.raw_frames().unwrap();
+    assert_eq!(frames.len(), 1);
+    assert_eq!(frames[0].width, 256);
+    assert_eq!(frames[0].height, 192);
+    assert_eq!(frames[0].samples_per_pixel, 3);
+    assert_eq!(frames[0].bits_per_sample, 16);
+
+    let outcome = decode_files(&[path], &DecodeOptions::default()).unwrap();
+    assert_eq!(outcome.payload, payload());
+}
+
+#[test]
+fn writes_a_keyed_multi_plane_dng() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("keyed.dng");
+    write_spike_dng(&path, &payload(), 128, 96, 4, Some(b"test-key")).unwrap();
+
+    let options = DecodeOptions {
+        key: Some(b"test-key"),
+        lsb_planes: Some(4),
+        ..DecodeOptions::default()
+    };
+    let outcome = decode_files(&[path], &options).unwrap();
+    assert_eq!(outcome.payload, payload());
+}
+
+#[test]
+fn rejects_oversized_payload() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("too-big.dng");
+    let error = write_spike_dng(&path, &vec![0_u8; 100_000], 64, 48, 1, None).unwrap_err();
+    assert!(matches!(error, WriteError::Capacity { .. }));
+    assert!(!path.exists());
+}
+
+#[test]
+fn rejects_zero_geometry() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("zero.dng");
+    let error = write_spike_dng(&path, b"x", 0, 48, 1, None).unwrap_err();
+    assert!(matches!(error, WriteError::InvalidGeometry { .. }));
+}
+
+#[test]
+fn output_contains_expected_tiff_markers() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("markers.dng");
+    write_spike_dng(&path, b"markers", 64, 48, 1, None).unwrap();
+    let bytes = std::fs::read(&path).unwrap();
+    // Classic little-endian TIFF header; IFD0 lives at the end of the file.
+    assert_eq!(&bytes[..4], b"II*\0");
+    // SubIFDs tag (330) is present in the IFD0 directory.
+    assert!(
+        bytes
+            .windows(2)
+            .any(|window| window == 330_u16.to_le_bytes())
+    );
+    assert!(Path::new(&path).is_file());
+}
+
+#[test]
+fn writer_matrix_roundtrips_all_modes_and_depths() {
+    let payload: Vec<u8> = (0..200).map(|index| (index * 13) as u8).collect();
+    let dir = tempfile::tempdir().unwrap();
+
+    for mode in [RawMode::Linear, RawMode::Cfa] {
+        for bit_depth in [8_u16, 10, 12, 14, 16] {
+            let path = dir
+                .path()
+                .join(format!("{}_{bit_depth}.dng", mode.as_str()));
+            let options = WriterOptions {
+                width: 50,
+                height: 30,
+                mode,
+                bit_depth,
+                lsb_planes: 2,
+                key: None,
+                tile_width: 32,
+                tile_height: 24,
+                ..WriterOptions::default()
+            };
+            write_dng(&path, &payload, &options)
+                .unwrap_or_else(|error| panic!("{} bit={bit_depth}: {error}", mode.as_str()));
+
+            let reader = DngReader::open(&path).unwrap();
+            let frames = reader.raw_frames().unwrap();
+            assert_eq!(frames.len(), 1);
+            assert_eq!(frames[0].width, 50);
+            assert_eq!(frames[0].height, 30);
+            assert_eq!(frames[0].samples_per_pixel, mode.channels());
+            assert_eq!(frames[0].bits_per_sample, bit_depth);
+
+            let decoded = decode_files(&[path], &DecodeOptions::default()).unwrap();
+            assert_eq!(
+                decoded.payload,
+                payload,
+                "{} bit={bit_depth}",
+                mode.as_str()
+            );
+        }
+    }
+}
+
+#[test]
+fn rejects_invalid_depth_and_planes() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("invalid.dng");
+    let mut options = WriterOptions {
+        width: 64,
+        height: 48,
+        bit_depth: 9,
+        ..WriterOptions::default()
+    };
+    assert!(matches!(
+        write_dng(&path, b"x", &options),
+        Err(WriteError::InvalidBitDepth(9))
+    ));
+
+    options.bit_depth = 8;
+    options.lsb_planes = 9;
+    assert!(matches!(
+        write_dng(&path, b"x", &options),
+        Err(WriteError::InvalidPlanes { .. })
+    ));
+}
+
+#[test]
+fn writer_handles_multiple_raw_frames() {
+    let payload: Vec<u8> = (0..1000).map(|index| (index * 17) as u8).collect();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("frames.dng");
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Linear,
+        bit_depth: 16,
+        lsb_planes: 1,
+        frames: 3,
+        seed: 42,
+        key: None,
+        profile: None,
+        metadata: None,
+        level_policy: rawoxide_core::LevelPolicy::Profile,
+        compression: rawoxide_core::writer::Compression::None,
+        preview: rawoxide_core::PreviewSource::Synthetic,
+        force_bigtiff: false,
+        split_id: None,
+        split_seq: None,
+        split_total: None,
+        split_id_field: rawoxide_core::SplitIdField::default(),
+        split_seq_field: rawoxide_core::SplitSeqField::default(),
+        tile_width: 64,
+        tile_height: 48,
+        debug_stats: false,
+    };
+    write_dng(&path, &payload, &options).unwrap();
+    let reader = DngReader::open(&path).unwrap();
+    assert_eq!(reader.raw_frames().unwrap().len(), 3);
+    let outcome = decode_files(&[path], &DecodeOptions::default()).unwrap();
+    assert_eq!(outcome.payload, payload);
+}
+
+#[test]
+fn writer_emits_split_markers_and_links_exif() {
+    let payload = vec![7_u8; 1000];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("split.dng");
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        split_id: Some("rust-split-set"),
+        split_seq: Some(1),
+        split_total: Some(2),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let reader = DngReader::open(&path).unwrap();
+    let markers = reader
+        .split_markers(
+            rawoxide_core::SplitIdField::ImageUniqueId,
+            rawoxide_core::SplitSeqField::ImageNumber,
+        )
+        .unwrap();
+    assert!(markers.id_present);
+    assert!(markers.seq_present);
+    assert_eq!(markers.id.as_deref(), Some("rust-split-set"));
+    assert_eq!(markers.seq, Some(1));
+    assert_eq!(markers.total, None);
+
+    assert_eq!(
+        decode_files(&[path], &DecodeOptions::default())
+            .unwrap()
+            .payload,
+        payload
+    );
+}
+
+#[test]
+fn writer_emits_page_number_totals() {
+    let payload = vec![9_u8; 1000];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("page.dng");
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        split_id: Some("rust-split-set"),
+        split_seq: Some(2),
+        split_total: Some(3),
+        split_seq_field: rawoxide_core::SplitSeqField::PageNumber,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let reader = DngReader::open(&path).unwrap();
+    let markers = reader
+        .split_markers(
+            rawoxide_core::SplitIdField::ImageUniqueId,
+            rawoxide_core::SplitSeqField::PageNumber,
+        )
+        .unwrap();
+    assert_eq!(markers.seq, Some(2));
+    assert_eq!(markers.total, Some(3));
+}
+
+#[test]
+fn writer_embeds_profile_and_randomized_metadata() {
+    let payload = vec![3_u8; 500];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("canon.dng");
+    let profile = rawoxide_core::profiles::get_profile("canon_eos_80d").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(12), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let bytes = std::fs::read(&path).unwrap();
+    let text = String::from_utf8_lossy(&bytes);
+    assert!(text.contains("Canon EOS 80D"));
+    assert!(text.contains("Canon"));
+    assert!(text.contains(&metadata.datetime));
+    assert!(text.contains(&metadata.body_serial));
+    assert!(text.contains(&metadata.lens_serial));
+    assert!(!text.contains("Rust Spike DNG"));
+    assert_eq!(
+        decode_files(&[path], &DecodeOptions::default())
+            .unwrap()
+            .payload,
+        payload
+    );
+}
+
+#[test]
+fn dng_tags_live_in_ifd0_not_raw_subifd() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("ifd0.dng");
+    let profile = rawoxide_core::profiles::get_profile("canon_eos_80d").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(1), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [50_706_u16, 50_707, 50_708, 50_721, 50_722, 50_728, 50_730] {
+        assert!(ifd0.tag(tag).is_some(), "missing IFD0 tag {tag}");
+    }
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    for tag in [50_706_u16, 50_707, 50_708, 50_721, 50_722, 50_728, 50_730] {
+        assert!(raw.tag(tag).is_none(), "tag {tag} leaked into raw SubIFD");
+    }
+    assert_eq!(
+        ifd0.tag(50_735).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Ascii(
+            metadata.camera_serial.clone()
+        ))
+    );
+    let packet = match ifd0.tag(700).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Byte(bytes)) => bytes,
+        other => panic!("unexpected XMP value {other:?}"),
+    };
+    assert_eq!(packet.len(), 12_288);
+    assert!(packet.starts_with(b"<?xpacket begin"));
+    let text = String::from_utf8_lossy(packet);
+    assert!(text.contains("<xmp:Rating>0</xmp:Rating>"));
+    let end = b"<?xpacket end=\"w\"?>\n";
+    let end_at = packet
+        .windows(end.len())
+        .position(|window| window == end)
+        .expect("XMP end marker");
+    assert!(
+        packet[end_at + end.len()..]
+            .iter()
+            .all(|byte| *byte == b' ')
+    );
+}
+
+#[test]
+fn writer_reports_payload_and_frame_crcs() {
+    let payload: Vec<u8> = (0..2_000).map(|index| (index * 37 % 251) as u8).collect();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("crc.dng");
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Linear,
+        frames: 2,
+        seed: 11,
+        key: Some(b"crc-key"),
+        debug_stats: true,
+        ..WriterOptions::default()
+    };
+    let info = write_dng(&path, &payload, &options).unwrap();
+    let packed = rawoxide_core::PayloadFrame::pack(&payload, Some(b"crc-key"));
+    assert_eq!(info.payload_frame_crc32, Some(crc32fast::hash(&packed)));
+    assert_eq!(info.frame_crc32s.len(), 2);
+
+    let frames = DngReader::open(&path).unwrap().raw_frames().unwrap();
+    for (frame, reported) in frames.iter().zip(&info.frame_crc32s) {
+        let mut hasher = crc32fast::Hasher::new();
+        if info.bit_depth <= 8 {
+            for &sample in &frame.samples {
+                hasher.update(&[sample as u8]);
+            }
+        } else {
+            for &sample in &frame.samples {
+                hasher.update(&sample.to_le_bytes());
+            }
+        }
+        assert_eq!(*reported, hasher.finalize());
+    }
+}
+
+#[test]
+fn writer_crcs_cover_multiple_stream_chunks() {
+    let payload: Vec<u8> = (0..70_000).map(|index| (index * 29 % 251) as u8).collect();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("crc-large.dng");
+    let options = WriterOptions {
+        width: 512,
+        height: 384,
+        mode: RawMode::Linear,
+        seed: 13,
+        key: Some(b"large-crc-key"),
+        debug_stats: true,
+        ..WriterOptions::default()
+    };
+    let info = write_dng(&path, &payload, &options).unwrap();
+    let packed = rawoxide_core::PayloadFrame::pack(&payload, Some(b"large-crc-key"));
+    assert_eq!(info.payload_frame_crc32, Some(crc32fast::hash(&packed)));
+    let frame = &DngReader::open(&path).unwrap().raw_frames().unwrap()[0];
+    let mut hasher = crc32fast::Hasher::new();
+    for &sample in &frame.samples {
+        hasher.update(&sample.to_le_bytes());
+    }
+    assert_eq!(info.frame_crc32s[0], hasher.finalize());
+}
+
+#[test]
+fn default_writer_emits_static_exif_and_ifd0_tags() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("static-tags.dng");
+    let profile = rawoxide_core::profiles::get_profile("gfx_100").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(1), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Linear,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [50_727_u16, 50_736] {
+        assert!(ifd0.tag(tag).is_some(), "IFD0 tag {tag}");
+    }
+
+    let pointer = ifd0.tag(34_665).expect("ExifTag");
+    let offset = match &pointer.value {
+        tiff_reader::TagValue::Long(values) => u64::from(values[0]),
+        tiff_reader::TagValue::Long8(values) => values[0],
+        other => panic!("unexpected Exif IFD pointer {other:?}"),
+    };
+    let exif = file.read_ifd_at_offset(offset).unwrap();
+    for tag in [
+        34_864_u16, 34_865, 36_864, 36_881, 36_882, 40_961, 40_962, 40_963, 41_486, 41_487, 41_488,
+        41_495, 41_728, 41_729, 41_985, 41_986, 41_987, 41_990,
+    ] {
+        assert!(exif.tag(tag).is_some(), "EXIF tag {tag}");
+    }
+
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    for tag in [282_u16, 283, 296] {
+        assert!(raw.tag(tag).is_some(), "raw tag {tag}");
+    }
+}
+
+#[test]
+fn strict_level_policy_changes_emitted_white_and_black() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("strict.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(1), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: rawoxide_core::RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        level_policy: rawoxide_core::LevelPolicy::Strict,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    assert_eq!(
+        raw.tag(50_717).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![16_368]))
+    );
+    assert_eq!(
+        raw.tag(50_714).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![1020, 1016, 1016, 1020]))
+    );
+    assert_eq!(
+        raw.tag(50_829).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![0, 0, 96, 128]))
+    );
+    assert_eq!(
+        raw.tag(51_125).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Rational(vec![
+            [0, 1],
+            [0, 1],
+            [1, 1],
+            [1, 1]
+        ]))
+    );
+    assert!(raw.tag(50_713).is_some());
+    assert_eq!(
+        raw.tag(33_422).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Byte(vec![2, 1, 1, 0]))
+    );
+    assert!(raw.tag(51_041).is_none());
+    assert!(matches!(
+        ifd0.tag(51_041).map(|tag| &tag.value),
+        Some(tiff_reader::TagValue::Double(values)) if values.len() == 6
+    ));
+    let max_sample = DngReader::open(&path)
+        .unwrap()
+        .raw_frames()
+        .unwrap()
+        .iter()
+        .flat_map(|frame| frame.samples.iter().copied())
+        .max()
+        .unwrap();
+    assert!(
+        max_sample <= 16_368,
+        "strict sample {max_sample} above white"
+    );
+    assert!(ifd0.tag(700).is_none(), "fidelity emit_xmp=false must win");
+    assert!(ifd0.tag(50_739).is_some(), "ShadowScale missing");
+    assert!(
+        ifd0.tag(50_740).is_none(),
+        "DNGPrivateData should not be written"
+    );
+    assert!(matches!(
+        ifd0.tag(50_728).map(|tag| &tag.value),
+        Some(tiff_reader::TagValue::Rational(values))
+            if values.len() == 3 && values[1] == [10_000, 10_000]
+    ));
+}
+
+#[test]
+fn fidelity_tag_flags_and_allowlist_are_honoured() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("custom.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: rawoxide_core::RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let exif = file.ifd(0).unwrap().tag(34_665).unwrap();
+    let offset = match &exif.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected Exif IFD pointer {other:?}"),
+    };
+    let exif_ifd = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    for tag in [42_034_u16, 42_035, 42_036, 42_037, 42_033, 34_850, 36_880] {
+        assert!(exif_ifd.tag(tag).is_none(), "tag {tag} should be filtered");
+    }
+    assert!(file.ifd(0).unwrap().tag(700).is_none());
+    assert!(file.ifd(0).unwrap().tag(50_727).is_some());
+    assert!(file.ifd(0).unwrap().tag(51_041).is_some());
+    assert!(file.ifd(0).unwrap().tag(50_736).is_none());
+    assert!(exif_ifd.tag(37_382).is_some());
+    assert!(exif_ifd.tag(41_730).is_some());
+    assert!(exif_ifd.tag(41_987).is_some());
+    assert!(exif_ifd.tag(41_988).is_some());
+    assert!(exif_ifd.tag(41_996).is_some());
+}
+
+fn sub_ifd_offset_from_file(path: &std::path::Path) -> u64 {
+    let bytes = std::fs::read(path).unwrap();
+    let ifd_offset = u32::from_le_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]) as usize;
+    let count = u16::from_le_bytes([bytes[ifd_offset], bytes[ifd_offset + 1]]) as usize;
+    for index in 0..count {
+        let entry = ifd_offset + 2 + index * 12;
+        let tag = u16::from_le_bytes([bytes[entry], bytes[entry + 1]]);
+        if tag == 330 {
+            let value = &bytes[entry + 8..entry + 12];
+            return u64::from(u32::from_le_bytes([value[0], value[1], value[2], value[3]]));
+        }
+    }
+    panic!("no SubIFDs tag");
+}
+
+#[test]
+fn linear_mode_ignores_crop_margin_like_python() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("linear-crop.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Linear,
+        profile: Some(profile),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    assert_eq!(
+        raw.tag(50_719).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Rational(vec![[0, 1], [0, 1]]))
+    );
+    assert_eq!(
+        raw.tag(50_720).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Rational(vec![[128, 1], [96, 1]]))
+    );
+    assert!(raw.tag(50_829).is_none());
+    assert!(raw.tag(51_125).is_none());
+}
+
+#[test]
+fn cfa_crop_margin_that_leaves_no_image_is_rejected() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("crop.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let options = WriterOptions {
+        width: 16,
+        height: 16,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        ..WriterOptions::default()
+    };
+    let error = write_dng(&path, &[1_u8; 16], &options).unwrap_err();
+    assert!(matches!(error, WriteError::InvalidCrop { .. }), "{error}");
+    assert!(!path.exists());
+}
+
+#[test]
+fn writer_emits_gps_ifd_for_gps_profiles() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("gps.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        frames: 2,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    assert_eq!(
+        DngReader::open(&path).unwrap().raw_frames().unwrap().len(),
+        2
+    );
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let pointer = file.ifd(0).unwrap().tag(34_853).expect("GPSTag");
+    let offset = match &pointer.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected GPS pointer {other:?}"),
+    };
+    let gps = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    for tag in [0_u16, 1, 2, 3, 4, 5, 6, 7, 11, 27, 29] {
+        assert!(gps.tag(tag).is_some(), "missing GPS tag {tag}");
+    }
+}
+
+#[test]
+fn gps_ifd_is_valid_when_exif_is_absent() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("gps-no-exif.dng");
+    let mut profile = rawoxide_core::profiles::get_profile("custom_pixel_xl")
+        .unwrap()
+        .clone();
+    profile.fidelity.as_mut().unwrap().exif_allow = Some(Vec::new());
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(4), Some(&profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(&profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert!(ifd0.tag(34_665).is_none(), "EXIF should be filtered out");
+    let pointer = ifd0.tag(34_853).expect("GPSTag");
+    let offset = match &pointer.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected GPS pointer {other:?}"),
+    };
+    let gps = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    assert!(gps.tag(2).is_some());
+    assert!(gps.tag(29).is_some());
+}
+
+#[test]
+fn raw_digest_tags_are_written_for_fidelity_profiles() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("digests.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [51_111_u16, 50_781] {
+        let value = ifd0.tag(tag).unwrap();
+        assert!(matches!(&value.value, tiff_reader::TagValue::Byte(bytes) if bytes.len() == 16));
+    }
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    assert!(matches!(
+        raw.tag(51_009).map(|tag| &tag.value),
+        Some(tiff_reader::TagValue::Undefined(bytes)) if bytes.len() == 19_572
+    ));
+}
+
+#[test]
+fn makernote_is_written_when_the_profile_requests_it() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("makernote.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(50_741).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Short(vec![1]))
+    );
+    let exif_pointer = ifd0.tag(34_665).unwrap();
+    let offset = match &exif_pointer.value {
+        tiff_reader::TagValue::Long(values) => values[0],
+        other => panic!("unexpected Exif IFD pointer {other:?}"),
+    };
+    let exif = file.read_ifd_at_offset(u64::from(offset)).unwrap();
+    let value = exif.tag(37_500).unwrap();
+    match &value.value {
+        tiff_reader::TagValue::Undefined(bytes) => {
+            assert!((2640..=2757).contains(&bytes.len()));
+            assert!(bytes.starts_with(b"HDRP"));
+        }
+        other => panic!("unexpected MakerNote value {other:?}"),
+    }
+}
+
+#[test]
+fn multi_frame_files_omit_raw_digest_tags() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("frames-digests.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        frames: 2,
+        profile: Some(profile),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert!(ifd0.tag(51_111).is_none());
+    assert!(ifd0.tag(50_781).is_none());
+}
+
+#[test]
+fn deflate_tiles_roundtrip_at_edge_tiles() {
+    let payload = vec![7_u8; 2000];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("deflate.dng");
+    let options = WriterOptions {
+        width: 300,
+        height: 257,
+        mode: RawMode::Linear,
+        bit_depth: 16,
+        compression: rawoxide_core::writer::Compression::AdobeDeflate,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    assert_eq!(
+        decode_files(&[path], &DecodeOptions::default())
+            .unwrap()
+            .payload,
+        payload
+    );
+}
+
+#[test]
+fn preview_dimensions_use_profile_preview_size() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("preview.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let bytes = std::fs::read(&path).unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(256).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![676]))
+    );
+    assert_eq!(
+        ifd0.tag(257).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![506]))
+    );
+    assert_eq!(
+        ifd0.tag(278).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![506]))
+    );
+
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&path))
+        .unwrap();
+    assert_eq!(
+        raw.tag(256).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![128]))
+    );
+    assert_eq!(
+        raw.tag(257).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Long(vec![96]))
+    );
+
+    let offset = match ifd0.tag(273).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Long(values)) => values[0] as usize,
+        other => panic!("unexpected strip offset {other:?}"),
+    };
+    let count = match ifd0.tag(279).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Long(values)) => values[0] as usize,
+        other => panic!("unexpected strip count {other:?}"),
+    };
+    let jpeg = image::load_from_memory_with_format(
+        &bytes[offset..offset + count],
+        image::ImageFormat::Jpeg,
+    )
+    .unwrap();
+    assert_eq!(jpeg.width(), 676);
+    assert_eq!(jpeg.height(), 506);
+}
+
+#[test]
+fn forced_bigtiff_roundtrips() {
+    let payload = vec![9_u8; 1000];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("big.dng");
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        force_bigtiff: true,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+    let bytes = std::fs::read(&path).unwrap();
+    assert!(bytes.starts_with(b"II+\0"));
+    assert_eq!(
+        decode_files(&[path], &DecodeOptions::default())
+            .unwrap()
+            .payload,
+        payload
+    );
+}
+
+#[test]
+fn bigtiff_uses_64bit_pointers_and_tile_tables() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("big-types.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let metadata = rawoxide_core::MetadataRandomizer::new(Some(4), Some(profile)).randomize(None);
+    let options = WriterOptions {
+        width: 128,
+        height: 96,
+        mode: RawMode::Cfa,
+        profile: Some(profile),
+        metadata: Some(&metadata),
+        force_bigtiff: true,
+        ..WriterOptions::default()
+    };
+    write_dng(&path, &payload, &options).unwrap();
+
+    let bytes = std::fs::read(&path).unwrap();
+    assert_eq!(&bytes[..4], b"II+\0");
+    assert_eq!(u16::from_le_bytes([bytes[4], bytes[5]]), 8);
+    assert_eq!(u16::from_le_bytes([bytes[6], bytes[7]]), 0);
+    let first_ifd = u64::from_le_bytes(bytes[8..16].try_into().unwrap());
+    assert!(first_ifd >= 16);
+    assert!(first_ifd < bytes.len() as u64);
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    assert!(file.is_bigtiff());
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(ifd0.tag(330).unwrap().tag_type, tiff_reader::TagType::Ifd8);
+    assert_eq!(
+        ifd0.tag(34_665).unwrap().tag_type,
+        tiff_reader::TagType::Long8
+    );
+    assert_eq!(
+        ifd0.tag(34_853).unwrap().tag_type,
+        tiff_reader::TagType::Long8
+    );
+
+    let sub_offset = match &ifd0.tag(330).unwrap().value {
+        tiff_reader::TagValue::Long8(values) => values[0],
+        other => panic!("unexpected SubIFDs value {other:?}"),
+    };
+    let raw = file.read_ifd_at_offset(sub_offset).unwrap();
+    assert_eq!(raw.tag(324).unwrap().tag_type, tiff_reader::TagType::Long8);
+    assert_eq!(raw.tag(325).unwrap().tag_type, tiff_reader::TagType::Long8);
+}
+
+#[test]
+fn opcode_lists_follow_the_profile() {
+    let payload = vec![5_u8; 200];
+    let dir = tempfile::tempdir().unwrap();
+
+    let linear = dir.path().join("linear.dng");
+    let profile = rawoxide_core::profiles::get_profile("gfx_100").unwrap();
+    write_dng(
+        &linear,
+        &payload,
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&linear).unwrap();
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&linear))
+        .unwrap();
+    assert!(raw.tag(51_009).is_none());
+    match raw.tag(51_022).map(|tag| &tag.value) {
+        Some(tiff_reader::TagValue::Undefined(bytes)) => {
+            assert_eq!(bytes, &profile.opcode_list3);
+        }
+        other => panic!("unexpected OpcodeList3 {other:?}"),
+    }
+
+    let cfa = dir.path().join("cfa.dng");
+    let custom = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &cfa,
+        &payload,
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            profile: Some(custom),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&cfa).unwrap();
+    let raw = file
+        .read_ifd_at_offset(sub_ifd_offset_from_file(&cfa))
+        .unwrap();
+    assert!(matches!(
+        raw.tag(51_009).map(|tag| &tag.value),
+        Some(tiff_reader::TagValue::Undefined(bytes)) if bytes.len() == 19_572
+    ));
+    assert!(raw.tag(51_022).is_none());
+}
+
+#[test]
+fn successful_write_leaves_no_temporary_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("atomic.dng");
+    write_dng(
+        &path,
+        &[1_u8; 200],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let leftovers: Vec<_> = std::fs::read_dir(dir.path())
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name())
+        .filter(|name| name.to_string_lossy().contains(".rawoxide.tmp"))
+        .collect();
+    assert!(leftovers.is_empty(), "temporary files left: {leftovers:?}");
+}
+
+#[test]
+fn adobe_profiles_drop_resolution_tags() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    assert_eq!(
+        profile
+            .fidelity
+            .as_ref()
+            .unwrap()
+            .tag_conventions
+            .as_deref(),
+        Some("adobe")
+    );
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [282_u16, 283, 296] {
+        assert!(
+            ifd0.tag(tag).is_none(),
+            "resolution tag {tag} should be absent"
+        );
+    }
+
+    let default_path = dir.path().join("default.dng");
+    write_dng(
+        &default_path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&default_path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [282_u16, 283, 296] {
+        assert!(
+            ifd0.tag(tag).is_some(),
+            "non-Adobe profile should keep resolution tag {tag}"
+        );
+    }
+}
+
+#[test]
+fn adobe_profile_tags_are_written() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe-profile.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    for tag in [
+        50_932_u16, 50_936, 50_937, 50_938, 50_939, 50_941, 50_942, 50_964, 50_965, 50_981, 50_982,
+    ] {
+        assert!(ifd0.tag(tag).is_some(), "missing Adobe tag {tag}");
+    }
+    assert_eq!(
+        ifd0.tag(529).unwrap().value,
+        tiff_reader::TagValue::Rational(vec![[299, 1000], [587, 1000], [114, 1000]])
+    );
+    assert_eq!(
+        ifd0.tag(531).map(|tag| (&tag.tag_type, &tag.value)),
+        Some((
+            &tiff_reader::TagType::Short,
+            &tiff_reader::TagValue::Short(vec![1])
+        ))
+    );
+    assert_eq!(
+        ifd0.tag(50_964).unwrap().value,
+        tiff_reader::TagValue::SRational(vec![
+            [4471, 10_000],
+            [3936, 10_000],
+            [1236, 10_000],
+            [2233, 10_000],
+            [7402, 10_000],
+            [365, 10_000],
+            [1246, 10_000],
+            [5, 10_000],
+            [7000, 10_000],
+        ])
+    );
+    assert_eq!(
+        ifd0.tag(50_965).unwrap().value,
+        tiff_reader::TagValue::SRational(vec![
+            [4110, 10_000],
+            [3917, 10_000],
+            [1617, 10_000],
+            [1843, 10_000],
+            [7670, 10_000],
+            [487, 10_000],
+            [848, 10_000],
+            [16, 10_000],
+            [7387, 10_000],
+        ])
+    );
+    assert_eq!(ifd0.tag(50_938).unwrap().count, 8_100);
+    match &ifd0.tag(50_938).unwrap().value {
+        tiff_reader::TagValue::Float(values) => {
+            assert_eq!(&values[..4], &[2.0, 1.0, 1.0, 2.0]);
+            assert!((values[100] - 1.922_260_6).abs() < 1e-5);
+        }
+        other => panic!("unexpected HueSat data1 {other:?}"),
+    }
+    assert_eq!(ifd0.tag(50_939).unwrap().count, 8_100);
+    match &ifd0.tag(50_939).unwrap().value {
+        tiff_reader::TagValue::Float(values) => {
+            assert!((values[100] - 1.692_975_5).abs() < 1e-5);
+        }
+        other => panic!("unexpected HueSat data2 {other:?}"),
+    }
+    assert_eq!(ifd0.tag(50_982).unwrap().count, 13_824);
+    match &ifd0.tag(50_982).unwrap().value {
+        tiff_reader::TagValue::Float(values) => {
+            assert_eq!(&values[..4], &[0.0, 1.0, 1.0, 0.0]);
+        }
+        other => panic!("unexpected LookTable data {other:?}"),
+    }
+}
+
+#[test]
+fn adobe_profile_tags_work_in_bigtiff() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe-big.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            force_bigtiff: true,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    assert!(file.is_bigtiff());
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(50_938).unwrap().tag_type,
+        tiff_reader::TagType::Float
+    );
+    assert_eq!(ifd0.tag(50_938).unwrap().count, 8_100);
+    assert_eq!(
+        ifd0.tag(50_964).unwrap().tag_type,
+        tiff_reader::TagType::SRational
+    );
+}
+
+#[test]
+fn writer_digest_matches_the_written_raw_frame() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("digest-check.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    let seed = 4;
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            seed,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+
+    let frame = DngReader::open(&path)
+        .unwrap()
+        .raw_frames()
+        .unwrap()
+        .remove(0);
+    let digest = rawoxide_core::digests::new_raw_image_digest(
+        &frame.samples,
+        frame.width,
+        frame.height,
+        frame.samples_per_pixel,
+        frame.bits_per_sample,
+    );
+    let opcode2 = rawoxide_core::opcodes::build_opcode_list2(
+        128,
+        96,
+        Some(seed),
+        profile.gainmap.as_ref().unwrap(),
+    );
+    let unique = rawoxide_core::digests::raw_data_unique_id(
+        &digest,
+        &profile.unique_camera_model,
+        [(112, 1), (80, 1)],
+        [(8, 1), (8, 1)],
+        [None, Some(&opcode2), None],
+    )
+    .unwrap();
+
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let ifd0 = file.ifd(0).unwrap();
+    assert_eq!(
+        ifd0.tag(51_111).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Byte(digest.to_vec()))
+    );
+    assert_eq!(
+        ifd0.tag(50_781).map(|tag| &tag.value),
+        Some(&tiff_reader::TagValue::Byte(unique.to_vec()))
+    );
+}
+
+#[test]
+fn adobe_subifd_types_follow_layout_and_profile() {
+    let dir = tempfile::tempdir().unwrap();
+    let adobe = dir.path().join("adobe.dng");
+    let plain = dir.path().join("plain.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &adobe,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            frames: 2,
+            profile: Some(profile),
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    write_dng(
+        &plain,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let adobe_file = tiff_reader::TiffFile::open(&adobe).unwrap();
+    let adobe_tag = adobe_file.ifd(0).unwrap().tag(330).unwrap();
+    assert_eq!(adobe_tag.tag_type, tiff_reader::TagType::Long);
+    let offsets = match &adobe_tag.value {
+        tiff_reader::TagValue::Long(values) => values.clone(),
+        other => panic!("unexpected classic SubIFDs {other:?}"),
+    };
+    assert_eq!(offsets.len(), 2);
+    for offset in offsets {
+        let raw = adobe_file.read_ifd_at_offset(u64::from(offset)).unwrap();
+        assert_eq!(raw.width(), 64);
+        assert_eq!(raw.height(), 48);
+    }
+    assert_eq!(
+        DngReader::open(&adobe).unwrap().raw_frames().unwrap().len(),
+        2
+    );
+    let plain_file = tiff_reader::TiffFile::open(&plain).unwrap();
+    let plain_tag = plain_file.ifd(0).unwrap().tag(330).unwrap();
+    assert_eq!(plain_tag.tag_type.to_code(), 13);
+    assert_eq!(
+        DngReader::open(&plain).unwrap().raw_frames().unwrap().len(),
+        1
+    );
+}
+
+#[test]
+fn adobe_bigtiff_keeps_ifd8_subifds() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("adobe-big-subifd.dng");
+    let profile = rawoxide_core::profiles::get_profile("custom_pixel_xl").unwrap();
+    write_dng(
+        &path,
+        &[1_u8; 100],
+        &WriterOptions {
+            width: 64,
+            height: 48,
+            mode: RawMode::Cfa,
+            profile: Some(profile),
+            force_bigtiff: true,
+            ..WriterOptions::default()
+        },
+    )
+    .unwrap();
+    let file = tiff_reader::TiffFile::open(&path).unwrap();
+    let tag = file.ifd(0).unwrap().tag(330).unwrap();
+    assert_eq!(tag.tag_type, tiff_reader::TagType::Ifd8);
+    assert_eq!(
+        DngReader::open(&path).unwrap().raw_frames().unwrap().len(),
+        1
+    );
+}
+
+#[test]
+fn file_payload_matches_in_memory_payload() {
+    let dir = tempfile::tempdir().unwrap();
+    let payload = payload();
+    let payload_path = dir.path().join("payload.bin");
+    std::fs::write(&payload_path, &payload).unwrap();
+
+    for key in [None, Some(&b"file-key"[..])] {
+        let memory_path = dir.path().join("memory.dng");
+        let file_path = dir.path().join("file.dng");
+        let options = WriterOptions {
+            width: 128,
+            height: 96,
+            mode: RawMode::Cfa,
+            lsb_planes: 4,
+            frames: 2,
+            key,
+            ..WriterOptions::default()
+        };
+        write_dng(&memory_path, &payload, &options).unwrap();
+        write_dng_from_file(&file_path, &payload_path, 0, payload.len() as u64, &options).unwrap();
+        assert_eq!(
+            std::fs::read(&memory_path).unwrap(),
+            std::fs::read(&file_path).unwrap()
+        );
+    }
+}
