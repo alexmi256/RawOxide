@@ -125,7 +125,7 @@ jobs:
           name: coverage
           path: lcov.info
           if-no-files-found: error
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           files: lcov.info
           use_oidc: true
