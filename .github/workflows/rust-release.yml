@@ -17,8 +17,20 @@ defaults:
     working-directory: rust
 
 jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust -> target
+      - run: cargo test --locked --workspace --all-features
+
   build:
     name: build (${{ matrix.os }})
+    needs: verify
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +71,12 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
+      - name: Generate SHA-256 checksums
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS
       - uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*
+          fail_on_unmatched_files: true
           generate_release_notes: true

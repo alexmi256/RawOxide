@@ -79,7 +79,7 @@ cargo test --workspace
 | Python ↔ Rust cross-decode | `just cross-decode` (debug build + oracle) |
 | full local CI | `just ci` |
 
-Required tools: Rust 1.88+ (the workspace uses edition 2024). `just` is
+Required tools: Rust 1.99.1+ (the workspace uses edition 2024). `just` is
 optional but recommended. The CI-only tools are user-level installs:
 
 ```bash
@@ -132,6 +132,13 @@ output. Internal choices are free — IFD/tag ordering, dummy-tag workarounds,
 strip vs tile layout, EXIF/GPS construction, JPEG/Lanczos implementation, RNG
 draw order, profile storage and metadata pool order may differ. See
 [docs/adr/0001-format-compatibility.md](docs/adr/0001-format-compatibility.md).
+
+## Release
+
+Tag `vX.Y.Z` on a clean, CI-green commit. The release workflow runs the test
+suite, builds Linux/macOS/Windows binaries, generates `SHA256SUMS`, and publishes
+them to the GitHub release. See [docs/release.md](docs/release.md) for the
+checklist and signing limitations.
 
 ## License
 

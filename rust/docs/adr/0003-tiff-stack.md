@@ -41,7 +41,8 @@ Survey results (see the feasibility study §4.4):
 
 ## Consequences
 
-- MSRV is 1.88 (`tiff-writer` requirement).
+- The historical writer evaluation set an older MSRV; the current workspace
+  minimum is 1.99.1.
 - Pin exact versions; audit upgrades. The 0.11 API is young.
 - Keep the DNG-specific logic in our adapter, not scattered through the CLI.
 - The one-week spike (256×192 LinearRaw + JPEG preview, verified by

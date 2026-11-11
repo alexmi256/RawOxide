@@ -75,7 +75,7 @@ Acceptance gate for L1 (run in CI once the TIFF layer lands):
 
 Implemented:
 
-- Cargo workspace (`rawhide-core`, `rawhide-cli`), MIT license, MSRV 1.88,
+- Cargo workspace (`rawhide-core`, `rawhide-cli`), MIT license, MSRV 1.99.1,
   edition 2024.
 - `PayloadFrame`: magic/version/flags/length/CRC32, optional SHA-256 counter
   keystream, golden vectors from Python.
@@ -296,8 +296,9 @@ single-bar presentation than Python's nested tqdm bars.
 
 - Streaming encode/decode, banded tiles and incremental digests are done.
 - Automated Python ↔ Rust cross-decode runs in CI (`scripts/cross_decode.sh`).
-- Still open: parallel tile generation, `cargo-fuzz` targets/Miri, a clean
-  MSRV CI job, benchmark comparison against Python and release artifacts.
+- MSRV CI and a tag-triggered release workflow with checksums are implemented.
+- Still open: parallel tile generation, `cargo-fuzz` targets/Miri and benchmark
+  comparison against Python.
 
 **Acceptance:** fuzz targets run clean for a nightly budget; benchmarks meet
 the §0 targets; Linux/macOS/Windows artifacts build in CI.

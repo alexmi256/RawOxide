@@ -70,13 +70,13 @@ jobs:
       - run: cargo test --workspace --doc --all-features
 
   msrv:
-    name: MSRV (1.88)
+    name: minimum toolchain (1.99.1)
     runs-on: ubuntu-latest
     env:
-      RUSTUP_TOOLCHAIN: "1.88"
+      RUSTUP_TOOLCHAIN: "1.99.1"
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.88
+      - uses: dtolnay/rust-toolchain@1.99.1
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: rust -> target

@@ -18,7 +18,9 @@ semantic versioning.
   normal umask-derived permissions for the final file.
 - Cross-decode now compares written tag inventories for `gfx_100`,
   `canon_eos_80d` and `custom_pixel_xl`.
-- CI adds an MSRV 1.88 check and a tag-triggered release workflow.
+- CI adds a current-stable toolchain (1.99.1) check and a tag-triggered release
+  workflow that runs tests, builds per-platform binaries and publishes
+  `SHA256SUMS`.
 - Split-set fixes: single-chunk `--split-file` runs now honour the album
   layout, unseeded split chunks draw fresh per-chunk cover/metadata seeds, the
   shared UUID is validated as non-empty ASCII, chunk counts above the DCF
@@ -135,7 +137,7 @@ semantic versioning.
 - CLI: `--auto-size`, auto-selected LSB planes, `--camera-profile`,
   `--level-policy`, `--image-time` (keywords and RFC 3339 with local offset),
   `auto-config`/risk warning output and profile `suggested_mode`.
-- Tooling: rustfmt, clippy, nextest, llvm-cov, cargo-deny, cargo-audit, insta,
+- Tooling: rustfmt, clippy, nextest, llvm-cov, cargo-deny, cargo-audit,
   proptest, criterion, `just`, CI workflow, roadmap/architecture/testing docs.
 
 - Streaming payload writer (`write_dng_from_file`): the CLI reads the input in
